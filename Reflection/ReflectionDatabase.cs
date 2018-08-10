@@ -59,7 +59,7 @@ namespace Roblox.Reflection
             return string.Join(" ", join.ToArray());
         }
 
-        public virtual string Describe(bool isNew = false)
+        public virtual string Describe(bool detailed = false)
         {
             string result = Name;
 
@@ -85,11 +85,11 @@ namespace Roblox.Reflection
         public ReadWriteSecurity Security;
         public Serialization Serialization;
 
-        public override string Describe(bool isNew = false)
+        public override string Describe(bool detailed = false)
         {
-            string desc = base.Describe(isNew);
+            string desc = base.Describe(detailed);
 
-            if (isNew)
+            if (detailed)
             {
                 string valueType = ValueType.ToString();
                 string security = Util.GetSecuritySignature(Security);
@@ -107,11 +107,11 @@ namespace Roblox.Reflection
         public RobloxType ReturnType;
         public SecurityType Security;
 
-        public override string Describe(bool isNew = false)
+        public override string Describe(bool detailed = false)
         {
-            string desc = base.Describe(isNew);
+            string desc = base.Describe(detailed);
 
-            if (isNew)
+            if (detailed)
             {
                 string returnType = ReturnType.ToString();
                 string paramz = Util.GetParamSignature(Parameters);
@@ -129,11 +129,11 @@ namespace Roblox.Reflection
         public List<Parameter> Parameters;
         public SecurityType Security;
 
-        public override string Describe(bool isNew = false)
+        public override string Describe(bool detailed = false)
         {
-            string desc = base.Describe(isNew);
+            string desc = base.Describe(detailed);
 
-            if (isNew)
+            if (detailed)
             {
                 string paramz = Util.GetParamSignature(Parameters);
                 string security = Util.GetSecuritySignature(Security);
@@ -150,11 +150,11 @@ namespace Roblox.Reflection
         public List<Parameter> Parameters;
         public RobloxType ReturnType;
         public SecurityType Security;
-        public override string Describe(bool isNew = false)
+        public override string Describe(bool detailed = false)
         {
-            string desc = base.Describe(isNew);
+            string desc = base.Describe(detailed);
 
-            if (isNew)
+            if (detailed)
             {
                 string returnType = ReturnType.ToString();
                 string paramz = Util.GetParamSignature(Parameters);
@@ -176,17 +176,7 @@ namespace Roblox.Reflection
     {
         public int Value;
         public EnumDescriptor Enum;
-        public override string ToString()
-        {
-            string result = "EnumItem ";
-
-            if (Enum != null)
-                result += Enum.Name + "." + Name;
-            else
-                result += Name;
-
-            return Name;
-        }
+        public override string ToString() => Name;
     }
 
     public class ReflectionDatabase

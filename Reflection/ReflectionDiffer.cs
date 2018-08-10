@@ -186,31 +186,31 @@ namespace Roblox.Reflection
             return changed;
         }
 
-        private void FlagEntireClass(ClassDescriptor classDesc, Func<string,string,bool,Diff> record, bool isNew)
+        private void FlagEntireClass(ClassDescriptor classDesc, Func<string,string,bool,Diff> record, bool detailed)
         {
             Diff classDiff = record("Class", classDesc.Name, false);
 
             foreach (PropertyDescriptor propDesc in classDesc.Properties)
             {
-                Diff propDiff = record("Property", propDesc.Describe(isNew), false);
+                Diff propDiff = record("Property", propDesc.Describe(detailed), false);
                 classDiff.AddChild(propDiff);
             }
 
             foreach (FunctionDescriptor funcDesc in classDesc.Functions)
             {
-                Diff funcDiff = record("Function", funcDesc.Describe(isNew), false);
+                Diff funcDiff = record("Function", funcDesc.Describe(detailed), false);
                 classDiff.AddChild(funcDiff);
             }
 
             foreach (CallbackDescriptor callDesc in classDesc.Callbacks)
             {
-                Diff callDiff = record("Callback", callDesc.Describe(isNew), false);
+                Diff callDiff = record("Callback", callDesc.Describe(detailed), false);
                 classDiff.AddChild(callDiff);
             }
 
             foreach (EventDescriptor evntDesc in classDesc.Events)
             {
-                Diff evntDiff = record("Event", evntDesc.Describe(isNew), false);
+                Diff evntDiff = record("Event", evntDesc.Describe(detailed), false);
                 classDiff.AddChild(evntDiff);
             }
 
@@ -466,7 +466,8 @@ namespace Roblox.Reflection
                 {
                     string lead = (words[0] + ' ' + words[1]).Trim();
 
-                    if (lead != prevLead)                   {
+                    if (lead != prevLead)
+                    {
                         if (prevLead != "" && !lastLine.EndsWith("\r\n"))
                         {
                             // Add a break between this line and the previous.

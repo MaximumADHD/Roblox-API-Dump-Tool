@@ -17,17 +17,13 @@ namespace Roblox.Reflection
             buffer = new StringBuilder();
         }
 
-        private void write(object text)
-        {
-            buffer.Append(text);
-        }
-
         private void write(params object[] list)
         {
             string result = string.Join(" ", list);
             write(result);
         }
 
+        private void write(object text) => buffer.Append(text);
         private void space() => write(' ');
         private void nextLine() => write("\r\n");
         private void tab() => write('\t');
@@ -45,6 +41,7 @@ namespace Roblox.Reflection
             foreach (ClassDescriptor classDesc in api.Classes)
             {
                 write(classDesc, ':', classDesc.Superclass);
+                space();
                 tag(classDesc);
                 nextLine();
 
@@ -68,7 +65,7 @@ namespace Roblox.Reflection
                 foreach (EnumItemDescriptor itemDesc in enumDesc.Items)
                 {
                     tab();
-                    write(itemDesc.ToString(), ':', itemDesc.Value);
+                    write("EnumItem", enumDesc.Name + '.' + itemDesc.ToString(), ':', itemDesc.Value);
                     nextLine();
                 }
             }
