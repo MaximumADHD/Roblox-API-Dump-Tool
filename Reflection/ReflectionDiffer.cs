@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Diagnostics;
 
 namespace Roblox.Reflection
 {
@@ -26,17 +26,6 @@ namespace Roblox.Reflection
 
             private int Stack;
             private List<Diff> Children;
-
-            private static List<string> FieldSortPriority = new List<string>()
-            {
-                "Class",
-                "Property",
-                "Function",
-                "Event",
-                "Callback",
-                "Enum",
-                "EnumItem"
-            };
 
             public void AddChild(Diff child)
             {
@@ -87,9 +76,9 @@ namespace Roblox.Reflection
                 {
                     Children.Sort();
                     foreach (Diff child in Children)
-                        result += "\r\n" + child.ToString();
+                        result += Util.NewLine + child.ToString();
 
-                    result += "\r\n";
+                    result += Util.NewLine;
                 }
 
                 return result;
@@ -106,9 +95,10 @@ namespace Roblox.Reflection
                 if (sortByType != 0)
                     return sortByType;
 
-                if (FieldSortPriority.Contains(Field) && FieldSortPriority.Contains(diff.Field))
+                ReadOnlyCollection<string> priority = Util.TypePriority;
+                if (priority.Contains(Field) && priority.Contains(diff.Field))
                 {
-                    int sortByField = FieldSortPriority.IndexOf(Field) - FieldSortPriority.IndexOf(diff.Field);
+                    int sortByField = Util.TypePriority.IndexOf(Field) - Util.TypePriority.IndexOf(diff.Field);
                     if (sortByField != 0)
                         return sortByField;
                 }
@@ -127,7 +117,7 @@ namespace Roblox.Reflection
             }
         }
 
-        private List<Diff> Results = new List<Diff>();
+        private List<Diff> results = new List<Diff>();
 
         private static Dictionary<string,T> createLookupTable<T>(List<T> entries) where T : Descriptor
         {
@@ -138,55 +128,7 @@ namespace Roblox.Reflection
 
             return lookup;
         }
-
-        private Diff Added(string field, string target, bool add = true)
-        {
-            Diff added = new Diff();
-            added.Type = DiffType.Add;
-            added.Field = field;
-            added.Target = target;
-
-            if (add)
-            {
-                Results.Add(added);
-            }
-
-            return added;
-        }
-
-        private Diff Removed(string field, string target, bool add = true)
-        {
-            Diff removed = new Diff();
-            removed.Type = DiffType.Remove;
-            removed.Field = field;
-            removed.Target = target;
-
-            if (add)
-            {
-                Results.Add(removed);
-            }
-
-            return removed;
-        }
-
-        private Diff Changed(string field, string target, string from, string to, bool add = true)
-        {
-            Diff changed = new Diff();
-            changed.Type = DiffType.Change;
-            changed.Field = field;
-            changed.Target = target;
-            changed.From = from;
-            changed.To = to;
-
-            if (add)
-            {
-                Results.Add(changed);
-            }
-
-            return changed;
-        }
-
-        private void FlagEntireClass(ClassDescriptor classDesc, Func<string,string,bool,Diff> record, bool detailed)
+        private void flagEntireClass(ClassDescriptor classDesc, Func<string, string, bool, Diff> record, bool detailed)
         {
             Diff classDiff = record("Class", classDesc.Name, false);
 
@@ -214,10 +156,10 @@ namespace Roblox.Reflection
                 classDiff.AddChild(evntDiff);
             }
 
-            Results.Add(classDiff);
+            results.Add(classDiff);
         }
 
-        private void FlagEntireEnum(EnumDescriptor enumDesc, Func<string,string,bool,Diff> record)
+        private void flagEntireEnum(EnumDescriptor enumDesc, Func<string, string, bool, Diff> record)
         {
             string enumName = enumDesc.Name;
             Diff enumDiff = record("Enum", enumName, false);
@@ -228,7 +170,55 @@ namespace Roblox.Reflection
                 enumDiff.AddChild(itemDiff);
             }
 
-            Results.Add(enumDiff);
+            results.Add(enumDiff);
+        }
+
+
+        private Diff Added(string field, string target, bool add = true)
+        {
+            Diff added = new Diff();
+            added.Type = DiffType.Add;
+            added.Field = field;
+            added.Target = target;
+
+            if (add)
+            {
+                results.Add(added);
+            }
+
+            return added;
+        }
+
+        private Diff Removed(string field, string target, bool add = true)
+        {
+            Diff removed = new Diff();
+            removed.Type = DiffType.Remove;
+            removed.Field = field;
+            removed.Target = target;
+
+            if (add)
+            {
+                results.Add(removed);
+            }
+
+            return removed;
+        }
+
+        private Diff Changed(string field, string target, string from, string to, bool add = true)
+        {
+            Diff changed = new Diff();
+            changed.Type = DiffType.Change;
+            changed.Field = field;
+            changed.Target = target;
+            changed.From = from;
+            changed.To = to;
+
+            if (add)
+            {
+                results.Add(changed);
+            }
+
+            return changed;
         }
 
         private void DiffTags(string target, List<string> oldTags, List<string> newTags)
@@ -271,7 +261,7 @@ namespace Roblox.Reflection
 
         public string CompareDatabases(ReflectionDatabase oldApi, ReflectionDatabase newApi)
         {
-            Results.Clear();
+            results.Clear();
 
             // Diff Classes
             Dictionary<string, ClassDescriptor> oldClasses = createLookupTable(oldApi.Classes);
@@ -283,7 +273,7 @@ namespace Roblox.Reflection
                 {
                     // Add this class.
                     ClassDescriptor classDesc = newClasses[className];
-                    FlagEntireClass(classDesc, Added, true);
+                    flagEntireClass(classDesc, Added, true);
                 }
             }
 
@@ -377,7 +367,7 @@ namespace Roblox.Reflection
                 else
                 {
                     // Remove Old Class
-                    FlagEntireClass(oldClass, Removed, false);
+                    flagEntireClass(oldClass, Removed, false);
                 }
             }
 
@@ -391,7 +381,7 @@ namespace Roblox.Reflection
                 {
                     // Add New Enum
                     EnumDescriptor newEnum = newEnums[enumName];
-                    FlagEntireEnum(newEnum, Added);
+                    flagEntireEnum(newEnum, Added);
                 }
             }
 
@@ -431,10 +421,7 @@ namespace Roblox.Reflection
                             EnumItemDescriptor newItem = newItems[itemName];
                             itemLbl = "EnumItem " + itemLbl;
 
-                            // Diff Tags
                             DiffTags(itemLbl, oldItem.Tags, newItem.Tags);
-
-                            // Diff Values
                             DiffGeneric(itemLbl, "value", oldItem.Value, newItem.Value);
                         }
                         else
@@ -447,14 +434,14 @@ namespace Roblox.Reflection
                 else
                 {
                     // Remove Old Enum
-                    FlagEntireEnum(oldEnum, Removed);
+                    flagEntireEnum(oldEnum, Removed);
                 }
             }
 
             // Finalize Diff
-            Results.Sort();
+            results.Sort();
 
-            List<string> compiled = Results.Select(diff => diff.ToString()).ToList();
+            List<string> compiled = results.Select(diff => diff.ToString()).ToList();
             List<string> final = new List<string>();
             string prevLead = "";
             string lastLine = "";
@@ -468,7 +455,7 @@ namespace Roblox.Reflection
 
                     if (lead != prevLead)
                     {
-                        if (prevLead != "" && !lastLine.EndsWith("\r\n"))
+                        if (prevLead != "" && !lastLine.EndsWith(Util.NewLine))
                         {
                             // Add a break between this line and the previous.
                             // This will make things easier to read.
@@ -483,7 +470,7 @@ namespace Roblox.Reflection
                 }
             }
 
-            return string.Join("\r\n", final.ToArray()).Trim();
+            return string.Join(Util.NewLine, final.ToArray()).Trim();
         }
     }
 }

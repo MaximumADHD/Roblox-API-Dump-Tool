@@ -25,7 +25,7 @@ namespace Roblox.Reflection
 
         private void write(object text) => buffer.Append(text);
         private void space() => write(' ');
-        private void nextLine() => write("\r\n");
+        private void nextLine() => write(Util.NewLine);
         private void tab() => write('\t');
 
         private void tag(Descriptor desc)
@@ -59,6 +59,7 @@ namespace Roblox.Reflection
             foreach (EnumDescriptor enumDesc in api.Enums)
             {
                 write(enumDesc);
+                space();
                 tag(enumDesc);
                 nextLine();
 
@@ -66,6 +67,8 @@ namespace Roblox.Reflection
                 {
                     tab();
                     write("EnumItem", enumDesc.Name + '.' + itemDesc.ToString(), ':', itemDesc.Value);
+                    space();
+                    tag(itemDesc);
                     nextLine();
                 }
             }

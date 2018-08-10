@@ -56,52 +56,6 @@ namespace Roblox.Reflection
         Navigation
     }
 
-    public class Util
-    {
-        public static string GetEnumName<T>(T item)
-        {
-            return Enum.GetName(typeof(T), item);
-        }
-
-        public static string GetParamSignature(List<Parameter> parameters)
-        {
-            return '(' + string.Join(", ", parameters.Select(param => param.ToString()).ToArray()) + ')';
-        }
-
-        public static string GetTagSignature(List<string> tags)
-        {
-            return string.Join(" ", tags.Select(tag => tag = '[' + tag + ']').ToArray());
-        }
-
-        public static string GetSecuritySignature(SecurityType security)
-        {
-            if (security != SecurityType.None)
-                return "{" + GetEnumName(security) + "}";
-            else
-                return "";
-        }
-
-        public static string GetSecuritySignature(ReadWriteSecurity security)
-        {
-            string read = GetSecuritySignature(security.Read);
-            string write = GetSecuritySignature(security.Write);
-            string result = "";
-
-
-            if (read.Length > 0)
-            {
-                result += read;
-                if (write.Length > 0)
-                    result += ' ';
-            }
-
-            if (write.Length > 0 && write != read)
-                result += "{ScriptWriteRestricted: " + write + "}";
-
-            return result.Trim();
-        }
-    }
-
     public struct ReadWriteSecurity
     {
         public SecurityType Read;
@@ -135,7 +89,9 @@ namespace Roblox.Reflection
             if (Category != TypeCategory.Group && Category != TypeCategory.Primitive)
             {
                 string category = Util.GetEnumName(Category);
-                return category + '<' + Name + '>';
+                string result = category + '<' + Name + '>';
+
+                return result;
             }
             else
             {

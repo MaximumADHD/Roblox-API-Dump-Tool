@@ -70,6 +70,7 @@
     <Compile Include="Reflection\ReflectionDatabase.cs" />
     <Compile Include="Reflection\ReflectionDumper.cs" />
     <Compile Include="Reflection\ReflectionTypes.cs" />
+    <Compile Include="Reflection\ReflectionUtil.cs" />
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
@@ -87,9 +88,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Logo.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AppIcon.ico" />
