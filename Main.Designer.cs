@@ -163,7 +163,7 @@
             this.Controls.Add(this.branch);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = Properties.Resources.AppIcon;
             this.MaximizeBox = false;
             this.Name = "Main";
             this.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);

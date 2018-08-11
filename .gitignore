@@ -4,4 +4,3 @@ packages/*
 .vs/*
 *.suo
 *.ide
-*.resx
