@@ -81,7 +81,7 @@ namespace Roblox.Reflection
     public class PropertyDescriptor : MemberDescriptor
     {
         public string Category;
-        public RobloxType ValueType;
+        public TypeDescriptor ValueType;
         public ReadWriteSecurity Security;
         public Serialization Serialization;
 
@@ -104,7 +104,7 @@ namespace Roblox.Reflection
     public class FunctionDescriptor : MemberDescriptor
     {
         public List<Parameter> Parameters;
-        public RobloxType ReturnType;
+        public TypeDescriptor ReturnType;
         public SecurityType Security;
 
         public override string Describe(bool detailed = false)
@@ -148,8 +148,9 @@ namespace Roblox.Reflection
     public class CallbackDescriptor : MemberDescriptor
     {
         public List<Parameter> Parameters;
-        public RobloxType ReturnType;
+        public TypeDescriptor ReturnType;
         public SecurityType Security;
+
         public override string Describe(bool detailed = false)
         {
             string desc = base.Describe(detailed);

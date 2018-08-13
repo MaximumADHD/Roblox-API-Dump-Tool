@@ -39,7 +39,7 @@ namespace Roblox.Reflection
         public static string GetSecuritySignature(SecurityType security)
         {
             if (security != SecurityType.None)
-                return "{" + GetEnumName(security) + "}";
+                return '{' + GetEnumName(security) + '}';
             else
                 return "";
         }
@@ -48,18 +48,14 @@ namespace Roblox.Reflection
         {
             string read = GetSecuritySignature(security.Read);
             string write = GetSecuritySignature(security.Write);
+
             string result = "";
 
-
             if (read.Length > 0)
-            {
                 result += read;
-                if (write.Length > 0)
-                    result += ' ';
-            }
 
             if (write.Length > 0 && write != read)
-                result += "{ScriptWriteRestricted: " + write + "}";
+                result += " {ScriptWriteRestricted: " + write + '}';
 
             return result.Trim();
         }

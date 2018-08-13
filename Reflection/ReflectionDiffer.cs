@@ -24,58 +24,53 @@ namespace Roblox.Reflection
             public string From;
             public string To;
 
-            private int Stack;
-            private List<Diff> Children;
+            private int stack;
+            private List<Diff> children;
 
             public void AddChild(Diff child)
             {
-                if (Children == null)
-                    Children = new List<Diff>();
+                if (children == null)
+                    children = new List<Diff>();
 
-                if (!Children.Contains(child))
+                if (!children.Contains(child))
                 {
-                    child.Stack++;
-                    Children.Add(child);
+                    child.stack++;
+                    children.Add(child);
                 }
-            }
-
-            private string backtick(string word)
-            {
-                return '`' + word.Trim() + '`';
             }
 
             public override string ToString()
             {
                 string result = "";
-                for (int i = 0; i < Stack; i++)
+                for (int i = 0; i < stack; i++)
                     result += '\t';
 
                 switch (Type)
                 {
                     case DiffType.Add:
-                        result += "Added " + Field + ' ' + backtick(Target);
+                        result += "Added " + Field + ' ' + Target;
                         break;
                     case DiffType.Change:
-                        string fromDiff = "from " + From;
-                        string toDiff = "to " + To;
-                        string merged = fromDiff + " " + toDiff;
-                        result += "Changed the " + Field + " of " + backtick(Target);
+                        result += "Changed the " + Field + " of " + Target;
 
+                        string merged = "from " + From + " to " + To;
                         if (merged.Length < 30)
                             result += " " + merged;
                         else
-                            result += "\n\t" + fromDiff + "\n\t" + toDiff;
+                            result += Util.NewLine +
+                                "\tfrom: " + From + Util.NewLine + 
+                                "\t  to: " + To   + Util.NewLine;
 
                         break;
                     case DiffType.Remove:
-                        result += "Removed " + Field + ' ' + backtick(Target);
+                        result += "Removed " + Field + ' ' + Target;
                         break;
                 }
 
-                if (Children != null)
+                if (children != null)
                 {
-                    Children.Sort();
-                    foreach (Diff child in Children)
+                    children.Sort();
+                    foreach (Diff child in children)
                         result += Util.NewLine + child.ToString();
 
                     result += Util.NewLine;
@@ -109,7 +104,11 @@ namespace Roblox.Reflection
                         return sortByField;
                 }
 
-                int sortByTarget = Target.CompareTo(diff.Target);
+                // Sort by the last word in the target (so that it is sorted by class->member instead of by type)
+                string myTarget = (Target.Split(' ').Last());
+                string diffTarget = (diff.Target.Split(' ').Last());
+
+                int sortByTarget = myTarget.CompareTo(diffTarget);
                 if (sortByTarget != 0)
                     return sortByTarget;
 

@@ -74,11 +74,18 @@ namespace Roblox.Reflection
 
         public override string ToString()
         {
-            return "[" + (CanSave ? "Can Save" : "Cannot Save") + " | " + (CanLoad ? "Can Load" : "Cannot Load") + "]";
+            if (CanSave && CanLoad)
+                return "`Saves & Loads`";
+            else if (CanSave)
+                return "`Save only`";
+            else if (CanLoad)
+                return "`Load only`";
+            else
+                return "`None`";
         }
     }
 
-    public struct RobloxType
+    public struct TypeDescriptor
     {
         public TypeCategory Category;
         public string Name;
@@ -102,7 +109,7 @@ namespace Roblox.Reflection
 
     public struct Parameter
     {
-        public RobloxType Type;
+        public TypeDescriptor Type;
         public string Name;
         public string Default;
 
@@ -111,7 +118,15 @@ namespace Roblox.Reflection
             string result = Type.ToString() + " " + Name;
 
             if (Default != null && Default.Length > 0)
-                result += " = " + Default;
+            {
+                result += " = ";
+                if (Type.Category == TypeCategory.Enum)
+                    result += "Enum." + Type.Name + "." + Default;
+                else if (Type.Name == "string")
+                    result += '"' + Default + '"';
+                else
+                    result += Default;
+            }
 
             return result;
         }
