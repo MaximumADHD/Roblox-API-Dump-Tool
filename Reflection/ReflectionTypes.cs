@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Roblox.Reflection
+﻿namespace Roblox.Reflection
 {
     public enum MemberType
     {
@@ -30,6 +26,7 @@ namespace Roblox.Reflection
         Group,
         DataType
     }
+
     public enum DeveloperMemoryTag
     {
         Internal,
@@ -94,16 +91,9 @@ namespace Roblox.Reflection
         public string GetSignature()
         {
             if (Category != TypeCategory.Group && Category != TypeCategory.Primitive)
-            {
-                string category = Util.GetEnumName(Category);
-                string result = category + '<' + Name + '>';
-
-                return result;
-            }
+                return Util.GetEnumName(Category) + '<' + Name + '>';
             else
-            {
                 return Name;
-            }
         }
     }
 
@@ -120,9 +110,7 @@ namespace Roblox.Reflection
             if (Default != null && Default.Length > 0)
             {
                 result += " = ";
-                if (Type.Category == TypeCategory.Enum)
-                    result += "Enum." + Type.Name + "." + Default;
-                else if (Type.Name == "string")
+                if (Type.Name == "string")
                     result += '"' + Default + '"';
                 else
                     result += Default;

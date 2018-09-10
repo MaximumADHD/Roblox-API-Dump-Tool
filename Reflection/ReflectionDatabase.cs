@@ -49,6 +49,7 @@ namespace Roblox.Reflection
         protected static string ExtendDescription(params string[] targets)
         {
             List<string> join = new List<string>();
+
             foreach (string target in targets)
             {
                 if (target.Length > 0)
@@ -56,6 +57,7 @@ namespace Roblox.Reflection
                     join.Add(target);
                 }
             }
+
             return string.Join(" ", join.ToArray());
         }
 
@@ -114,10 +116,10 @@ namespace Roblox.Reflection
             if (detailed)
             {
                 string returnType = ReturnType.ToString();
-                string paramz = Util.GetParamSignature(Parameters);
+                string parameters = Util.GetParamSignature(Parameters);
                 string security = Util.GetSecuritySignature(Security);
                 string tags = Util.GetTagSignature(Tags);
-                desc = ExtendDescription(returnType, desc + paramz, security, tags);
+                desc = ExtendDescription(returnType, desc + parameters, security, tags);
             }
 
             return desc;
@@ -135,10 +137,10 @@ namespace Roblox.Reflection
 
             if (detailed)
             {
-                string paramz = Util.GetParamSignature(Parameters);
+                string parameters = Util.GetParamSignature(Parameters);
                 string security = Util.GetSecuritySignature(Security);
                 string tags = Util.GetTagSignature(Tags);
-                desc = ExtendDescription(desc + paramz, security, tags);
+                desc = ExtendDescription(desc + parameters, security, tags);
             }
 
             return desc;
@@ -158,10 +160,10 @@ namespace Roblox.Reflection
             if (detailed)
             {
                 string returnType = ReturnType.ToString();
-                string paramz = Util.GetParamSignature(Parameters);
+                string parameters = Util.GetParamSignature(Parameters);
                 string security = Util.GetSecuritySignature(Security);
                 string tags = Util.GetTagSignature(Tags);
-                desc = ExtendDescription(returnType, desc + paramz, security, tags);
+                desc = ExtendDescription(returnType, desc + parameters, security, tags);
             }
 
             return desc;

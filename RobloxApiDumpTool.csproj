@@ -74,6 +74,7 @@
     <Compile Include="Reflection\ReflectionClassReader.cs" />
     <Compile Include="Reflection\ReflectionDatabase.cs" />
     <Compile Include="Reflection\ReflectionDumper.cs" />
+    <Compile Include="Reflection\ReflectionHistory.cs" />
     <Compile Include="Reflection\ReflectionTypes.cs" />
     <Compile Include="Reflection\ReflectionUtil.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

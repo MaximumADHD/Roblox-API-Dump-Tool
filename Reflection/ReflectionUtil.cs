@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Roblox.Reflection
 {
-    public class Util
+    public static class Util
     {
         public const string NewLine = "\r\n";
 
