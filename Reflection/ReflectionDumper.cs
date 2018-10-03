@@ -20,15 +20,8 @@ namespace Roblox.Reflection
         }
 
         private void write(object text) => buffer.Append(text);
-        private void space() => write(' ');
         private void nextLine() => write(Util.NewLine);
         private void tab() => write('\t');
-
-        private void tag(Descriptor desc)
-        {
-            string tags = Util.GetTagSignature(desc.Tags);
-            write(tags);
-        }
 
         public string Run()
         {
@@ -36,35 +29,27 @@ namespace Roblox.Reflection
 
             foreach (ClassDescriptor classDesc in api.Classes)
             {
-                write(classDesc, ':', classDesc.Superclass);
-                space();
-                tag(classDesc);
+                write(classDesc.Signature);
                 nextLine();
 
                 foreach (MemberDescriptor memberDesc in classDesc.Members)
                 {
                     string memberType = Util.GetEnumName(memberDesc.MemberType);
                     tab();
-                    write(memberType);
-                    space();
-                    write(memberDesc.Describe(true));
+                    write(memberDesc.Signature);
                     nextLine();
                 }
             }
 
             foreach (EnumDescriptor enumDesc in api.Enums)
             {
-                write(enumDesc);
-                space();
-                tag(enumDesc);
+                write(enumDesc.Signature);
                 nextLine();
 
                 foreach (EnumItemDescriptor itemDesc in enumDesc.Items)
                 {
                     tab();
-                    write("EnumItem", enumDesc.Name + '.' + itemDesc.ToString(), ':', itemDesc.Value);
-                    space();
-                    tag(itemDesc);
+                    write(itemDesc.Signature);
                     nextLine();
                 }
             }

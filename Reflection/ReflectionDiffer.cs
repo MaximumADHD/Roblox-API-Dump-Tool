@@ -5,7 +5,6 @@ using System.Linq;
 
 namespace Roblox.Reflection
 {
-
     class ReflectionDiffer
     {
         private enum DiffType
@@ -45,13 +44,27 @@ namespace Roblox.Reflection
                 for (int i = 0; i < stack; i++)
                     result += '\t';
 
+                string desc;
+                if (Type != DiffType.Change)
+                {
+                    desc = "";
+                    if (!Target.StartsWith(Field))
+                        desc += Field + ' ';
+
+                    desc += Target;
+                }
+                else
+                {
+                    desc = "the " + Field + " of " + Target;
+                }
+
                 switch (Type)
                 {
                     case DiffType.Add:
-                        result += "Added " + Field + ' ' + Target;
+                        result += "Added " + desc;
                         break;
                     case DiffType.Change:
-                        result += "Changed the " + Field + " of " + Target;
+                        result += "Changed " + desc;
 
                         string merged = "from " + From + " to " + To;
                         if (merged.Length < 30)
@@ -63,7 +76,7 @@ namespace Roblox.Reflection
 
                         break;
                     case DiffType.Remove:
-                        result += "Removed " + Field + ' ' + Target;
+                        result += "Removed " + desc;
                         break;
                 }
 
@@ -96,12 +109,14 @@ namespace Roblox.Reflection
                     int sortByField = Util.TypePriority.IndexOf(Field) - Util.TypePriority.IndexOf(diff.Field);
                     if (sortByField != 0)
                         return sortByField;
+
                 }
                 else
                 {
                     int sortByField = Field.CompareTo(diff.Field);
                     if (sortByField != 0)
                         return sortByField;
+
                 }
 
                 // Sort by the last word in the target (so that it is sorted by class->member instead of by type)
@@ -127,9 +142,10 @@ namespace Roblox.Reflection
 
             return lookup;
         }
+
         private void flagEntireClass(ClassDescriptor classDesc, Func<string, string, bool, Diff> record, bool detailed)
         {
-            Diff classDiff = record("Class", classDesc.Name, false);
+            Diff classDiff = record("Class", classDesc.Describe(detailed), false);
 
             foreach (PropertyDescriptor propDesc in classDesc.Properties)
             {
@@ -158,20 +174,18 @@ namespace Roblox.Reflection
             results.Add(classDiff);
         }
 
-        private void flagEntireEnum(EnumDescriptor enumDesc, Func<string, string, bool, Diff> record)
+        private void flagEntireEnum(EnumDescriptor enumDesc, Func<string, string, bool, Diff> record, bool detailed)
         {
-            string enumName = enumDesc.Name;
-            Diff enumDiff = record("Enum", enumName, false);
+            Diff enumDiff = record("Enum", enumDesc.Describe(detailed), false);
 
-            foreach (EnumItemDescriptor enumItem in enumDesc.Items)
+            foreach (EnumItemDescriptor itemDesc in enumDesc.Items)
             {
-                Diff itemDiff = record("EnumItem", enumName + '.' + enumItem.Name, false);
+                Diff itemDiff = record("EnumItem", itemDesc.Describe(detailed), false);
                 enumDiff.AddChild(itemDiff);
             }
 
             results.Add(enumDiff);
         }
-
 
         private Diff Added(string field, string target, bool add = true)
         {
@@ -300,7 +314,7 @@ namespace Roblox.Reflection
                             // Add New Member
                             MemberDescriptor newMember = newMembers[memberName];
                             string memberType = Util.GetEnumName(newMember.MemberType);
-                            Added(memberType, newMember.Describe(true));
+                            Added(memberType, newMember.Signature);
                         }
                     }
 
@@ -312,7 +326,7 @@ namespace Roblox.Reflection
                         if (newMembers.ContainsKey(memberName))
                         {
                             MemberDescriptor newMember = newMembers[memberName];
-                            string memberLbl = memberType + ' ' + newMember.Describe();
+                            string memberLbl = newMember.Summary;
 
                             // Diff Tags
                             DiffTags(memberLbl, oldMember.Tags, newMember.Tags);
@@ -359,7 +373,7 @@ namespace Roblox.Reflection
                         else
                         {
                             // Remove Old Member
-                            Removed(memberType, oldMember.Describe(false));
+                            Removed(memberType, oldMember.Summary);
                         }
                     }
                 }
@@ -380,14 +394,14 @@ namespace Roblox.Reflection
                 {
                     // Add New Enum
                     EnumDescriptor newEnum = newEnums[enumName];
-                    flagEntireEnum(newEnum, Added);
+                    flagEntireEnum(newEnum, Added, true);
                 }
             }
 
             foreach (string enumName in oldEnums.Keys)
             {
                 EnumDescriptor oldEnum = oldEnums[enumName];
-                string enumLbl = "Enum " + enumName;
+                string enumLbl = oldEnum.Summary;
 
                 if (newEnums.ContainsKey(enumName))
                 {
@@ -406,20 +420,18 @@ namespace Roblox.Reflection
                         {
                             // Add New EnumItem
                             EnumItemDescriptor item = newItems[itemName];
-                            Added("EnumItem", enumName + '.' + itemName);
+                            Added("EnumItem", item.Signature);
                         }
                     }
 
                     foreach (var itemName in oldItems.Keys)
                     {
-                        string itemLbl = enumName + '.' + itemName;
                         EnumItemDescriptor oldItem = oldItems[itemName];
+                        string itemLbl = oldItem.Summary;
 
                         if (newItems.ContainsKey(itemName))
                         {
                             EnumItemDescriptor newItem = newItems[itemName];
-                            itemLbl = "EnumItem " + itemLbl;
-
                             DiffTags(itemLbl, oldItem.Tags, newItem.Tags);
                             DiffGeneric(itemLbl, "value", oldItem.Value, newItem.Value);
                         }
@@ -433,7 +445,7 @@ namespace Roblox.Reflection
                 else
                 {
                     // Remove Old Enum
-                    flagEntireEnum(oldEnum, Removed);
+                    flagEntireEnum(oldEnum, Removed, false);
                 }
             }
 
@@ -442,6 +454,7 @@ namespace Roblox.Reflection
 
             List<string> compiled = results.Select(diff => diff.ToString()).ToList();
             List<string> final = new List<string>();
+
             string prevLead = "";
             string lastLine = "";
 

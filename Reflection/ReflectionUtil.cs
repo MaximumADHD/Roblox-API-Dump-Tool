@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 
 namespace Roblox.Reflection
 {
@@ -36,10 +37,10 @@ namespace Roblox.Reflection
             return string.Join(" ", tags.Select(tag => tag = '[' + tag + ']').ToArray());
         }
 
-        public static string GetSecuritySignature(SecurityType security)
+        public static string GetSecuritySignature(SecurityType security, string prefix = "")
         {
             if (security != SecurityType.None)
-                return '{' + GetEnumName(security) + '}';
+                return '{' + prefix + GetEnumName(security) + '}';
             else
                 return "";
         }
@@ -47,15 +48,15 @@ namespace Roblox.Reflection
         public static string GetSecuritySignature(ReadWriteSecurity security)
         {
             string read = GetSecuritySignature(security.Read);
-            string write = GetSecuritySignature(security.Write);
+            string write = GetSecuritySignature(security.Write, "✎");
 
             string result = "";
 
             if (read.Length > 0)
                 result += read;
 
-            if (write.Length > 0 && write != read)
-                result += " {ScriptWriteRestricted: " + write + '}';
+            if (write.Length > 0 && security.Read != security.Write)
+                result += ' ' + write;
 
             return result.Trim();
         }

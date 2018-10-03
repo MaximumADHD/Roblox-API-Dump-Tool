@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Roblox.Reflection
@@ -8,10 +8,21 @@ namespace Roblox.Reflection
     {
         public string Name;
         public List<string> Tags;
-        public override string ToString()
+        public override string ToString() => Describe();
+
+        protected static string ExtendDescription(params string[] targets)
+        {
+            string[] filtered = targets.Where(target => target.Length > 0).ToArray();
+            return string.Join(" ", filtered);
+        }
+
+        public virtual string Describe(bool detailed = false)
         {
             return GetType().Name.Replace("Descriptor", "") + " " + Name;
         }
+
+        public string Signature => Describe(true);
+        public string Summary => Describe(false);
 
         public Descriptor()
         {
@@ -19,7 +30,7 @@ namespace Roblox.Reflection
         }
     }
 
-    [ JsonConverter( typeof(ReflectionClassReader) ) ]
+    [JsonConverter( typeof(ReflectionConverter) )]
     public class ClassDescriptor : Descriptor
     {
         public string Superclass;
@@ -39,44 +50,43 @@ namespace Roblox.Reflection
             Callbacks  = new List<CallbackDescriptor>();
             Events     = new List<EventDescriptor>();
         }
+
+        public override string Describe(bool detailed = false)
+        {
+            string result = base.Describe();
+
+            if (detailed)
+            {
+                string tags = Util.GetTagSignature(Tags);
+                result = ExtendDescription(result, ":", Superclass, tags);
+            }
+
+            return result;
+        }
     }
 
     public abstract class MemberDescriptor : Descriptor
     {
+        public ClassDescriptor Class;
         public MemberType MemberType;
-        public ClassDescriptor ParentClass;
 
-        protected static string ExtendDescription(params string[] targets)
+        public override string Describe(bool detailed = false)
         {
-            List<string> join = new List<string>();
-
-            foreach (string target in targets)
-            {
-                if (target.Length > 0)
-                {
-                    join.Add(target);
-                }
-            }
-
-            return string.Join(" ", join.ToArray());
-        }
-
-        public virtual string Describe(bool detailed = false)
-        {
+            string memberType = Util.GetEnumName(MemberType);
             string result = Name;
 
-            if (ParentClass != null)
+            if (Class != null)
             {
                 char divider = (MemberType == MemberType.Function ? ':' : '.');
-                result = ParentClass.Name + divider + Name;
+                result = Class.Name + divider + Name;
             }
 
             return result;
         }
 
-        public override string ToString()
+        protected string PrependMemberType(string desc)
         {
-            return Describe(false);
+            return Util.GetEnumName(MemberType) + ' ' + desc;
         }
     }
 
@@ -89,7 +99,7 @@ namespace Roblox.Reflection
 
         public override string Describe(bool detailed = false)
         {
-            string desc = base.Describe(detailed);
+            string desc = base.Describe();
 
             if (detailed)
             {
@@ -99,7 +109,7 @@ namespace Roblox.Reflection
                 desc = ExtendDescription(valueType, desc, security, tags);
             }
 
-            return desc;
+            return PrependMemberType(desc);
         }
     }
 
@@ -111,7 +121,7 @@ namespace Roblox.Reflection
 
         public override string Describe(bool detailed = false)
         {
-            string desc = base.Describe(detailed);
+            string desc = base.Describe();
 
             if (detailed)
             {
@@ -122,7 +132,7 @@ namespace Roblox.Reflection
                 desc = ExtendDescription(returnType, desc + parameters, security, tags);
             }
 
-            return desc;
+            return PrependMemberType(desc);
         }
     }
 
@@ -133,7 +143,7 @@ namespace Roblox.Reflection
 
         public override string Describe(bool detailed = false)
         {
-            string desc = base.Describe(detailed);
+            string desc = base.Describe();
 
             if (detailed)
             {
@@ -143,7 +153,7 @@ namespace Roblox.Reflection
                 desc = ExtendDescription(desc + parameters, security, tags);
             }
 
-            return desc;
+            return PrependMemberType(desc);
         }
     }
 
@@ -155,7 +165,7 @@ namespace Roblox.Reflection
 
         public override string Describe(bool detailed = false)
         {
-            string desc = base.Describe(detailed);
+            string desc = base.Describe();
 
             if (detailed)
             {
@@ -166,20 +176,55 @@ namespace Roblox.Reflection
                 desc = ExtendDescription(returnType, desc + parameters, security, tags);
             }
 
-            return desc;
+            return PrependMemberType(desc);
         }
     }
 
+    [JsonConverter( typeof(ReflectionConverter) )]
     public class EnumDescriptor : Descriptor
     {
         public List<EnumItemDescriptor> Items;
+
+        public EnumDescriptor()
+        {
+            Items = new List<EnumItemDescriptor>();
+        }
+
+        public override string Describe(bool detailed = false)
+        {
+            string result = base.Describe();
+
+            if (detailed)
+            {
+                string tags = Util.GetTagSignature(Tags);
+                result = ExtendDescription(result, tags);
+            }
+
+            return result;
+        }
     }
 
     public class EnumItemDescriptor : Descriptor
     {
-        public int Value;
         public EnumDescriptor Enum;
-        public override string ToString() => Name;
+        public int Value;
+
+        public override string Describe(bool detailed = false)
+        {
+            string result;
+            if (Enum != null)
+                result = Enum.Name + '.' + Name;
+            else
+                result = Name;
+
+            if (detailed)
+            {
+                string tags = Util.GetTagSignature(Tags);
+                result = ExtendDescription(result, ":", Value.ToString(), tags);
+            }
+
+            return "EnumItem " + result;
+        }
     }
 
     public class ReflectionDatabase

@@ -90,7 +90,7 @@ namespace Roblox.Reflection
             return Logs[branch];
         }
 
-        public static async Task<string> GetPreviousVersionGuid(string branch, string versionGuid)
+        public static async Task<string> GetPreviousVersionGuid(string branch, string versionGuid, bool retry = true)
         {
             StudioDeployLogs deployLogs = await GetDeployLogs(branch);
 
@@ -108,6 +108,12 @@ namespace Roblox.Reflection
                 {
                     throw new Exception("Could not resolve previous version.");
                 }
+            }
+            else if (retry)
+            {
+                // The cache might be invalid now? Try rebuilding it.
+                Logs.Remove(branch);
+                return await GetPreviousVersionGuid(branch, versionGuid, false);
             }
             else
             {

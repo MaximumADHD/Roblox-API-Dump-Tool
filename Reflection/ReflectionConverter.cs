@@ -5,29 +5,27 @@ using Newtonsoft.Json.Linq;
 
 namespace Roblox.Reflection
 {
-    public class ReflectionClassReader : JsonConverter
+    public class ReflectionConverter : JsonConverter
     {
         public override bool CanRead => true;
         public override bool CanWrite => false;
 
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(ClassDescriptor);
+            return objectType == typeof(ClassDescriptor)
+                || objectType == typeof(EnumDescriptor);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        private static ClassDescriptor ReadClassDescriptor(JObject obj, Descriptor desc)
         {
-            JObject obj = JObject.Load(reader);
             JToken[] members = obj.GetValue("Members").ToArray();
-            JToken superToken = obj.GetValue("Superclass");
+            JToken superclass = obj.GetValue("Superclass");
             JToken memoryTag = obj.GetValue("MemoryCategory");
-
-            Descriptor desc = obj.ToObject<Descriptor>();
 
             ClassDescriptor classDesc = new ClassDescriptor();
             classDesc.Name = desc.Name;
             classDesc.Tags = desc.Tags;
-            classDesc.Superclass = superToken.ToString();
+            classDesc.Superclass = superclass.ToString();
 
             Enum.TryParse(memoryTag.ToString(), out classDesc.MemoryCategory);
 
@@ -63,9 +61,41 @@ namespace Roblox.Reflection
             }
 
             foreach (MemberDescriptor member in classDesc.Members)
-                member.ParentClass = classDesc;
+                member.Class = classDesc;
 
             return classDesc;
+        }
+
+        private static EnumDescriptor ReadEnumDescriptor(JObject obj, Descriptor desc)
+        {
+            JToken[] items = obj.GetValue("Items").ToArray();
+
+            EnumDescriptor enumDesc = new EnumDescriptor();
+            enumDesc.Name = desc.Name;
+            enumDesc.Tags = desc.Tags;
+
+            foreach (JToken item in items)
+            {
+                EnumItemDescriptor itemDesc = item.ToObject<EnumItemDescriptor>();
+                itemDesc.Enum = enumDesc;
+                enumDesc.Items.Add(itemDesc);
+            }
+
+            return enumDesc;
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            JObject obj = JObject.Load(reader);
+            Descriptor desc = obj.ToObject<Descriptor>();
+
+            if (objectType == typeof(ClassDescriptor))
+                return ReadClassDescriptor(obj, desc);
+            else if (objectType == typeof(EnumDescriptor))
+                return ReadEnumDescriptor(obj, desc);
+            else
+                throw new NotImplementedException();
+
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)

@@ -70,7 +70,7 @@ namespace Roblox
 
             if (!File.Exists(file))
             {
-                await setStatus("Grabbing the" + (fetchPrevious ? "previous " : " ") + "API Dump from " + branch);
+                await setStatus("Grabbing the" + (fetchPrevious ? " previous " : " ") + "API Dump from " + branch);
                 string apiDump = await http.DownloadStringTaskAsync(setupUrl + version + "-API-Dump.json");
                 File.WriteAllText(file, apiDump);
             }
