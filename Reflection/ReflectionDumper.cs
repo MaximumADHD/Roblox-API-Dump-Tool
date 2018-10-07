@@ -34,7 +34,6 @@ namespace Roblox.Reflection
 
                 foreach (MemberDescriptor memberDesc in classDesc.Members)
                 {
-                    string memberType = Util.GetEnumName(memberDesc.MemberType);
                     tab();
                     write(memberDesc.Signature);
                     nextLine();

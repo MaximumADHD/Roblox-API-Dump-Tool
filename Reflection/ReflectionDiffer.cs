@@ -14,7 +14,7 @@ namespace Roblox.Reflection
             Remove,
         }
 
-        private struct Diff : IComparable
+        private class Diff : IComparable
         {
             public DiffType Type;
 
@@ -25,6 +25,8 @@ namespace Roblox.Reflection
 
             private int stack;
             private List<Diff> children;
+
+            public bool HasParent => (stack > 0);
 
             public void AddChild(Diff child)
             {
@@ -67,7 +69,7 @@ namespace Roblox.Reflection
                         result += "Changed " + desc;
 
                         string merged = "from " + From + " to " + To;
-                        if (merged.Length < 30)
+                        if (merged.Length < 20)
                             result += " " + merged;
                         else
                             result += Util.NewLine +
@@ -109,14 +111,12 @@ namespace Roblox.Reflection
                     int sortByField = Util.TypePriority.IndexOf(Field) - Util.TypePriority.IndexOf(diff.Field);
                     if (sortByField != 0)
                         return sortByField;
-
                 }
                 else
                 {
                     int sortByField = Field.CompareTo(diff.Field);
                     if (sortByField != 0)
                         return sortByField;
-
                 }
 
                 // Sort by the last word in the target (so that it is sorted by class->member instead of by type)
@@ -143,81 +143,65 @@ namespace Roblox.Reflection
             return lookup;
         }
 
-        private void flagEntireClass(ClassDescriptor classDesc, Func<string, string, bool, Diff> record, bool detailed)
+        private void flagEntireClass(ClassDescriptor classDesc, Func<string, string, Diff, Diff> record, bool detailed)
         {
-            Diff classDiff = record("Class", classDesc.Describe(detailed), false);
+            Diff classDiff = record("Class", classDesc.Describe(detailed), null);
 
             foreach (PropertyDescriptor propDesc in classDesc.Properties)
-            {
-                Diff propDiff = record("Property", propDesc.Describe(detailed), false);
-                classDiff.AddChild(propDiff);
-            }
+                record("Property", propDesc.Describe(detailed), classDiff);
 
             foreach (FunctionDescriptor funcDesc in classDesc.Functions)
-            {
-                Diff funcDiff = record("Function", funcDesc.Describe(detailed), false);
-                classDiff.AddChild(funcDiff);
-            }
+                record("Function", funcDesc.Describe(detailed), classDiff);
 
             foreach (CallbackDescriptor callDesc in classDesc.Callbacks)
-            {
-                Diff callDiff = record("Callback", callDesc.Describe(detailed), false);
-                classDiff.AddChild(callDiff);
-            }
+                record("Callback", callDesc.Describe(detailed), classDiff);
 
             foreach (EventDescriptor evntDesc in classDesc.Events)
-            {
-                Diff evntDiff = record("Event", evntDesc.Describe(detailed), false);
-                classDiff.AddChild(evntDiff);
-            }
+                record("Event", evntDesc.Describe(detailed), classDiff);
 
-            results.Add(classDiff);
         }
 
-        private void flagEntireEnum(EnumDescriptor enumDesc, Func<string, string, bool, Diff> record, bool detailed)
+        private void flagEntireEnum(EnumDescriptor enumDesc, Func<string, string, Diff, Diff> record, bool detailed)
         {
-            Diff enumDiff = record("Enum", enumDesc.Describe(detailed), false);
+            Diff enumDiff = record("Enum", enumDesc.Describe(detailed), null);
 
             foreach (EnumItemDescriptor itemDesc in enumDesc.Items)
-            {
-                Diff itemDiff = record("EnumItem", itemDesc.Describe(detailed), false);
-                enumDiff.AddChild(itemDiff);
-            }
+                record("EnumItem", itemDesc.Describe(detailed), enumDiff);
 
             results.Add(enumDiff);
         }
 
-        private Diff Added(string field, string target, bool add = true)
+        private Diff Added(string field, string target, Diff parent = null)
         {
             Diff added = new Diff();
             added.Type = DiffType.Add;
             added.Field = field;
             added.Target = target;
 
-            if (add)
-            {
+            if (parent != null)
+                parent.AddChild(added);
+            else
                 results.Add(added);
-            }
 
             return added;
         }
 
-        private Diff Removed(string field, string target, bool add = true)
+        private Diff Removed(string field, string target, Diff parent = null)
         {
             Diff removed = new Diff();
             removed.Type = DiffType.Remove;
             removed.Field = field;
             removed.Target = target;
 
-            if (add)
-            {
+            if (parent != null)
+                parent.AddChild(removed);
+            else
                 results.Add(removed);
-            }
 
             return removed;
         }
 
-        private Diff Changed(string field, string target, string from, string to, bool add = true)
+        private Diff Changed(string field, string target, string from, string to)
         {
             Diff changed = new Diff();
             changed.Type = DiffType.Change;
@@ -226,30 +210,33 @@ namespace Roblox.Reflection
             changed.From = from;
             changed.To = to;
 
-            if (add)
-            {
-                results.Add(changed);
-            }
-
+            results.Add(changed);
             return changed;
         }
 
-        private void DiffTags(string target, List<string> oldTags, List<string> newTags)
+        private Dictionary<string, Diff> DiffTags(string target, List<string> oldTags, List<string> newTags)
         {
+            var tagChanges = new Dictionary<string, Diff>();
+
             foreach (string newTag in newTags)
             {
                 if (!oldTags.Contains(newTag))
                 {
-                    Added("Tag [" + newTag + "] to", target);
+                    Diff addTag = Added("Tag [" + newTag + "] to", target);
+                    tagChanges.Add('+' + newTag, addTag);
                 }
             }
+
             foreach (string oldTag in oldTags)
             {
                 if (!newTags.Contains(oldTag))
                 {
-                    Removed("Tag [" + oldTag + "] from", target);
+                    Diff removeTag = Removed("Tag [" + oldTag + "] from", target);
+                    tagChanges.Add('-' + oldTag, removeTag);
                 }
             }
+
+            return tagChanges;
         }
 
         private void DiffGeneric(string target, string context, object oldVal, object newVal)
@@ -298,8 +285,8 @@ namespace Roblox.Reflection
                 if (newClasses.ContainsKey(className))
                 {
                     ClassDescriptor newClass = newClasses[className];
+                    var classTagDiffs = DiffTags(classLbl, oldClass.Tags, newClass.Tags);
 
-                    DiffTags(classLbl, oldClass.Tags, newClass.Tags);
                     DiffGeneric(classLbl, "superclass", oldClass.Superclass, newClass.Superclass);
                     DiffNativeEnum(classLbl, "memory category", oldClass.MemoryCategory, newClass.MemoryCategory);
 
@@ -329,7 +316,19 @@ namespace Roblox.Reflection
                             string memberLbl = newMember.Summary;
 
                             // Diff Tags
-                            DiffTags(memberLbl, oldMember.Tags, newMember.Tags);
+                            var memberTagDiffs = DiffTags(memberLbl, oldMember.Tags, newMember.Tags);
+
+                            // Check if any tags that were added to this member were
+                            // also added to its parent class.
+                            foreach (string classTag in classTagDiffs.Keys)
+                            {
+                                if (memberTagDiffs.ContainsKey(classTag))
+                                {
+                                    Diff classDiff = classTagDiffs[classTag];
+                                    Diff memberDiff = memberTagDiffs[classTag];
+                                    classDiff.AddChild(memberDiff);
+                                }
+                            }
 
                             // Diff Specific Member Types
                             if (newMember is PropertyDescriptor)
@@ -452,29 +451,47 @@ namespace Roblox.Reflection
             // Finalize Diff
             results.Sort();
 
-            List<string> compiled = results.Select(diff => diff.ToString()).ToList();
-            List<string> final = new List<string>();
+            List<string> diffs = results
+                .Where(diff => !diff.HasParent)
+                .Select(diff => diff.ToString())
+                .ToList();
 
+            List<string> final = new List<string>();
             string prevLead = "";
             string lastLine = "";
 
-            foreach (string line in compiled)
+            foreach (string line in diffs)
             {
                 string[] words = line.Split(' ');
                 if (words.Length >= 2)
                 {
+                    // Capture the first two words in this line.
                     string lead = (words[0] + ' ' + words[1]).Trim();
 
+                    bool addBreak = false;
+                    bool lastLineNoBreak = !lastLine.EndsWith(Util.NewLine);
+
+                    // If the first two words of this line aren't the same as the last...
                     if (lead != prevLead)
                     {
-                        if (prevLead != "" && !lastLine.EndsWith(Util.NewLine))
-                        {
-                            // Add a break between this line and the previous.
-                            // This will make things easier to read.
-                            final.Add("");
-                        }
-                        
+                        // Add a break if the last line doesn't have a break.
+                        // (and if there actually were two previous words)
+                        if (prevLead != "" && lastLineNoBreak)
+                            addBreak = true;
+
                         prevLead = lead;
+                    }
+
+                    // If we didn't add a break, but this line has a break and the
+                    // previous line doesn't, then we will add a break.
+                    if (!addBreak && lastLineNoBreak && line.EndsWith(Util.NewLine))
+                        addBreak = true;
+
+                    if (addBreak)
+                    {
+                        // Add a break between this line and the previous.
+                        // This will make things easier to read.
+                        final.Add("");
                     }
 
                     final.Add(line);

@@ -72,13 +72,13 @@
         public override string ToString()
         {
             if (CanSave && CanLoad)
-                return "`Saves & Loads`";
+                return "'Saves & Loads'";
             else if (CanSave)
-                return "`Save only`";
+                return "'Save-only'";
             else if (CanLoad)
-                return "`Load only`";
+                return "'Load-only'";
             else
-                return "`None`";
+                return "'None'";
         }
     }
 
