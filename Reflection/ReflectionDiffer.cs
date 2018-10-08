@@ -167,8 +167,6 @@ namespace Roblox.Reflection
 
             foreach (EnumItemDescriptor itemDesc in enumDesc.Items)
                 record("EnumItem", itemDesc.Describe(detailed), enumDiff);
-
-            results.Add(enumDiff);
         }
 
         private Diff Added(string field, string target, Diff parent = null)

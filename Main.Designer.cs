@@ -34,6 +34,7 @@
             this.status = new System.Windows.Forms.Label();
             this.viewApiDumpClassic = new System.Windows.Forms.Button();
             this.appLogo = new System.Windows.Forms.PictureBox();
+            this.branchLbl = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.appLogo)).BeginInit();
             this.SuspendLayout();
             // 
@@ -51,7 +52,7 @@
             "gametest3.robloxlabs",
             "gametest4.robloxlabs",
             "gametest5.robloxlabs"});
-            this.branch.Location = new System.Drawing.Point(10, 78);
+            this.branch.Location = new System.Drawing.Point(10, 87);
             this.branch.Margin = new System.Windows.Forms.Padding(20, 3, 20, 5);
             this.branch.Name = "branch";
             this.branch.Size = new System.Drawing.Size(278, 21);
@@ -64,7 +65,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.viewApiDumpJson.Enabled = false;
             this.viewApiDumpJson.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.viewApiDumpJson.Location = new System.Drawing.Point(10, 140);
+            this.viewApiDumpJson.Location = new System.Drawing.Point(10, 149);
             this.viewApiDumpJson.Margin = new System.Windows.Forms.Padding(15, 3, 15, 5);
             this.viewApiDumpJson.Name = "viewApiDumpJson";
             this.viewApiDumpJson.Size = new System.Drawing.Size(278, 23);
@@ -79,7 +80,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.compareVersions.Enabled = false;
             this.compareVersions.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.compareVersions.Location = new System.Drawing.Point(10, 171);
+            this.compareVersions.Location = new System.Drawing.Point(10, 180);
             this.compareVersions.Margin = new System.Windows.Forms.Padding(30, 3, 30, 5);
             this.compareVersions.Name = "compareVersions";
             this.compareVersions.Size = new System.Drawing.Size(278, 23);
@@ -109,7 +110,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.viewApiDumpClassic.Enabled = false;
             this.viewApiDumpClassic.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.viewApiDumpClassic.Location = new System.Drawing.Point(10, 109);
+            this.viewApiDumpClassic.Location = new System.Drawing.Point(10, 118);
             this.viewApiDumpClassic.Margin = new System.Windows.Forms.Padding(15, 5, 15, 5);
             this.viewApiDumpClassic.Name = "viewApiDumpClassic";
             this.viewApiDumpClassic.Size = new System.Drawing.Size(278, 23);
@@ -132,12 +133,23 @@
             this.appLogo.TabIndex = 6;
             this.appLogo.TabStop = false;
             // 
+            // branchLbl
+            // 
+            this.branchLbl.AutoSize = true;
+            this.branchLbl.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.branchLbl.Location = new System.Drawing.Point(7, 71);
+            this.branchLbl.Name = "branchLbl";
+            this.branchLbl.Size = new System.Drawing.Size(49, 13);
+            this.branchLbl.TabIndex = 7;
+            this.branchLbl.Text = "Branch:";
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(298, 232);
+            this.Controls.Add(this.branchLbl);
             this.Controls.Add(this.appLogo);
             this.Controls.Add(this.viewApiDumpClassic);
             this.Controls.Add(this.status);
@@ -166,6 +178,7 @@
         private System.Windows.Forms.Label status;
         private System.Windows.Forms.Button viewApiDumpClassic;
         private System.Windows.Forms.PictureBox appLogo;
+        private System.Windows.Forms.Label branchLbl;
     }
 }
 

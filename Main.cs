@@ -11,6 +11,9 @@ namespace Roblox
 {
     public partial class Main : Form
     {
+        private delegate void StatusDelegate(string msg);
+        private delegate string BranchDelegate();
+
         private WebClient http = new WebClient();
 
         public Main()
@@ -21,27 +24,37 @@ namespace Roblox
 
         private string getBranch()
         {
-            return branch.SelectedItem.ToString();
+            if (InvokeRequired)
+                return Invoke(new BranchDelegate(getBranch)).ToString();
+            else
+                return branch.SelectedItem.ToString();
         }
 
-        private void setWindowLocked(bool locked)
+        private void setStatus(string msg = "")
         {
-            if (!locked)
-                clearStatus();
-
-            Enabled = !locked;
-            UseWaitCursor = locked;
+            if (InvokeRequired)
+            {
+                StatusDelegate status = new StatusDelegate(setStatus);
+                Invoke(status, msg);
+            }
+            else
+            {
+                status.Text = "Status: " + msg;
+                status.Refresh();
+            }
         }
 
-        private async Task setStatus(string msg = "")
+        private async Task lockWindowAndRunTask(Func<Task> task)
         {
-            status.Text = "Status: " + msg;
-            await Task.Delay(10);
-        }
+            Enabled = false;
+            UseWaitCursor = true;
 
-        private void clearStatus()
-        {
-            status.Text = "Status: Ready!";
+            await Task.Run(task);
+
+            Enabled = true;
+            UseWaitCursor = false;
+
+            setStatus("Ready!");
         }
 
         private void writeAndViewFile(string path, string contents)
@@ -54,13 +67,14 @@ namespace Roblox
 
         private async Task<string> getApiDumpFilePath(string branch, bool fetchPrevious = false)
         {
-            await setStatus("Checking for update...");
             string localAppData = Environment.GetEnvironmentVariable("LocalAppData");
 
             string coreBin = Path.Combine(localAppData,"RobloxApiDumpFiles");
             Directory.CreateDirectory(coreBin);
 
             string setupUrl = "https://s3.amazonaws.com/setup." + branch + ".com/";
+            setStatus("Checking for update...");
+
             string version = await http.DownloadStringTaskAsync(setupUrl + "versionQTStudio");
 
             if (fetchPrevious)
@@ -70,13 +84,13 @@ namespace Roblox
 
             if (!File.Exists(file))
             {
-                await setStatus("Grabbing the" + (fetchPrevious ? " previous " : " ") + "API Dump from " + branch);
+                setStatus("Grabbing the" + (fetchPrevious ? " previous " : " ") + "API Dump from " + branch);
                 string apiDump = await http.DownloadStringTaskAsync(setupUrl + version + "-API-Dump.json");
                 File.WriteAllText(file, apiDump);
             }
             else
             {
-                await setStatus("Already up to date!");
+                setStatus("Already up to date!");
             }
 
             return file;
@@ -97,75 +111,71 @@ namespace Roblox
 
         private async void viewApiDumpJson_Click(object sender, EventArgs e)
         {
-            setWindowLocked(true);
-
-            string branch = getBranch();
-            string filePath = await getApiDumpFilePath(branch);
-            Process.Start(filePath);
-
-            setWindowLocked(false);
+            await lockWindowAndRunTask(async () =>
+            {
+                string branch = getBranch();
+                string filePath = await getApiDumpFilePath(branch);
+                Process.Start(filePath);
+            });
         }
 
         private async void viewApiDumpClassic_Click(object sender, EventArgs e)
         {
-            setWindowLocked(true);
+            await lockWindowAndRunTask(async () =>
+            {
+                string branch = getBranch();
+                string apiFilePath = await getApiDumpFilePath(branch);
+                string apiJson = File.ReadAllText(apiFilePath);
 
-            string branch = getBranch();
-            string apiFilePath = await getApiDumpFilePath(branch);
-            string apiJson = File.ReadAllText(apiFilePath);
+                ReflectionDatabase api = ReflectionDatabase.Load(apiJson);
+                ReflectionDumper dumper = new ReflectionDumper(api);
 
-            ReflectionDatabase api = ReflectionDatabase.Load(apiJson);
-            ReflectionDumper dumper = new ReflectionDumper(api);
+                string result = dumper.Run();
 
-            string result = dumper.Run();
+                FileInfo info = new FileInfo(apiFilePath);
+                string directory = info.DirectoryName;
 
-            FileInfo info = new FileInfo(apiFilePath);
-            string directory = info.DirectoryName;
-
-            string resultPath = Path.Combine(directory, branch + "-api-dump.txt");
-            writeAndViewFile(resultPath, result);
-
-            setWindowLocked(false);
+                string resultPath = Path.Combine(directory, branch + "-api-dump.txt");
+                writeAndViewFile(resultPath, result);
+            });
         }
 
         private async void compareVersions_Click(object sender, EventArgs e)
         {
-            setWindowLocked(true);
-
-            string newBranch = getBranch();
-            bool fetchPrevious = (newBranch == "roblox");
-
-            string newApiFilePath = await getApiDumpFilePath(newBranch);
-            string oldApiFilePath = await getApiDumpFilePath("roblox", fetchPrevious);
-
-            await setStatus("Reading " + (fetchPrevious ? "Previous" : "Production") + " API...");
-            string oldApiJson = File.ReadAllText(oldApiFilePath);
-            ReflectionDatabase oldApi = ReflectionDatabase.Load(oldApiJson);
-
-            await setStatus("Reading " + (fetchPrevious ? "Production" : "New") + " API...");
-            string newApiJson = File.ReadAllText(newApiFilePath);
-            ReflectionDatabase newApi = ReflectionDatabase.Load(newApiJson);
-
-            await setStatus("Comparing APIs...");
-
-            ReflectionDiffer differ = new ReflectionDiffer();
-            string result = differ.CompareDatabases(oldApi, newApi);
-
-            if (result.Length > 0)
+            await lockWindowAndRunTask(async () =>
             {
-                FileInfo info = new FileInfo(newApiFilePath);
+                string newBranch = getBranch();
+                bool fetchPrevious = (newBranch == "roblox");
 
-                string directory = info.DirectoryName;
-                string resultPath = Path.Combine(directory, newBranch + "-diff.txt");
+                string newApiFilePath = await getApiDumpFilePath(newBranch);
+                string oldApiFilePath = await getApiDumpFilePath("roblox", fetchPrevious);
 
-                writeAndViewFile(resultPath, result);
-            }
-            else
-            {
-                MessageBox.Show("No differences were found!", "Well, this is awkward...", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                setStatus("Reading the " + (fetchPrevious ? "Previous" : "Production") + " API...");
+                string oldApiJson = File.ReadAllText(oldApiFilePath);
+                ReflectionDatabase oldApi = ReflectionDatabase.Load(oldApiJson);
 
-            setWindowLocked(false);
+                setStatus("Reading the " + (fetchPrevious ? "Production" : "New") + " API...");
+                string newApiJson = File.ReadAllText(newApiFilePath);
+                ReflectionDatabase newApi = ReflectionDatabase.Load(newApiJson);
+
+                setStatus("Comparing APIs...");
+                ReflectionDiffer differ = new ReflectionDiffer();
+                string result = differ.CompareDatabases(oldApi, newApi);
+
+                if (result.Length > 0)
+                {
+                    FileInfo info = new FileInfo(newApiFilePath);
+
+                    string directory = info.DirectoryName;
+                    string resultPath = Path.Combine(directory, newBranch + "-diff.txt");
+
+                    writeAndViewFile(resultPath, result);
+                }
+                else
+                {
+                    MessageBox.Show("No differences were found!", "Well, this is awkward...", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            });
         }
     }
 }
