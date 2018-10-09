@@ -11,6 +11,8 @@ namespace Roblox
 {
     public partial class Main : Form
     {
+        private const string VERSION_API_KEY = "76e5a40c-3ae1-4028-9f10-7c62520bd94f";
+
         private delegate void StatusDelegate(string msg);
         private delegate string BranchDelegate();
 
@@ -28,6 +30,18 @@ namespace Roblox
                 return Invoke(new BranchDelegate(getBranch)).ToString();
             else
                 return branch.SelectedItem.ToString();
+        }
+
+        private async Task<string> getLiveVersion(string branch, string endPoint, string binaryType)
+        {
+            string versionUrl = "https://versioncompatibility.api."
+                                + branch + ".com/" + endPoint + "?binaryType=" 
+                                + binaryType + "&apiKey=" + VERSION_API_KEY;
+
+            string version = await http.DownloadStringTaskAsync(versionUrl);
+            version = version.Replace('"', ' ').Trim();
+
+            return version;
         }
 
         private void setStatus(string msg = "")
@@ -69,13 +83,13 @@ namespace Roblox
         {
             string localAppData = Environment.GetEnvironmentVariable("LocalAppData");
 
-            string coreBin = Path.Combine(localAppData,"RobloxApiDumpFiles");
+            string coreBin = Path.Combine(localAppData, "RobloxApiDumpFiles");
             Directory.CreateDirectory(coreBin);
 
             string setupUrl = "https://s3.amazonaws.com/setup." + branch + ".com/";
             setStatus("Checking for update...");
 
-            string version = await http.DownloadStringTaskAsync(setupUrl + "versionQTStudio");
+            string version = await getLiveVersion(branch, "GetCurrentClientVersionUpload", "WindowsStudio");
 
             if (fetchPrevious)
                 version = await ReflectionHistory.GetPreviousVersionGuid(branch, version);
