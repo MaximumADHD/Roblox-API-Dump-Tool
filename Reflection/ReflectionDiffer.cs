@@ -69,7 +69,7 @@ namespace Roblox.Reflection
                         result += "Changed " + desc;
 
                         string merged = "from " + From + " to " + To;
-                        if (merged.Length < 20)
+                        if (merged.Length < 36)
                             result += " " + merged;
                         else
                             result += Util.NewLine +
@@ -216,22 +216,22 @@ namespace Roblox.Reflection
         {
             var tagChanges = new Dictionary<string, Diff>();
 
-            foreach (string newTag in newTags)
+            // Record tags that were added.
+            var addTags = newTags.Except(oldTags).ToList();
+            if (addTags.Count > 0)
             {
-                if (!oldTags.Contains(newTag))
-                {
-                    Diff addTag = Added("Tag [" + newTag + "] to", target);
-                    tagChanges.Add('+' + newTag, addTag);
-                }
+                string signature = Util.GetTagSignature(addTags, true);
+                Diff diffAdd = Added(signature + " to", target);
+                tagChanges.Add('+' + signature, diffAdd);
             }
 
-            foreach (string oldTag in oldTags)
+            // Record tags that were removed.
+            var removeTags = oldTags.Except(newTags).ToList();
+            if (removeTags.Count > 0)
             {
-                if (!newTags.Contains(oldTag))
-                {
-                    Diff removeTag = Removed("Tag [" + oldTag + "] from", target);
-                    tagChanges.Add('-' + oldTag, removeTag);
-                }
+                string signature = Util.GetTagSignature(removeTags, true);
+                Diff diffRemove = Removed(signature + " from", target);
+                tagChanges.Add('-' + signature, diffRemove);
             }
 
             return tagChanges;
@@ -245,8 +245,8 @@ namespace Roblox.Reflection
 
         private void DiffNativeEnum<T>(string target, string context, T oldEnum, T newEnum)
         {
-            string oldLbl = Util.GetEnumName(oldEnum);
-            string newLbl = Util.GetEnumName(newEnum);
+            string oldLbl = '{' + Util.GetEnumName(oldEnum) + '}';
+            string newLbl = '{' + Util.GetEnumName(newEnum) + '}';
             DiffGeneric(target, context, oldLbl, newLbl);
         }
 
@@ -334,9 +334,25 @@ namespace Roblox.Reflection
                                 PropertyDescriptor oldProp = oldMember as PropertyDescriptor;
                                 PropertyDescriptor newProp = newMember as PropertyDescriptor;
 
-                                DiffGeneric(memberLbl, "category", oldProp.Category, newProp.Category);
-                                DiffNativeEnum(memberLbl, "read permissions", oldProp.Security.Read, newProp.Security.Read);
-                                DiffNativeEnum(memberLbl, "write permissions", oldProp.Security.Write, newProp.Security.Write);
+                                // If the read and write permissions are both changed to the same value, try to group them.
+                                if (oldProp.Security.ToString() != newProp.Security.ToString())
+                                {
+                                    if (oldProp.Security.ShouldMergeWith(newProp.Security))
+                                    {
+                                        // Doesn't matter if we read from 'Read' or 'Write' in this case.
+                                        SecurityType oldSecurity = oldProp.Security.Read;
+                                        SecurityType newSecurity = newProp.Security.Read;
+
+                                        DiffNativeEnum(memberLbl, "security", oldSecurity, newSecurity);
+                                    }
+                                    else
+                                    {
+                                        DiffNativeEnum(memberLbl, "read permissions", oldProp.Security.Read, newProp.Security.Read);
+                                        DiffNativeEnum(memberLbl, "write permissions", oldProp.Security.Write, newProp.Security.Write);
+                                    }
+                                }
+
+
                                 DiffGeneric(memberLbl, "serialization", oldProp.Serialization.ToString(), newProp.Serialization.ToString());
                                 DiffGeneric(memberLbl, "value type", oldProp.ValueType.Name, newProp.ValueType.Name);
                             }
@@ -345,7 +361,7 @@ namespace Roblox.Reflection
                                 FunctionDescriptor oldFunc = oldMember as FunctionDescriptor;
                                 FunctionDescriptor newFunc = newMember as FunctionDescriptor;
 
-                                DiffNativeEnum(memberLbl, "permissions", oldFunc.Security, newFunc.Security);
+                                DiffNativeEnum(memberLbl, "security", oldFunc.Security, newFunc.Security);
                                 DiffGeneric(memberLbl, "return type", oldFunc.ReturnType.Name, newFunc.ReturnType.Name);
                                 DiffParameters(memberLbl, oldFunc.Parameters, newFunc.Parameters);
                             }
@@ -354,7 +370,7 @@ namespace Roblox.Reflection
                                 CallbackDescriptor oldCall = oldMember as CallbackDescriptor;
                                 CallbackDescriptor newCall = newMember as CallbackDescriptor;
 
-                                DiffNativeEnum(memberLbl, "permissions", oldCall.Security, newCall.Security);
+                                DiffNativeEnum(memberLbl, "security", oldCall.Security, newCall.Security);
                                 DiffGeneric(memberLbl, "expected return type", oldCall.ReturnType.Name, newCall.ReturnType.Name);
                                 DiffParameters(memberLbl, oldCall.Parameters, newCall.Parameters);
                             }
@@ -464,7 +480,13 @@ namespace Roblox.Reflection
                 if (words.Length >= 2)
                 {
                     // Capture the first two words in this line.
-                    string lead = (words[0] + ' ' + words[1]).Trim();
+                    string first = words[0];
+                    string second = words[1];
+
+                    if (second.ToLower() == "the" && words.Length > 3)
+                        second = words[2];
+
+                    string lead = (first + ' ' + second).Trim();
 
                     bool addBreak = false;
                     bool lastLineNoBreak = !lastLine.EndsWith(Util.NewLine);

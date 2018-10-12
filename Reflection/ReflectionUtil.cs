@@ -32,9 +32,14 @@ namespace Roblox.Reflection
             return '(' + string.Join(", ", parameters.Select(param => param.ToString()).ToArray()) + ')';
         }
 
-        public static string GetTagSignature(List<string> tags)
+        public static string GetTagSignature(List<string> tags, bool prefixed = false)
         {
-            return string.Join(" ", tags.Select(tag => tag = '[' + tag + ']').ToArray());
+            string result = string.Join(" ", tags.Select(tag => tag = '[' + tag + ']').ToArray());
+
+            if (prefixed && tags.Count > 0)
+                result = (tags.Count > 1 ? "Tags " : "Tag ") + result;
+
+            return result;
         }
 
         public static string GetSecuritySignature(SecurityType security, string prefix = "")

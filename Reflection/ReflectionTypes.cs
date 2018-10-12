@@ -62,6 +62,13 @@
         {
             return "Read: " + Util.GetEnumName(Read) + " | Write: " + Util.GetEnumName(Read);
         }
+
+        public bool ShouldMergeWith(ReadWriteSecurity newSecurity)
+        {
+            return Read  != newSecurity.Read  && 
+                   Write != newSecurity.Write && 
+                   newSecurity.Read == newSecurity.Write;
+        }
     }
 
     public struct Serialization
