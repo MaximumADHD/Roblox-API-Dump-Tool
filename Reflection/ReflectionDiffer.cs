@@ -106,19 +106,16 @@ namespace Roblox.Reflection
                     return sortByType;
 
                 ReadOnlyCollection<string> priority = Util.TypePriority;
+                int sortByField = 0;
+                
                 if (priority.Contains(Field) && priority.Contains(diff.Field))
-                {
-                    int sortByField = Util.TypePriority.IndexOf(Field) - Util.TypePriority.IndexOf(diff.Field);
-                    if (sortByField != 0)
-                        return sortByField;
-                }
+                    sortByField = priority.IndexOf(Field) - priority.IndexOf(diff.Field);
                 else
-                {
-                    int sortByField = Field.CompareTo(diff.Field);
-                    if (sortByField != 0)
-                        return sortByField;
-                }
-
+                    sortByField = Field.CompareTo(diff.Field);
+                
+                if (sortByField != 0)
+                    return sortByField;
+                
                 // Sort by the last word in the target (so that it is sorted by class->member instead of by type)
                 string myTarget = (Target.Split(' ').Last());
                 string diffTarget = (diff.Target.Split(' ').Last());
