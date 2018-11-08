@@ -148,7 +148,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(298, 232);
+            this.ClientSize = new System.Drawing.Size(298, 231);
             this.Controls.Add(this.branchLbl);
             this.Controls.Add(this.appLogo);
             this.Controls.Add(this.viewApiDumpClassic);
@@ -164,6 +164,7 @@
             this.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Roblox API Dump Tool";
+            this.Load += new System.EventHandler(this.Main_Load);
             ((System.ComponentModel.ISupportInitialize)(this.appLogo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using Roblox.Reflection;
+using Microsoft.Win32;
 
 namespace Roblox
 {
     public partial class Main : Form
     {
         private const string VERSION_API_KEY = "76e5a40c-3ae1-4028-9f10-7c62520bd94f";
+        private static RegistryKey versionRegistry => Program.GetRegistryKey(Program.MainRegistry, "Current Versions");
 
         private delegate void StatusDelegate(string msg);
         private delegate string BranchDelegate();
@@ -21,15 +24,23 @@ namespace Roblox
         public Main()
         {
             InitializeComponent();
-            branch.SelectedIndex = 0;
         }
 
         private string getBranch()
         {
+            object result;
+
             if (InvokeRequired)
-                return Invoke(new BranchDelegate(getBranch)).ToString();
+            {
+                BranchDelegate branchDelegate = new BranchDelegate(getBranch);
+                result = Invoke(branchDelegate);
+            }
             else
-                return branch.SelectedItem.ToString();
+            {
+                result = branch.SelectedItem;
+            }
+
+            return result.ToString();
         }
 
         private async Task<string> getLiveVersion(string branch, string endPoint, string binaryType)
@@ -71,7 +82,7 @@ namespace Roblox
             setStatus("Ready!");
         }
 
-        private void writeAndViewFile(string path, string contents)
+        private static void writeAndViewFile(string path, string contents)
         {
             if (!File.Exists(path) || File.ReadAllText(path) != contents)
                 File.WriteAllText(path, contents);
@@ -79,12 +90,19 @@ namespace Roblox
             Process.Start(path);
         }
 
-        private async Task<string> getApiDumpFilePath(string branch, bool fetchPrevious = false)
+        private static string getWorkDirectory()
         {
             string localAppData = Environment.GetEnvironmentVariable("LocalAppData");
 
-            string coreBin = Path.Combine(localAppData, "RobloxApiDumpFiles");
-            Directory.CreateDirectory(coreBin);
+            string workDir = Path.Combine(localAppData, "RobloxApiDumpFiles");
+            Directory.CreateDirectory(workDir);
+
+            return workDir;
+        }
+
+        private async Task<string> getApiDumpFilePath(string branch, bool fetchPrevious = false)
+        {
+            string coreBin = getWorkDirectory();
 
             string setupUrl = "https://s3.amazonaws.com/setup." + branch + ".com/";
             setStatus("Checking for update...");
@@ -99,8 +117,16 @@ namespace Roblox
             if (!File.Exists(file))
             {
                 setStatus("Grabbing the" + (fetchPrevious ? " previous " : " ") + "API Dump from " + branch);
+
                 string apiDump = await http.DownloadStringTaskAsync(setupUrl + version + "-API-Dump.json");
                 File.WriteAllText(file, apiDump);
+
+                if (fetchPrevious)
+                    versionRegistry.SetValue(branch + "-prev", version);
+                else
+                    versionRegistry.SetValue(branch, version);
+
+                clearOldVersionFiles();
             }
             else
             {
@@ -112,15 +138,18 @@ namespace Roblox
 
         private void branch_SelectedIndexChanged(object sender, EventArgs e)
         {
-            viewApiDumpJson.Enabled = true;
-            viewApiDumpClassic.Enabled = true;
-            compareVersions.Enabled = true;
+            string branch = getBranch();
 
-            if (getBranch() == "roblox")
+            if (branch == "roblox")
                 compareVersions.Text = "Compare Previous Version";
             else
                 compareVersions.Text = "Compare to Production";
 
+            Program.MainRegistry.SetValue("LastSelectedBranch", branch);
+
+            viewApiDumpJson.Enabled = true;
+            viewApiDumpClassic.Enabled = true;
+            compareVersions.Enabled = true;
         }
 
         private async void viewApiDumpJson_Click(object sender, EventArgs e)
@@ -129,6 +158,8 @@ namespace Roblox
             {
                 string branch = getBranch();
                 string filePath = await getApiDumpFilePath(branch);
+
+                clearOldVersionFiles();
                 Process.Start(filePath);
             });
         }
@@ -189,7 +220,79 @@ namespace Roblox
                 {
                     MessageBox.Show("No differences were found!", "Well, this is awkward...", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+
+                clearOldVersionFiles();
             });
+        }
+
+        private void clearOldVersionFiles()
+        {
+            string workDir = getWorkDirectory();
+
+            string[] activeVersions = versionRegistry.GetValueNames()
+                .Select(branch => Program.GetRegistryString(versionRegistry, branch))
+                .ToArray();
+
+            string[] oldFiles = Directory.GetFiles(workDir, "version-*.json")
+                .Select(file => new FileInfo(file))
+                .Where(fileInfo => !activeVersions.Contains(fileInfo.Name.Substring(0, 24)))
+                .Select(fileInfo => fileInfo.FullName)
+                .ToArray();
+
+            foreach (string oldFile in oldFiles)
+            {
+                try
+                {
+                    File.Delete(oldFile);
+                }
+                catch
+                {
+                    Console.WriteLine("Could not delete file {0}", oldFile);
+                }
+            }
+        }
+
+        private async Task initVersionCache()
+        {
+            await lockWindowAndRunTask(async () =>
+            {
+                string[] branches = branch.Items.Cast<string>().ToArray();
+                setStatus("Initializing version cache...");
+
+                // Fetch the version guids for roblox, and gametest1-gametest5
+                foreach (string branchName in branches)
+                {
+                    string versionGuid = await getLiveVersion(branchName, "GetCurrentClientVersionUpload", "WindowsStudio");
+                    versionRegistry.SetValue(branchName, versionGuid);
+                }
+
+                // Fetch the previous version guid for roblox.
+                string robloxGuid = Program.GetRegistryString(versionRegistry, "roblox");
+                string prevGuid = await ReflectionHistory.GetPreviousVersionGuid("roblox", robloxGuid);
+                versionRegistry.SetValue("roblox-prev", prevGuid);
+
+                // Done.
+                Program.MainRegistry.SetValue("InitializedVersions", true);
+            });
+        }
+
+        private async void Main_Load(object sender, EventArgs e)
+        {
+            if (Program.GetRegistryString(Program.MainRegistry, "InitializedVersions") != "True")
+            {
+                await initVersionCache();
+                clearOldVersionFiles();
+            }
+
+            try
+            {
+                string lastSelectedBranch = Program.GetRegistryString(Program.MainRegistry, "LastSelectedBranch");
+                branch.SelectedIndex = branch.Items.IndexOf(lastSelectedBranch);
+            }
+            catch
+            {
+                branch.SelectedIndex = 0;
+            }
         }
     }
 }
