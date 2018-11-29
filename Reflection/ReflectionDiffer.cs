@@ -19,7 +19,8 @@ namespace Roblox.Reflection
             public DiffType Type;
 
             public string Field;
-            public string Target;
+            public Descriptor Target;
+
             public string From;
             public string To;
 
@@ -27,6 +28,7 @@ namespace Roblox.Reflection
             private List<Diff> children;
 
             public bool HasParent => (stack > 0);
+            public bool Detailed = false;
 
             public void AddChild(Diff child)
             {
@@ -46,39 +48,32 @@ namespace Roblox.Reflection
                 for (int i = 0; i < stack; i++)
                     result += '\t';
 
-                string desc;
+                string what = Target.Describe(Detailed);
+                
                 if (Type != DiffType.Change)
-                {
-                    desc = "";
-                    if (!Target.StartsWith(Field))
-                        desc += Field + ' ';
-
-                    desc += Target;
-                }
+                    what = (what.StartsWith(Field) ? "" : Field + ' ') + what;
                 else
-                {
-                    desc = "the " + Field + " of " + Target;
-                }
+                    what = "the " + Field + " of " + what;
 
                 switch (Type)
                 {
                     case DiffType.Add:
-                        result += "Added " + desc;
+                        result += "Added " + what;
                         break;
                     case DiffType.Change:
-                        result += "Changed " + desc;
+                        result += "Changed " + what;
 
                         string merged = "from " + From + " to " + To;
-                        if (merged.Length < 36)
+                        if (merged.Length < 24)
                             result += " " + merged;
                         else
-                            result += Util.NewLine +
+                            result += ' ' + Util.NewLine +
                                 "\tfrom: " + From + Util.NewLine + 
                                 "\t  to: " + To   + Util.NewLine;
 
                         break;
                     case DiffType.Remove:
-                        result += "Removed " + desc;
+                        result += "Removed " + what;
                         break;
                 }
 
@@ -99,12 +94,14 @@ namespace Roblox.Reflection
                 if (obj.GetType() != GetType())
                     throw new NotImplementedException("Diff can only be compared with another Diff");
 
-                Diff diff = (Diff)obj;
+                Diff diff = obj as Diff;
 
+                // Try sorting by the type of diff.
                 int sortByType = Type - diff.Type;
                 if (sortByType != 0)
                     return sortByType;
 
+                // Try sorting by the field priority.
                 ReadOnlyCollection<string> priority = Util.TypePriority;
                 int sortByField = 0;
                 
@@ -115,15 +112,13 @@ namespace Roblox.Reflection
                 
                 if (sortByField != 0)
                     return sortByField;
-                
-                // Sort by the last word in the target (so that it is sorted by class->member instead of by type)
-                string myTarget = (Target.Split(' ').Last());
-                string diffTarget = (diff.Target.Split(' ').Last());
 
-                int sortByTarget = myTarget.CompareTo(diffTarget);
+                // Try sorting by the targets.
+                int sortByTarget = Target.CompareTo(diff.Target);
                 if (sortByTarget != 0)
                     return sortByTarget;
 
+                // These are identical?
                 return 0;
             }
         }
@@ -140,39 +135,36 @@ namespace Roblox.Reflection
             return lookup;
         }
 
-        private void flagEntireClass(ClassDescriptor classDesc, Func<string, string, Diff, Diff> record, bool detailed)
+        private void flagEntireClass(ClassDescriptor classDesc, Func<string, Descriptor, bool, Diff, Diff> record, bool detailed)
         {
-            Diff classDiff = record("Class", classDesc.Describe(detailed), null);
+            Diff classDiff = record("Class", classDesc, detailed, null);
 
-            foreach (PropertyDescriptor propDesc in classDesc.Properties)
-                record("Property", propDesc.Describe(detailed), classDiff);
-
-            foreach (FunctionDescriptor funcDesc in classDesc.Functions)
-                record("Function", funcDesc.Describe(detailed), classDiff);
-
-            foreach (CallbackDescriptor callDesc in classDesc.Callbacks)
-                record("Callback", callDesc.Describe(detailed), classDiff);
-
-            foreach (EventDescriptor evntDesc in classDesc.Events)
-                record("Event", evntDesc.Describe(detailed), classDiff);
-
+            foreach (MemberDescriptor memberDesc in classDesc.Members)
+            {
+                string memberType = Util.GetEnumName(memberDesc.MemberType);
+                record(memberType, memberDesc, detailed, classDiff);
+            }
         }
 
-        private void flagEntireEnum(EnumDescriptor enumDesc, Func<string, string, Diff, Diff> record, bool detailed)
+        private void flagEntireEnum(EnumDescriptor enumDesc, Func<string, Descriptor, bool, Diff, Diff> record, bool detailed)
         {
-            Diff enumDiff = record("Enum", enumDesc.Describe(detailed), null);
+            Diff enumDiff = record("Enum", enumDesc, detailed, null);
 
             foreach (EnumItemDescriptor itemDesc in enumDesc.Items)
-                record("EnumItem", itemDesc.Describe(detailed), enumDiff);
+            {
+                record("EnumItem", itemDesc, detailed, enumDiff);
+            }
         }
 
-        private Diff Added(string field, string target, Diff parent = null)
+        private Diff Added(string field, Descriptor target, bool detailed = true, Diff parent = null)
         {
             Diff added = new Diff();
             added.Type = DiffType.Add;
+            added.Detailed = detailed;
+
             added.Field = field;
             added.Target = target;
-
+            
             if (parent != null)
                 parent.AddChild(added);
             else
@@ -181,10 +173,12 @@ namespace Roblox.Reflection
             return added;
         }
 
-        private Diff Removed(string field, string target, Diff parent = null)
+        private Diff Removed(string field, Descriptor target, bool detailed = false, Diff parent = null)
         {
             Diff removed = new Diff();
             removed.Type = DiffType.Remove;
+            removed.Detailed = detailed;
+
             removed.Field = field;
             removed.Target = target;
 
@@ -196,12 +190,15 @@ namespace Roblox.Reflection
             return removed;
         }
 
-        private Diff Changed(string field, string target, string from, string to)
+        private Diff Changed(string field, Descriptor target, string from, string to)
         {
             Diff changed = new Diff();
             changed.Type = DiffType.Change;
+            changed.Detailed = false;
+
             changed.Field = field;
             changed.Target = target;
+
             changed.From = from;
             changed.To = to;
 
@@ -209,24 +206,26 @@ namespace Roblox.Reflection
             return changed;
         }
 
-        private Dictionary<string, Diff> DiffTags(string target, List<string> oldTags, List<string> newTags)
+        private Dictionary<string, Diff> DiffTags(Descriptor target, List<string> oldTags, List<string> newTags)
         {
             var tagChanges = new Dictionary<string, Diff>();
 
             // Record tags that were added.
-            var addTags = newTags.Except(oldTags).ToList();
+            List<string> addTags = newTags.Except(oldTags).ToList();
+
             if (addTags.Count > 0)
             {
-                string signature = Util.GetTagSignature(addTags, true);
-                Diff diffAdd = Added(signature + " to", target);
+                string signature = Util.DescribeTags(addTags, true);
+                Diff diffAdd = Added(signature + " to", target, false);
                 tagChanges.Add('+' + signature, diffAdd);
             }
 
             // Record tags that were removed.
-            var removeTags = oldTags.Except(newTags).ToList();
+            List<string> removeTags = oldTags.Except(newTags).ToList();
+
             if (removeTags.Count > 0)
             {
-                string signature = Util.GetTagSignature(removeTags, true);
+                string signature = Util.DescribeTags(removeTags, true);
                 Diff diffRemove = Removed(signature + " from", target);
                 tagChanges.Add('-' + signature, diffRemove);
             }
@@ -234,23 +233,25 @@ namespace Roblox.Reflection
             return tagChanges;
         }
 
-        private void DiffGeneric(string target, string context, object oldVal, object newVal)
+        private void DiffGeneric(Descriptor target, string context, object oldVal, object newVal)
         {
             if (oldVal.ToString() != newVal.ToString())
+            {
                 Changed(context, target, oldVal.ToString(), newVal.ToString());
+            }
         }
 
-        private void DiffNativeEnum<T>(string target, string context, T oldEnum, T newEnum)
+        private void DiffNativeEnum<T>(Descriptor target, string context, T oldEnum, T newEnum)
         {
             string oldLbl = '{' + Util.GetEnumName(oldEnum) + '}';
             string newLbl = '{' + Util.GetEnumName(newEnum) + '}';
             DiffGeneric(target, context, oldLbl, newLbl);
         }
 
-        private void DiffParameters(string target, List<Parameter> oldParams, List<Parameter> newParams)
+        private void DiffParameters(Descriptor target, List<Parameter> oldParams, List<Parameter> newParams)
         {
-            string oldParamSig = Util.GetParamSignature(oldParams);
-            string newParamSig = Util.GetParamSignature(newParams); 
+            string oldParamSig = Util.DescribeParameters(oldParams);
+            string newParamSig = Util.DescribeParameters(newParams); 
             DiffGeneric(target, "parameters", oldParamSig, newParamSig);
         }
 
@@ -259,8 +260,8 @@ namespace Roblox.Reflection
             results.Clear();
 
             // Diff Classes
-            Dictionary<string, ClassDescriptor> oldClasses = createLookupTable(oldApi.Classes);
-            Dictionary<string, ClassDescriptor> newClasses = createLookupTable(newApi.Classes);
+            var oldClasses = createLookupTable(oldApi.Classes);
+            var newClasses = createLookupTable(newApi.Classes);
 
             foreach (string className in newClasses.Keys)
             {
@@ -280,14 +281,14 @@ namespace Roblox.Reflection
                 if (newClasses.ContainsKey(className))
                 {
                     ClassDescriptor newClass = newClasses[className];
-                    var classTagDiffs = DiffTags(classLbl, oldClass.Tags, newClass.Tags);
+                    var classTagDiffs = DiffTags(oldClass, oldClass.Tags, newClass.Tags);
 
-                    DiffGeneric(classLbl, "superclass", oldClass.Superclass, newClass.Superclass);
-                    DiffNativeEnum(classLbl, "memory category", oldClass.MemoryCategory, newClass.MemoryCategory);
+                    DiffGeneric(oldClass, "superclass", oldClass.Superclass, newClass.Superclass);
+                    DiffNativeEnum(oldClass, "memory category", oldClass.MemoryCategory, newClass.MemoryCategory);
 
                     // Diff the members
-                    Dictionary<string, MemberDescriptor> oldMembers = createLookupTable(oldClass.Members);
-                    Dictionary<string, MemberDescriptor> newMembers = createLookupTable(newClass.Members);
+                    var oldMembers = createLookupTable(oldClass.Members);
+                    var newMembers = createLookupTable(newClass.Members);
 
                     foreach (string memberName in newMembers.Keys)
                     {
@@ -296,7 +297,7 @@ namespace Roblox.Reflection
                             // Add New Member
                             MemberDescriptor newMember = newMembers[memberName];
                             string memberType = Util.GetEnumName(newMember.MemberType);
-                            Added(memberType, newMember.Signature);
+                            Added(memberType, newMember);
                         }
                     }
 
@@ -308,10 +309,9 @@ namespace Roblox.Reflection
                         if (newMembers.ContainsKey(memberName))
                         {
                             MemberDescriptor newMember = newMembers[memberName];
-                            string memberLbl = newMember.Summary;
 
                             // Diff Tags
-                            var memberTagDiffs = DiffTags(memberLbl, oldMember.Tags, newMember.Tags);
+                            var memberTagDiffs = DiffTags(newMember, oldMember.Tags, newMember.Tags);
 
                             // Check if any tags that were added to this member were
                             // also added to its parent class.
@@ -328,8 +328,8 @@ namespace Roblox.Reflection
                             // Diff Specific Member Types
                             if (newMember is PropertyDescriptor)
                             {
-                                PropertyDescriptor oldProp = oldMember as PropertyDescriptor;
-                                PropertyDescriptor newProp = newMember as PropertyDescriptor;
+                                var oldProp = oldMember as PropertyDescriptor;
+                                var newProp = newMember as PropertyDescriptor;
 
                                 // If the read and write permissions are both changed to the same value, try to group them.
                                 if (oldProp.Security.ToString() != newProp.Security.ToString())
@@ -337,53 +337,54 @@ namespace Roblox.Reflection
                                     if (oldProp.Security.ShouldMergeWith(newProp.Security))
                                     {
                                         // Doesn't matter if we read from 'Read' or 'Write' in this case.
-                                        SecurityType oldSecurity = oldProp.Security.Read;
-                                        SecurityType newSecurity = newProp.Security.Read;
+                                        // ... so why not both! This outta balance out the pain.
 
-                                        DiffNativeEnum(memberLbl, "security", oldSecurity, newSecurity);
+                                        SecurityType oldSecurity = oldProp.Security.Read;
+                                        SecurityType newSecurity = newProp.Security.Write;
+
+                                        DiffNativeEnum(newMember, "security", oldSecurity, newSecurity);
                                     }
                                     else
                                     {
-                                        DiffNativeEnum(memberLbl, "read permissions", oldProp.Security.Read, newProp.Security.Read);
-                                        DiffNativeEnum(memberLbl, "write permissions", oldProp.Security.Write, newProp.Security.Write);
+                                        DiffNativeEnum(newMember, "read permissions", oldProp.Security.Read, newProp.Security.Read);
+                                        DiffNativeEnum(newMember, "write permissions", oldProp.Security.Write, newProp.Security.Write);
                                     }
                                 }
 
-
-                                DiffGeneric(memberLbl, "serialization", oldProp.Serialization.ToString(), newProp.Serialization.ToString());
-                                DiffGeneric(memberLbl, "value type", oldProp.ValueType.Name, newProp.ValueType.Name);
+                                DiffGeneric(newMember, "serialization", oldProp.Serialization.ToString(), newProp.Serialization.ToString());
+                                DiffGeneric(newMember, "value type", oldProp.ValueType.Name, newProp.ValueType.Name);
                             }
                             else if (newMember is FunctionDescriptor)
                             {
-                                FunctionDescriptor oldFunc = oldMember as FunctionDescriptor;
-                                FunctionDescriptor newFunc = newMember as FunctionDescriptor;
+                                var oldFunc = oldMember as FunctionDescriptor;
+                                var newFunc = newMember as FunctionDescriptor;
 
-                                DiffNativeEnum(memberLbl, "security", oldFunc.Security, newFunc.Security);
-                                DiffGeneric(memberLbl, "return type", oldFunc.ReturnType.Name, newFunc.ReturnType.Name);
-                                DiffParameters(memberLbl, oldFunc.Parameters, newFunc.Parameters);
+                                DiffNativeEnum(newMember, "security", oldFunc.Security, newFunc.Security);
+                                DiffGeneric(newMember, "return type", oldFunc.ReturnType.Name, newFunc.ReturnType.Name);
+                                DiffParameters(newMember, oldFunc.Parameters, newFunc.Parameters);
                             }
                             else if (newMember is CallbackDescriptor)
                             {
-                                CallbackDescriptor oldCall = oldMember as CallbackDescriptor;
-                                CallbackDescriptor newCall = newMember as CallbackDescriptor;
+                                var oldCall = oldMember as CallbackDescriptor;
+                                var newCall = newMember as CallbackDescriptor;
 
-                                DiffNativeEnum(memberLbl, "security", oldCall.Security, newCall.Security);
-                                DiffGeneric(memberLbl, "expected return type", oldCall.ReturnType.Name, newCall.ReturnType.Name);
-                                DiffParameters(memberLbl, oldCall.Parameters, newCall.Parameters);
+                                DiffNativeEnum(newMember, "security", oldCall.Security, newCall.Security);
+                                DiffGeneric(newMember, "expected return type", oldCall.ReturnType.Name, newCall.ReturnType.Name);
+                                DiffParameters(newMember, oldCall.Parameters, newCall.Parameters);
                             }
                             else if (newMember is EventDescriptor)
                             {
-                                EventDescriptor oldEvent = oldMember as EventDescriptor;
-                                EventDescriptor newEvent = newMember as EventDescriptor;
+                                var oldEvent = oldMember as EventDescriptor;
+                                var newEvent = newMember as EventDescriptor;
 
-                                DiffNativeEnum(memberLbl, "permissions", oldEvent.Security, newEvent.Security);
-                                DiffParameters(memberLbl, oldEvent.Parameters, newEvent.Parameters);
+                                DiffNativeEnum(newMember, "permissions", oldEvent.Security, newEvent.Security);
+                                DiffParameters(newMember, oldEvent.Parameters, newEvent.Parameters);
                             }
                         }
                         else
                         {
                             // Remove Old Member
-                            Removed(memberType, oldMember.Summary);
+                            Removed(memberType, oldMember);
                         }
                     }
                 }
@@ -395,8 +396,8 @@ namespace Roblox.Reflection
             }
 
             // Diff Enums
-            Dictionary<string, EnumDescriptor> oldEnums = createLookupTable(oldApi.Enums);
-            Dictionary<string, EnumDescriptor> newEnums = createLookupTable(newApi.Enums);
+            var oldEnums = createLookupTable(oldApi.Enums);
+            var newEnums = createLookupTable(newApi.Enums);
 
             foreach (string enumName in newEnums.Keys)
             {
@@ -411,18 +412,17 @@ namespace Roblox.Reflection
             foreach (string enumName in oldEnums.Keys)
             {
                 EnumDescriptor oldEnum = oldEnums[enumName];
-                string enumLbl = oldEnum.Summary;
 
                 if (newEnums.ContainsKey(enumName))
                 {
                     EnumDescriptor newEnum = newEnums[enumName];
 
                     // Diff Tags
-                    DiffTags(enumLbl, oldEnum.Tags, newEnum.Tags);
+                    DiffTags(newEnum, oldEnum.Tags, newEnum.Tags);
 
                     // Diff Items
-                    Dictionary<string, EnumItemDescriptor> oldItems = createLookupTable(oldEnum.Items);
-                    Dictionary<string, EnumItemDescriptor> newItems = createLookupTable(newEnum.Items);
+                    var oldItems = createLookupTable(oldEnum.Items);
+                    var newItems = createLookupTable(newEnum.Items);
 
                     foreach (var itemName in newItems.Keys)
                     {
@@ -430,7 +430,7 @@ namespace Roblox.Reflection
                         {
                             // Add New EnumItem
                             EnumItemDescriptor item = newItems[itemName];
-                            Added("EnumItem", item.Signature);
+                            Added("EnumItem", item);
                         }
                     }
 
@@ -442,13 +442,13 @@ namespace Roblox.Reflection
                         if (newItems.ContainsKey(itemName))
                         {
                             EnumItemDescriptor newItem = newItems[itemName];
-                            DiffTags(itemLbl, oldItem.Tags, newItem.Tags);
-                            DiffGeneric(itemLbl, "value", oldItem.Value, newItem.Value);
+                            DiffTags(newItem, oldItem.Tags, newItem.Tags);
+                            DiffGeneric(newItem, "value", oldItem.Value, newItem.Value);
                         }
                         else
                         {
                             // Remove Old EnumItem
-                            Removed("EnumItem", itemLbl);
+                            Removed("EnumItem", oldItem);
                         }
                     }
                 }

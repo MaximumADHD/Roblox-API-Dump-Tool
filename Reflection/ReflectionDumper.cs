@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 
 namespace Roblox.Reflection
 {
@@ -11,6 +12,12 @@ namespace Roblox.Reflection
         {
             api = database;
             buffer = new StringBuilder();
+        }
+
+        private static List<T> sorted<T>(List<T> list)
+        {
+            list.Sort();
+            return list;
         }
 
         private void write(params object[] list)
@@ -32,7 +39,7 @@ namespace Roblox.Reflection
                 write(classDesc.Signature);
                 nextLine();
 
-                foreach (MemberDescriptor memberDesc in classDesc.Members)
+                foreach (MemberDescriptor memberDesc in sorted(classDesc.Members))
                 {
                     tab();
                     write(memberDesc.Signature);
@@ -45,7 +52,7 @@ namespace Roblox.Reflection
                 write(enumDesc.Signature);
                 nextLine();
 
-                foreach (EnumItemDescriptor itemDesc in enumDesc.Items)
+                foreach (EnumItemDescriptor itemDesc in sorted(enumDesc.Items))
                 {
                     tab();
                     write(itemDesc.Signature);

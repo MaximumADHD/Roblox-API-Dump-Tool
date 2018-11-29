@@ -1,37 +1,67 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
 namespace Roblox.Reflection
 {
-    public class Descriptor
+    public class Descriptor : IComparable
     {
         public string Name;
         public List<string> Tags;
-        public override string ToString() => Describe();
 
-        protected static string ExtendDescription(params string[] targets)
-        {
-            string[] filtered = targets.Where(target => target.Length > 0).ToArray();
-            return string.Join(" ", filtered);
-        }
-
-        public virtual string Describe(bool detailed = false)
-        {
-            return GetType().Name.Replace("Descriptor", "") + " " + Name;
-        }
-
-        public string Signature => Describe(true);
         public string Summary => Describe(false);
+        public string Signature => Describe(true);
+        public override string ToString() => Summary;
 
         public Descriptor()
         {
             Tags = new List<string>();
         }
+
+        protected string PrependDescriptorType(string desc)
+        {
+            string descType = GetType().Name;
+
+            if (descType != "Descriptor")
+                descType = descType.Replace("Descriptor", "");
+
+            return descType + ' ' + desc;
+        }
+
+        public virtual string Describe(bool detailed = false)
+        {
+            return PrependDescriptorType(Name);
+        }
+
+        protected static string ExtendDescription(params object[] targets)
+        {
+            string[] targetStrings = targets.Select(target => target.ToString()).ToArray();
+            string[] filtered = targetStrings.Where(target => target.Length > 0).ToArray();
+
+            return string.Join(" ", filtered);
+        }
+
+        public virtual int CompareTo(object other)
+        {
+            string label;
+
+            if (other is Descriptor)
+            {
+                var otherDesc = other as Descriptor;
+                label = otherDesc.Name;
+            }
+            else
+            {
+                label = other.ToString();
+            }
+
+            return string.CompareOrdinal(Name, label);
+        }
     }
 
     [JsonConverter( typeof(ReflectionConverter) )]
-    public class ClassDescriptor : Descriptor
+    public sealed class ClassDescriptor : Descriptor
     {
         public string Superclass;
         public DeveloperMemoryTag MemoryCategory;
@@ -57,7 +87,7 @@ namespace Roblox.Reflection
 
             if (detailed)
             {
-                string tags = Util.GetTagSignature(Tags);
+                string tags = Util.DescribeTags(Tags);
                 result = ExtendDescription(result, ":", Superclass, tags);
             }
 
@@ -84,13 +114,36 @@ namespace Roblox.Reflection
             return result;
         }
 
-        protected string PrependMemberType(string desc)
+        public override int CompareTo(object other)
         {
-            return Util.GetEnumName(MemberType) + ' ' + desc;
+            if (other is MemberDescriptor)
+            {
+                var otherDesc = other as MemberDescriptor;
+
+                if (Class != otherDesc.Class)
+                {
+                    return Class.CompareTo(otherDesc.Class);
+                }
+
+                if (MemberType != otherDesc.MemberType)
+                {
+                    var priority = Util.TypePriority;
+
+                    string thisMT = Util.GetEnumName(MemberType);
+                    string otherMT = Util.GetEnumName(otherDesc.MemberType);
+                    
+                    if (priority.Contains(thisMT) && priority.Contains(otherMT))
+                    {
+                        return priority.IndexOf(thisMT) - priority.IndexOf(otherMT);
+                    }
+                }
+            }
+
+            return base.CompareTo(other);
         }
     }
 
-    public class PropertyDescriptor : MemberDescriptor
+    public sealed class PropertyDescriptor : MemberDescriptor
     {
         public string Category;
         public TypeDescriptor ValueType;
@@ -104,16 +157,40 @@ namespace Roblox.Reflection
             if (detailed)
             {
                 string valueType = ValueType.ToString();
-                string security = Util.GetSecuritySignature(Security);
-                string tags = Util.GetTagSignature(Tags);
+                string security = Util.DescribeSecurity(Security);
+                string tags = Util.DescribeTags(Tags);
                 desc = ExtendDescription(valueType, desc, security, tags);
             }
 
-            return PrependMemberType(desc);
+            return PrependDescriptorType(desc);
+        }
+
+        public override int CompareTo(object other)
+        {
+            if (other is PropertyDescriptor)
+            {
+                var otherDesc = other as PropertyDescriptor;
+
+                bool thisIsCamel = char.IsLower(Name[0]);
+                bool otherIsCamel = char.IsLower(otherDesc.Name[0]);
+
+                // Upcast the comparison if this is a camelCase condition.
+                // camelCase members should always appear last in the member type listing.
+                if (thisIsCamel != otherIsCamel)
+                    return base.CompareTo(other);
+
+                // Compare by categories.
+                if (Category != otherDesc.Category)
+                {
+                    return Category.CompareTo(otherDesc.Category);
+                }
+            }
+
+            return base.CompareTo(other);
         }
     }
 
-    public class FunctionDescriptor : MemberDescriptor
+    public sealed class FunctionDescriptor : MemberDescriptor
     {
         public List<Parameter> Parameters;
         public TypeDescriptor ReturnType;
@@ -126,17 +203,18 @@ namespace Roblox.Reflection
             if (detailed)
             {
                 string returnType = ReturnType.ToString();
-                string parameters = Util.GetParamSignature(Parameters);
-                string security = Util.GetSecuritySignature(Security);
-                string tags = Util.GetTagSignature(Tags);
+                string parameters = Util.DescribeParameters(Parameters);
+                string security = Util.DescribeSecurity(Security);
+                string tags = Util.DescribeTags(Tags);
+
                 desc = ExtendDescription(returnType, desc + parameters, security, tags);
             }
 
-            return PrependMemberType(desc);
+            return PrependDescriptorType(desc);
         }
     }
 
-    public class EventDescriptor : MemberDescriptor
+    public sealed class EventDescriptor : MemberDescriptor
     {
         public List<Parameter> Parameters;
         public SecurityType Security;
@@ -147,17 +225,18 @@ namespace Roblox.Reflection
 
             if (detailed)
             {
-                string parameters = Util.GetParamSignature(Parameters);
-                string security = Util.GetSecuritySignature(Security);
-                string tags = Util.GetTagSignature(Tags);
+                string parameters = Util.DescribeParameters(Parameters);
+                string security = Util.DescribeSecurity(Security);
+                string tags = Util.DescribeTags(Tags);
+
                 desc = ExtendDescription(desc + parameters, security, tags);
             }
 
-            return PrependMemberType(desc);
+            return PrependDescriptorType(desc);
         }
     }
 
-    public class CallbackDescriptor : MemberDescriptor
+    public sealed class CallbackDescriptor : MemberDescriptor
     {
         public List<Parameter> Parameters;
         public TypeDescriptor ReturnType;
@@ -170,18 +249,19 @@ namespace Roblox.Reflection
             if (detailed)
             {
                 string returnType = ReturnType.ToString();
-                string parameters = Util.GetParamSignature(Parameters);
-                string security = Util.GetSecuritySignature(Security);
-                string tags = Util.GetTagSignature(Tags);
+                string parameters = Util.DescribeParameters(Parameters);
+                string security = Util.DescribeSecurity(Security);
+                string tags = Util.DescribeTags(Tags);
+
                 desc = ExtendDescription(returnType, desc + parameters, security, tags);
             }
 
-            return PrependMemberType(desc);
+            return PrependDescriptorType(desc);
         }
     }
 
     [JsonConverter( typeof(ReflectionConverter) )]
-    public class EnumDescriptor : Descriptor
+    public sealed class EnumDescriptor : Descriptor
     {
         public List<EnumItemDescriptor> Items;
 
@@ -196,7 +276,7 @@ namespace Roblox.Reflection
 
             if (detailed)
             {
-                string tags = Util.GetTagSignature(Tags);
+                string tags = Util.DescribeTags(Tags);
                 result = ExtendDescription(result, tags);
             }
 
@@ -204,7 +284,7 @@ namespace Roblox.Reflection
         }
     }
 
-    public class EnumItemDescriptor : Descriptor
+    public sealed class EnumItemDescriptor : Descriptor
     {
         public EnumDescriptor Enum;
         public int Value;
@@ -219,11 +299,26 @@ namespace Roblox.Reflection
 
             if (detailed)
             {
-                string tags = Util.GetTagSignature(Tags);
+                string tags = Util.DescribeTags(Tags);
                 result = ExtendDescription(result, ":", Value.ToString(), tags);
             }
 
-            return "EnumItem " + result;
+            return PrependDescriptorType(result);
+        }
+
+        public override int CompareTo(object other)
+        {
+            if (other is EnumItemDescriptor)
+            {
+                var otherDesc = other as EnumItemDescriptor;
+
+                if (Enum != otherDesc.Enum)
+                    return Enum.CompareTo(otherDesc.Enum);
+
+                return Value - otherDesc.Value;
+            }
+
+            return base.CompareTo(other);
         }
     }
 
@@ -235,11 +330,7 @@ namespace Roblox.Reflection
 
         public static ReflectionDatabase Load(string jsonApiDump)
         {
-            JsonSerializerSettings settings = new JsonSerializerSettings();
-            settings.TypeNameHandling = TypeNameHandling.All;
-
-            ReflectionDatabase api = JsonConvert.DeserializeObject<ReflectionDatabase>(jsonApiDump);
-            return api;
+            return JsonConvert.DeserializeObject<ReflectionDatabase>(jsonApiDump);
         }
     }
 }

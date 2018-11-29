@@ -76,16 +76,18 @@
         public bool CanSave;
         public bool CanLoad;
 
+        private static string[] flagLabels = new string[4]
+        {
+            "None",
+            "Load-only",
+            "Save-only",
+            "Saves & Loads"
+        };
+
         public override string ToString()
         {
-            if (CanSave && CanLoad)
-                return "'Saves & Loads'";
-            else if (CanSave)
-                return "'Save-only'";
-            else if (CanLoad)
-                return "'Load-only'";
-            else
-                return "'None'";
+            int flags = (CanSave ? 1 : 0) << 1 | (CanLoad ? 1 : 0);
+            return "'" + flagLabels[flags] + "'";
         }
     }
 
@@ -97,10 +99,14 @@
 
         public string GetSignature()
         {
-            if (Category != TypeCategory.Group && Category != TypeCategory.Primitive)
-                return Util.GetEnumName(Category) + '<' + Name + '>';
-            else
+            if (Name == "Instance" || Category != TypeCategory.Class && Category != TypeCategory.Enum)
+            {
                 return Name;
+            }
+            else
+            {
+                return Util.GetEnumName(Category) + '<' + Name + '>';
+            }
         }
     }
 
@@ -110,18 +116,18 @@
         public string Name;
         public string Default;
 
+        private const string quote = "\"";
+
         public override string ToString()
         {
             string result = Type.ToString() + " " + Name;
 
+            if (Type.Name == "string" && Default != null)
+                if (!Default.StartsWith(quote) || !Default.EndsWith(quote))
+                    Default = quote + Default + quote;
+
             if (Default != null && Default.Length > 0)
-            {
-                result += " = ";
-                if (Type.Name == "string")
-                    result += '"' + Default + '"';
-                else
-                    result += Default;
-            }
+                result += " = " + Default;
 
             return result;
         }

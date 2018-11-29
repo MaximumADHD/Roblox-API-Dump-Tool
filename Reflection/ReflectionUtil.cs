@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 
 namespace Roblox.Reflection
 {
@@ -21,19 +20,22 @@ namespace Roblox.Reflection
             "EnumItem"
         });
 
-
         public static string GetEnumName<T>(T item)
         {
             return Enum.GetName(typeof(T), item);
         }
 
-        public static string GetParamSignature(List<Parameter> parameters)
+        public static string DescribeParameters(List<Parameter> parameters)
         {
             return '(' + string.Join(", ", parameters.Select(param => param.ToString()).ToArray()) + ')';
         }
 
-        public static string GetTagSignature(List<string> tags, bool prefixed = false)
+        public static string DescribeTags(List<string> tags, bool prefixed = false)
         {
+            // (Hopefully) temporary patch.
+            if (tags.Contains("ReadOnly"))
+                tags.Remove("NotReplicated");
+
             string result = string.Join(" ", tags.Select(tag => tag = '[' + tag + ']').ToArray());
 
             if (prefixed && tags.Count > 0)
@@ -42,18 +44,18 @@ namespace Roblox.Reflection
             return result;
         }
 
-        public static string GetSecuritySignature(SecurityType security, string prefix = "")
+        public static string DescribeSecurity(SecurityType security, string prefix = "")
         {
             if (security != SecurityType.None)
                 return '{' + prefix + GetEnumName(security) + '}';
-            else
-                return "";
+
+            return "";
         }
 
-        public static string GetSecuritySignature(ReadWriteSecurity security)
+        public static string DescribeSecurity(ReadWriteSecurity security)
         {
-            string read = GetSecuritySignature(security.Read);
-            string write = GetSecuritySignature(security.Write, "✎");
+            string read = DescribeSecurity(security.Read);
+            string write = DescribeSecurity(security.Write, "✎");
 
             string result = "";
 

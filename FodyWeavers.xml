@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
+  <Costura />
+</Weavers>
+
+<!-- 
+	This (oddly named) file is required for the API Dump Tool 
+	to embed Newtonsoft.Json into the exe without needing a DLL at runtime.
+	
+	For more information: https://github.com/Fody/Costura
+-->
