@@ -36,8 +36,10 @@ namespace Roblox.Reflection
 
         protected static string ExtendDescription(params object[] targets)
         {
-            string[] targetStrings = targets.Select(target => target.ToString()).ToArray();
-            string[] filtered = targetStrings.Where(target => target.Length > 0).ToArray();
+            string[] filtered = targets
+                .Select(target => target.ToString())
+                .Where(target => target.Length > 0)
+                .ToArray();
 
             return string.Join(" ", filtered);
         }
@@ -156,10 +158,9 @@ namespace Roblox.Reflection
 
             if (detailed)
             {
-                string valueType = ValueType.ToString();
                 string security = Util.DescribeSecurity(Security);
                 string tags = Util.DescribeTags(Tags);
-                desc = ExtendDescription(valueType, desc, security, tags);
+                desc = ExtendDescription(ValueType, desc, security, tags);
             }
 
             return PrependDescriptorType(desc);

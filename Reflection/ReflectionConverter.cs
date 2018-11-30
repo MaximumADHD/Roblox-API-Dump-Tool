@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -18,7 +17,6 @@ namespace Roblox.Reflection
 
         private static ClassDescriptor ReadClassDescriptor(JObject obj, Descriptor desc)
         {
-            JToken[] members = obj.GetValue("Members").ToArray();
             JToken superclass = obj.GetValue("Superclass");
             JToken memoryTag = obj.GetValue("MemoryCategory");
 
@@ -29,7 +27,7 @@ namespace Roblox.Reflection
 
             Enum.TryParse(memoryTag.ToString(), out classDesc.MemoryCategory);
 
-            foreach (JToken member in members)
+            foreach (JToken member in obj.GetValue("Members"))
             {
                 MemberType memberType;
                 if (Enum.TryParse(member.Value<string>("MemberType"), out memberType))
@@ -68,13 +66,11 @@ namespace Roblox.Reflection
 
         private static EnumDescriptor ReadEnumDescriptor(JObject obj, Descriptor desc)
         {
-            JToken[] items = obj.GetValue("Items").ToArray();
-
             EnumDescriptor enumDesc = new EnumDescriptor();
             enumDesc.Name = desc.Name;
             enumDesc.Tags = desc.Tags;
 
-            foreach (JToken item in items)
+            foreach (JToken item in obj.GetValue("Items"))
             {
                 EnumItemDescriptor itemDesc = item.ToObject<EnumItemDescriptor>();
                 itemDesc.Enum = enumDesc;
@@ -90,12 +86,17 @@ namespace Roblox.Reflection
             Descriptor desc = obj.ToObject<Descriptor>();
 
             if (objectType == typeof(ClassDescriptor))
+            {
                 return ReadClassDescriptor(obj, desc);
+            }
             else if (objectType == typeof(EnumDescriptor))
+            {
                 return ReadEnumDescriptor(obj, desc);
+            }
             else
+            {
                 throw new NotImplementedException();
-
+            }
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)

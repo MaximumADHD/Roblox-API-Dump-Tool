@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -19,7 +20,7 @@ namespace Roblox
         private delegate void StatusDelegate(string msg);
         private delegate string BranchDelegate();
 
-        private WebClient http = new WebClient();
+        private static WebClient http = new WebClient();
 
         public Main()
         {
@@ -43,7 +44,7 @@ namespace Roblox
             return result.ToString();
         }
 
-        private async Task<string> getLiveVersion(string branch, string endPoint, string binaryType)
+        private static async Task<string> getLiveVersion(string branch, string endPoint, string binaryType)
         {
             string versionUrl = "https://versioncompatibility.api."
                                 + branch + ".com/" + endPoint + "?binaryType=" 
@@ -100,12 +101,12 @@ namespace Roblox
             return workDir;
         }
 
-        private async Task<string> getApiDumpFilePath(string branch, bool fetchPrevious = false)
+        public static async Task<string> GetApiDumpFilePath(string branch, Action<string> setStatus = null, bool fetchPrevious = false)
         {
             string coreBin = getWorkDirectory();
 
             string setupUrl = "https://s3.amazonaws.com/setup." + branch + ".com/";
-            setStatus("Checking for update...");
+            setStatus?.Invoke("Checking for update...");
 
             string version = await getLiveVersion(branch, "GetCurrentClientVersionUpload", "WindowsStudio");
 
@@ -116,7 +117,7 @@ namespace Roblox
 
             if (!File.Exists(file))
             {
-                setStatus("Grabbing the" + (fetchPrevious ? " previous " : " ") + "API Dump from " + branch);
+                setStatus?.Invoke("Grabbing the" + (fetchPrevious ? " previous " : " ") + "API Dump from " + branch);
 
                 string apiDump = await http.DownloadStringTaskAsync(setupUrl + version + "-API-Dump.json");
                 File.WriteAllText(file, apiDump);
@@ -130,10 +131,15 @@ namespace Roblox
             }
             else
             {
-                setStatus("Already up to date!");
+                setStatus?.Invoke("Already up to date!");
             }
 
             return file;
+        }
+
+        private async Task<string> getApiDumpFilePath(string branch, bool fetchPrevious = false)
+        {
+            return await GetApiDumpFilePath(branch, setStatus, fetchPrevious);
         }
 
         private void branch_SelectedIndexChanged(object sender, EventArgs e)
@@ -225,7 +231,7 @@ namespace Roblox
             });
         }
 
-        private void clearOldVersionFiles()
+        private static void clearOldVersionFiles()
         {
             string workDir = getWorkDirectory();
 
