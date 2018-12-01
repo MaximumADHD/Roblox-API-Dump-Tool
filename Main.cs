@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -181,7 +180,7 @@ namespace Roblox
                 ReflectionDatabase api = ReflectionDatabase.Load(apiJson);
                 ReflectionDumper dumper = new ReflectionDumper(api);
 
-                string result = dumper.Run();
+                string result = dumper.DumpTxt();
 
                 FileInfo info = new FileInfo(apiFilePath);
                 string directory = info.DirectoryName;

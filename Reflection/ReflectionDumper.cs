@@ -20,17 +20,44 @@ namespace Roblox.Reflection
             return list;
         }
 
-        private void write(params object[] list)
+        private void write(params object[] parts)
         {
-            string result = string.Join(" ", list);
-            write(result);
+            string text = string.Join(" ", parts);
+            buffer.Append(text);
         }
 
-        private void write(object text) => buffer.Append(text);
-        private void nextLine() => write(Util.NewLine);
-        private void tab() => write('\t');
+        private void nextLine()
+        {
+            write(Util.NewLine);
+        }
 
-        public string Run()
+        private void tab()
+        {
+            write('\t');
+        }
+
+        private void openHtmlTag(int stack, string tagName, string attributes = "")
+        {
+            for (int i = 0; i < stack; i++)
+                tab();
+
+            write('<' + tagName);
+
+            if (attributes.Length > 0)
+                write(" " + attributes);
+
+            write('>');
+        }
+
+        private void closeHtmlTag(int stack, string tagName)
+        {
+            for (int i = 0; i < stack; i++)
+                tab();
+
+            write("</" + tagName + ">");
+        }
+
+        public string DumpTxt()
         {
             buffer.Clear();
 
@@ -61,6 +88,12 @@ namespace Roblox.Reflection
             }
 
             return buffer.ToString();
+        }
+
+        public string DumpHtml()
+        {
+            // TO-DO
+            return "";
         }
     }
 }
