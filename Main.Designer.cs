@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             this.branch = new System.Windows.Forms.ComboBox();
-            this.viewApiDumpJson = new System.Windows.Forms.Button();
             this.compareVersions = new System.Windows.Forms.Button();
             this.status = new System.Windows.Forms.Label();
-            this.viewApiDumpClassic = new System.Windows.Forms.Button();
+            this.viewApiDump = new System.Windows.Forms.Button();
             this.appLogo = new System.Windows.Forms.PictureBox();
             this.branchLbl = new System.Windows.Forms.Label();
+            this.apiDumpFormat = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.appLogo)).BeginInit();
             this.SuspendLayout();
             // 
@@ -59,28 +59,13 @@
             this.branch.TabIndex = 0;
             this.branch.SelectedIndexChanged += new System.EventHandler(this.branch_SelectedIndexChanged);
             // 
-            // viewApiDumpJson
-            // 
-            this.viewApiDumpJson.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.viewApiDumpJson.Enabled = false;
-            this.viewApiDumpJson.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.viewApiDumpJson.Location = new System.Drawing.Point(10, 149);
-            this.viewApiDumpJson.Margin = new System.Windows.Forms.Padding(15, 3, 15, 5);
-            this.viewApiDumpJson.Name = "viewApiDumpJson";
-            this.viewApiDumpJson.Size = new System.Drawing.Size(278, 23);
-            this.viewApiDumpJson.TabIndex = 2;
-            this.viewApiDumpJson.Text = "View JSON API Dump";
-            this.viewApiDumpJson.UseVisualStyleBackColor = true;
-            this.viewApiDumpJson.Click += new System.EventHandler(this.viewApiDumpJson_Click);
-            // 
             // compareVersions
             // 
             this.compareVersions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.compareVersions.Enabled = false;
             this.compareVersions.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.compareVersions.Location = new System.Drawing.Point(10, 180);
+            this.compareVersions.Location = new System.Drawing.Point(10, 149);
             this.compareVersions.Margin = new System.Windows.Forms.Padding(30, 3, 30, 5);
             this.compareVersions.Name = "compareVersions";
             this.compareVersions.Size = new System.Drawing.Size(278, 23);
@@ -94,7 +79,7 @@
             this.status.AutoSize = true;
             this.status.Enabled = false;
             this.status.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.status.Location = new System.Drawing.Point(0, 208);
+            this.status.Location = new System.Drawing.Point(0, 177);
             this.status.Margin = new System.Windows.Forms.Padding(0);
             this.status.Name = "status";
             this.status.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
@@ -104,20 +89,20 @@
             this.status.Text = "Status: Ready!";
             this.status.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // viewApiDumpClassic
+            // viewApiDump
             // 
-            this.viewApiDumpClassic.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.viewApiDump.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.viewApiDumpClassic.Enabled = false;
-            this.viewApiDumpClassic.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.viewApiDumpClassic.Location = new System.Drawing.Point(10, 118);
-            this.viewApiDumpClassic.Margin = new System.Windows.Forms.Padding(15, 5, 15, 5);
-            this.viewApiDumpClassic.Name = "viewApiDumpClassic";
-            this.viewApiDumpClassic.Size = new System.Drawing.Size(278, 23);
-            this.viewApiDumpClassic.TabIndex = 5;
-            this.viewApiDumpClassic.Text = "View Classic API Dump";
-            this.viewApiDumpClassic.UseVisualStyleBackColor = true;
-            this.viewApiDumpClassic.Click += new System.EventHandler(this.viewApiDumpClassic_Click);
+            this.viewApiDump.Enabled = false;
+            this.viewApiDump.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.viewApiDump.Location = new System.Drawing.Point(10, 118);
+            this.viewApiDump.Margin = new System.Windows.Forms.Padding(15, 5, 15, 5);
+            this.viewApiDump.Name = "viewApiDump";
+            this.viewApiDump.Size = new System.Drawing.Size(218, 23);
+            this.viewApiDump.TabIndex = 5;
+            this.viewApiDump.Text = "View API Dump";
+            this.viewApiDump.UseVisualStyleBackColor = true;
+            this.viewApiDump.Click += new System.EventHandler(this.viewApiDumpClassic_Click);
             // 
             // appLogo
             // 
@@ -143,18 +128,31 @@
             this.branchLbl.TabIndex = 7;
             this.branchLbl.Text = "Branch:";
             // 
+            // apiDumpFormat
+            // 
+            this.apiDumpFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.apiDumpFormat.FormattingEnabled = true;
+            this.apiDumpFormat.Items.AddRange(new object[] {
+            "TXT",
+            "HTML",
+            "JSON"});
+            this.apiDumpFormat.Location = new System.Drawing.Point(232, 119);
+            this.apiDumpFormat.Name = "apiDumpFormat";
+            this.apiDumpFormat.Size = new System.Drawing.Size(56, 21);
+            this.apiDumpFormat.TabIndex = 8;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(298, 231);
+            this.ClientSize = new System.Drawing.Size(298, 207);
+            this.Controls.Add(this.apiDumpFormat);
             this.Controls.Add(this.branchLbl);
             this.Controls.Add(this.appLogo);
-            this.Controls.Add(this.viewApiDumpClassic);
+            this.Controls.Add(this.viewApiDump);
             this.Controls.Add(this.status);
             this.Controls.Add(this.compareVersions);
-            this.Controls.Add(this.viewApiDumpJson);
             this.Controls.Add(this.branch);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -174,12 +172,12 @@
         #endregion
 
         private System.Windows.Forms.ComboBox branch;
-        private System.Windows.Forms.Button viewApiDumpJson;
         private System.Windows.Forms.Button compareVersions;
         private System.Windows.Forms.Label status;
-        private System.Windows.Forms.Button viewApiDumpClassic;
+        private System.Windows.Forms.Button viewApiDump;
         private System.Windows.Forms.PictureBox appLogo;
         private System.Windows.Forms.Label branchLbl;
+        private System.Windows.Forms.ComboBox apiDumpFormat;
     }
 }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace Roblox
         private static RegistryKey versionRegistry => Program.GetRegistryKey(Program.MainRegistry, "Current Versions");
 
         private delegate void StatusDelegate(string msg);
-        private delegate string BranchDelegate();
+        private delegate string ItemDelegate(ComboBox comboBox);
 
         private static WebClient http = new WebClient();
 
@@ -26,21 +27,31 @@ namespace Roblox
             InitializeComponent();
         }
 
-        private string getBranch()
+        private string getSelectedItem(ComboBox comboBox)
         {
             object result;
 
             if (InvokeRequired)
             {
-                BranchDelegate branchDelegate = new BranchDelegate(getBranch);
-                result = Invoke(branchDelegate);
+                ItemDelegate itemDelegate = new ItemDelegate(getSelectedItem);
+                result = Invoke(itemDelegate, comboBox);
             }
             else
             {
-                result = branch.SelectedItem;
+                result = comboBox.SelectedItem;
             }
 
             return result.ToString();
+        }
+
+        private string getBranch()
+        {
+            return getSelectedItem(branch);
+        }
+
+        private string getApiDumpFormat()
+        {
+            return getSelectedItem(apiDumpFormat);
         }
 
         private static async Task<string> getLiveVersion(string branch, string endPoint, string binaryType)
@@ -100,6 +111,14 @@ namespace Roblox
             return workDir;
         }
 
+        private static string postProcessHtml(string result)
+        {
+            return "<head>\n"
+                 + "\t<link rel=\"stylesheet\" href=\"api-dump.css\">\n"
+                 + "</head>\n\n"
+                 + result;
+        }
+
         public static async Task<string> GetApiDumpFilePath(string branch, Action<string> setStatus = null, bool fetchPrevious = false)
         {
             string coreBin = getWorkDirectory();
@@ -152,21 +171,8 @@ namespace Roblox
 
             Program.MainRegistry.SetValue("LastSelectedBranch", branch);
 
-            viewApiDumpJson.Enabled = true;
-            viewApiDumpClassic.Enabled = true;
+            viewApiDump.Enabled = true;
             compareVersions.Enabled = true;
-        }
-
-        private async void viewApiDumpJson_Click(object sender, EventArgs e)
-        {
-            await lockWindowAndRunTask(async () =>
-            {
-                string branch = getBranch();
-                string filePath = await getApiDumpFilePath(branch);
-
-                clearOldVersionFiles();
-                Process.Start(filePath);
-            });
         }
 
         private async void viewApiDumpClassic_Click(object sender, EventArgs e)
@@ -174,18 +180,41 @@ namespace Roblox
             await lockWindowAndRunTask(async () =>
             {
                 string branch = getBranch();
-                string apiFilePath = await getApiDumpFilePath(branch);
-                string apiJson = File.ReadAllText(apiFilePath);
+                string format = getApiDumpFormat();
 
+                string apiFilePath = await getApiDumpFilePath(branch);
+
+                if (format == "JSON")
+                {
+                    Process.Start(apiFilePath);
+                    return;
+                }
+
+                string apiJson = File.ReadAllText(apiFilePath);
                 ReflectionDatabase api = ReflectionDatabase.Load(apiJson);
                 ReflectionDumper dumper = new ReflectionDumper(api);
 
-                string result = dumper.DumpTxt();
+                string result;
+
+                if (format == "HTML")
+                {
+                    string workDir = getWorkDirectory();
+                    string apiDumpCss = Path.Combine(workDir, "api-dump.css");
+
+                    if (!File.Exists(apiDumpCss))
+                        File.WriteAllText(apiDumpCss, Properties.Resources.ApiDumpStyler);
+
+                    result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml, postProcessHtml);
+                }
+                else
+                {
+                    result = dumper.DumpApi(ReflectionDumper.DumpUsingTxt);
+                }
 
                 FileInfo info = new FileInfo(apiFilePath);
                 string directory = info.DirectoryName;
 
-                string resultPath = Path.Combine(directory, branch + "-api-dump.txt");
+                string resultPath = Path.Combine(directory, branch + "-api-dump." + format.ToLower());
                 writeAndViewFile(resultPath, result);
             });
         }
@@ -298,6 +327,8 @@ namespace Roblox
             {
                 branch.SelectedIndex = 0;
             }
+
+            apiDumpFormat.SelectedIndex = 0;
         }
     }
 }

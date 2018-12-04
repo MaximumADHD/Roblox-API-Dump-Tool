@@ -1,0 +1,181 @@
+body
+{
+	background-color: black;
+	color: white;
+	font-family: Consolas;
+	white-space: nowrap;
+}
+
+div::before
+{
+	font-weight: bold;
+}
+
+div.Class::before
+{
+	content: "Class";
+	color: #FF6400;
+}
+
+div.Enum::before
+{
+	content: "Enum";
+	color: #FF6400;
+}
+
+div.Property::before
+{
+	content: "Property";
+	color: #00FFFF;
+	margin-left: 40px;
+}
+
+div.Function::before
+{
+	content: "Function";
+	color: #00FF00;
+	margin-left: 40px;
+}
+
+div.Event::before
+{
+	content: "Event";
+	color: #FFFF00;
+	margin-left: 40px;
+}
+
+div.Callback::before
+{
+	content: "Callback";
+	color: #FF00FF;
+	margin-left: 40px;
+}
+
+div.EnumItem::before
+{
+	content: "EnumItem";
+	color: #FF6400;
+	margin-left: 40px;
+}
+
+span.Tags,
+span.Security
+{
+	font-weight: bold;
+	font-size: 12;
+}
+
+span.Tags
+{
+	color: #F3F385;
+}
+
+span.Security
+{
+	background-color: #3F0000;
+	color: #FF0000;
+}
+
+span.Type,
+span.ParamDefault.Bool
+{
+	color: #FF6400;
+	font-weight: bold;
+}
+
+span.InnerType
+{
+	color: #007FFF;
+	font-weight: bold;
+}
+
+span.InnerType::before
+{
+	content: '<';
+	margin-left: -8px;
+}
+
+span.InnerType::after
+{
+	content: '>';
+}
+
+span.ClassName::after,
+span.EnumName::after
+{
+	content: '.';
+	margin-right: -8px;
+}
+
+span.ClassName.Function::after
+{
+	content: ':';
+}
+
+span.Superclass::before,
+span.Value::before
+{
+	content: " : "
+}
+
+span.Value::before,
+span.ClassName::after,
+span.InnerType::after,
+span.InnerType::before,
+span.Parameter::after,
+span.Parameters::after,
+span.Parameters::before,
+span.Superclass::before,
+span.ParamDefault::before
+{
+	color: #FFAA50;
+}
+
+span.Parameters::before
+{
+	content: '(';
+	margin-left: -8px;
+}
+
+span.Parameters::after
+{
+	content: ')';
+}
+
+span.Parameter::after
+{
+	content: ',';
+	margin-left: -8px;
+}
+
+span.Parameter.Last::after
+{
+	content: "";
+	margin-right: 8px;
+}
+
+span.ParamDefault::before
+{
+	content: " = ";
+}
+
+span.ParamDefault.String
+{
+	color: #00FF00;
+}
+
+span.ParamDefault.String::before,
+span.ParamDefault.String::after
+{
+	color: #00FF00;
+	content: '"';
+}
+
+span.Value,
+span.ParamDefault.Int,
+span.ParamDefault.Int64,
+span.ParamDefault.Float,
+span.ParamDefault.Double
+{
+	color: #FF0000;
+}

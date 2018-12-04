@@ -95,6 +95,9 @@
   <ItemGroup>
     <None Include="Resources\AppLogo.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="api-dump.css" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /y "$(TargetDir)$(TargetFileName)" "$(ProjectDir)$(TargetFileName)"</PostBuildEvent>

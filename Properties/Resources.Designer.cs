@@ -61,6 +61,57 @@ namespace Roblox.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to body
+        ///{
+        ///	background-color: black;
+        ///	color: white;
+        ///	font-family: Consolas;
+        ///	white-space: nowrap;
+        ///}
+        ///
+        ///div::before
+        ///{
+        ///	font-weight: bold;
+        ///}
+        ///
+        ///div.Class::before
+        ///{
+        ///	content: &quot;Class&quot;;
+        ///	color: #FF6400;
+        ///}
+        ///
+        ///div.Enum::before
+        ///{
+        ///	content: &quot;Enum&quot;;
+        ///	color: #FF6400;
+        ///}
+        ///
+        ///div.Property::before
+        ///{
+        ///	content: &quot;Property&quot;;
+        ///	color: #00FFFF;
+        ///	margin-left: 40px;
+        ///}
+        ///
+        ///div.Function::before
+        ///{
+        ///	content: &quot;Function&quot;;
+        ///	color: #00FF00;
+        ///	margin-left: 40px;
+        ///}
+        ///
+        ///div.Event::before
+        ///{
+        ///	content: &quot;Event&quot;;
+        ///	color: #FF [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ApiDumpStyler {
+            get {
+                return ResourceManager.GetString("ApiDumpStyler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon AppIcon {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Newtonsoft.Json;
 
 namespace Roblox.Reflection
@@ -40,10 +41,10 @@ namespace Roblox.Reflection
         /// </param>
         public virtual string GetSchema(bool detailed = false)
         {
-            string schema = "{DESC_TYPE} {NAME}";
+            string schema = "{DescriptorType} {Name}";
 
             if (detailed)
-                schema += " {TAGS}";
+                schema += " {Tags}";
 
             return schema;
         }
@@ -58,14 +59,14 @@ namespace Roblox.Reflection
         public virtual Dictionary<string, string> GetTokens(bool detailed = false)
         {
             var tokens = new Dictionary<string, string>();
-            tokens.Add("NAME", Name);
+            tokens.Add("Name", Name);
 
             string descType = GetDescriptorType();
-            tokens.Add("DESC_TYPE", descType);
+            tokens.Add("DescriptorType", descType);
 
             string tags = Util.DescribeTags(Tags);
             if (detailed && tags.Length > 0)
-                tokens.Add("TAGS", tags);
+                tokens.Add("Tags", tags);
 
             return tokens;
         }
@@ -84,7 +85,7 @@ namespace Roblox.Reflection
 
             var tokens = GetTokens(detailed);
             string desc = GetSchema(detailed);
-
+            
             while (search < desc.Length)
             {
                 int openToken = desc.IndexOf('{', search);
@@ -139,25 +140,25 @@ namespace Roblox.Reflection
         }
     }
 
-    [JsonConverter(typeof(ReflectionConverter))]
+    [JsonConverter( typeof(ReflectionConverter) )]
     public sealed class ClassDescriptor : Descriptor
     {
         public string Superclass;
         public DeveloperMemoryTag MemoryCategory;
 
-        public List<MemberDescriptor> Members;
+        public List<MemberDescriptor>   Members;
         public List<PropertyDescriptor> Properties;
         public List<FunctionDescriptor> Functions;
         public List<CallbackDescriptor> Callbacks;
-        public List<EventDescriptor> Events;
+        public List<EventDescriptor>    Events;
 
         public ClassDescriptor()
         {
-            Members = new List<MemberDescriptor>();
+            Members    = new List<MemberDescriptor>();
             Properties = new List<PropertyDescriptor>();
-            Functions = new List<FunctionDescriptor>();
-            Callbacks = new List<CallbackDescriptor>();
-            Events = new List<EventDescriptor>();
+            Functions  = new List<FunctionDescriptor>();
+            Callbacks  = new List<CallbackDescriptor>();
+            Events     = new List<EventDescriptor>();
         }
 
         public override string GetSchema(bool detailed = false)
@@ -165,7 +166,7 @@ namespace Roblox.Reflection
             string schema = base.GetSchema();
 
             if (detailed)
-                schema += " : {SUPER_CLASS} {TAGS}";
+                schema += " : {Superclass} {Tags}";
 
             return schema;
         }
@@ -175,7 +176,7 @@ namespace Roblox.Reflection
             var tokens = base.GetTokens(detailed);
 
             if (detailed)
-                tokens.Add("SUPER_CLASS", Superclass);
+                tokens.Add("Superclass", Superclass);
 
             return tokens;
         }
@@ -186,40 +187,37 @@ namespace Roblox.Reflection
         public ClassDescriptor Class;
         public MemberType MemberType;
 
-        // This generates the schema for all member types. I decided to keep this in one place 
-        // because they all share a fairly similar structure, so it would be redundant to
-        // implement these per member type.
         public override string GetSchema(bool detailed = true)
         {
-            string schema = "{DESC_TYPE} ";
+            string schema = "{DescriptorType} ";
 
             if (detailed && MemberType != MemberType.Event)
             {
                 string typeName;
 
                 if (MemberType == MemberType.Property)
-                    typeName = "{VALUE_TYPE}";
+                    typeName = "{ValueType}";
                 else
-                    typeName = "{RETURN_TYPE}";
+                    typeName = "{ReturnType}";
 
                 schema += typeName + ' ';
             }
 
-            schema += "{CLASS_NAME}";
+            schema += "{ClassName}";
 
             if (MemberType == MemberType.Function)
                 schema += ':';
             else
                 schema += '.';
 
-            schema += "{NAME}";
+            schema += "{Name}";
 
             if (detailed)
             {
                 if (MemberType != MemberType.Property)
-                    schema += "{PARAMETERS}";
+                    schema += "{Parameters}";
 
-                schema += " {SECURITY} {TAGS}";
+                schema += " {Security} {Tags}";
             }
 
             return schema;
@@ -228,7 +226,7 @@ namespace Roblox.Reflection
         public override Dictionary<string, string> GetTokens(bool detailed = false)
         {
             var tokens = base.GetTokens(detailed);
-            tokens.Add("CLASS_NAME", Class.Name);
+            tokens.Add("ClassName", Class.Name);
 
             return tokens;
         }
@@ -250,7 +248,7 @@ namespace Roblox.Reflection
 
                     string thisMT = Util.GetEnumName(MemberType);
                     string otherMT = Util.GetEnumName(otherDesc.MemberType);
-
+                    
                     if (priority.Contains(thisMT) && priority.Contains(otherMT))
                     {
                         return priority.IndexOf(thisMT) - priority.IndexOf(otherMT);
@@ -259,6 +257,28 @@ namespace Roblox.Reflection
             }
 
             return base.CompareTo(other);
+        }
+
+        // Returns a list of parameters if the descriptor calling this function has a
+        // member named Parameters whose type is List<Parameters>. This is a hack to
+        // make it easier to handle parameters in html.
+        public List<Parameter> GetParameters()
+        {
+            try
+            {
+                Type type = GetType();
+                FieldInfo info = type.GetField("Parameters");
+                return info.GetValue(this) as List<Parameter>;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public virtual TypeDescriptor GetResultType()
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -269,6 +289,11 @@ namespace Roblox.Reflection
         public ReadWriteSecurity Security;
         public Serialization Serialization;
 
+        public override TypeDescriptor GetResultType()
+        {
+            return ValueType;
+        }
+
         public override Dictionary<string, string> GetTokens(bool detailed = false)
         {
             var tokens = base.GetTokens(detailed);
@@ -276,15 +301,15 @@ namespace Roblox.Reflection
             if (detailed)
             {
                 string valueType = ValueType.ToString();
-                tokens.Add("VALUE_TYPE", valueType);
+                tokens.Add("ValueType", valueType);
 
                 string security = Util.DescribeSecurity(Security);
-                tokens.Add("SECURITY", security);
+                tokens.Add("Security", security);
             }
 
             return tokens;
         }
-
+        
         public override int CompareTo(object other)
         {
             if (other is PropertyDescriptor)
@@ -316,6 +341,11 @@ namespace Roblox.Reflection
         public TypeDescriptor ReturnType;
         public SecurityType Security;
 
+        public override TypeDescriptor GetResultType()
+        {
+            return ReturnType;
+        }
+
         public override Dictionary<string, string> GetTokens(bool detailed = false)
         {
             var tokens = base.GetTokens(detailed);
@@ -323,13 +353,13 @@ namespace Roblox.Reflection
             if (detailed)
             {
                 string returnType = ReturnType.ToString();
-                tokens.Add("RETURN_TYPE", returnType);
+                tokens.Add("ReturnType", returnType);
 
                 string parameters = Util.DescribeParameters(Parameters);
-                tokens.Add("PARAMETERS", parameters);
+                tokens.Add("Parameters", parameters);
 
                 string security = Util.DescribeSecurity(Security);
-                tokens.Add("SECURITY", security);
+                tokens.Add("Security", security);
             }
 
             return tokens;
@@ -348,10 +378,10 @@ namespace Roblox.Reflection
             if (detailed)
             {
                 string parameters = Util.DescribeParameters(Parameters);
-                tokens.Add("PARAMETERS", parameters);
+                tokens.Add("Parameters", parameters);
 
                 string security = Util.DescribeSecurity(Security);
-                tokens.Add("SECURITY", security);
+                tokens.Add("Security", security);
             }
 
             return tokens;
@@ -364,6 +394,11 @@ namespace Roblox.Reflection
         public TypeDescriptor ReturnType;
         public SecurityType Security;
 
+        public override TypeDescriptor GetResultType()
+        {
+            return ReturnType;
+        }
+
         public override Dictionary<string, string> GetTokens(bool detailed = false)
         {
             var tokens = base.GetTokens(detailed);
@@ -371,20 +406,20 @@ namespace Roblox.Reflection
             if (detailed)
             {
                 string returnType = ReturnType.ToString();
-                tokens.Add("RETURN_TYPE", returnType);
+                tokens.Add("ReturnType", returnType);
 
                 string parameters = Util.DescribeParameters(Parameters);
-                tokens.Add("PARAMETERS", parameters);
+                tokens.Add("Parameters", parameters);
 
                 string security = Util.DescribeSecurity(Security);
-                tokens.Add("SECURITY", security);
+                tokens.Add("Security", security);
             }
 
             return tokens;
         }
     }
 
-    [JsonConverter(typeof(ReflectionConverter))]
+    [JsonConverter( typeof(ReflectionConverter) )]
     public sealed class EnumDescriptor : Descriptor
     {
         public List<EnumItemDescriptor> Items;
@@ -402,10 +437,10 @@ namespace Roblox.Reflection
 
         public override string GetSchema(bool detailed = false)
         {
-            string schema = "{DESC_TYPE} {ENUM_NAME}.{NAME}";
+            string schema = "{DescriptorType} {EnumName}.{Name}";
 
             if (detailed)
-                schema += " : {VALUE} {TAGS}";
+                schema += " : {Value} {Tags}";
 
             return schema;
         }
@@ -415,12 +450,12 @@ namespace Roblox.Reflection
             var tokens = base.GetTokens(detailed);
 
             string enumName = Enum.Name;
-            tokens.Add("ENUM_NAME", enumName);
+            tokens.Add("EnumName", enumName);
 
             if (detailed)
             {
                 string value = Value.ToString();
-                tokens.Add("VALUE", value);
+                tokens.Add("Value", value);
             }
 
             return tokens;

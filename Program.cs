@@ -39,7 +39,7 @@ namespace Roblox
                 ReflectionDatabase api = ReflectionDatabase.Load(apiJson);
                 ReflectionDumper dumper = new ReflectionDumper(api);
 
-                string result = dumper.DumpTxt();
+                string result = dumper.DumpApi(ReflectionDumper.DumpUsingTxt);
                 string exportPath = Path.Combine(exportBin, branch + ".txt");
 
                 File.WriteAllText(exportPath, result);
