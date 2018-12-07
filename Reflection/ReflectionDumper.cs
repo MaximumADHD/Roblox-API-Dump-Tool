@@ -181,12 +181,6 @@ namespace Roblox.Reflection
                     if (closeToken >= 0)
                     {
                         // Check if any text came before this.
-                        /* if (openToken - search > 0)
-                        {
-                            string before = schema.Substring(search, openToken - search);
-                            dumper.write(before);
-                        } */
-
                         string token = schema.Substring(openToken + 1, closeToken - openToken - 1);
 
                         if (tokens.ContainsKey(token))
@@ -232,12 +226,6 @@ namespace Roblox.Reflection
                     }
                 }
             }
-
-            /* if (schema.Length - search > 0)
-            {
-                string after = schema.Substring(search, schema.Length - search);
-                dumper.write(after);
-            } */
 
             buffer.closeHtmlTag("div");
             buffer.nextLine();

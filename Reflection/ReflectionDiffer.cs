@@ -29,6 +29,7 @@ namespace Roblox.Reflection
 
             public bool HasParent => (stack > 0);
             public bool Detailed = false;
+            public bool Merged = false;
 
             public void AddChild(Diff child)
             {
@@ -377,7 +378,7 @@ namespace Roblox.Reflection
                                 var oldEvent = oldMember as EventDescriptor;
                                 var newEvent = newMember as EventDescriptor;
 
-                                DiffNativeEnum(newMember, "permissions", oldEvent.Security, newEvent.Security);
+                                DiffNativeEnum(newMember, "security", oldEvent.Security, newEvent.Security);
                                 DiffParameters(newMember, oldEvent.Parameters, newEvent.Parameters);
                             }
                         }
@@ -459,19 +460,52 @@ namespace Roblox.Reflection
                 }
             }
 
-            // Finalize Diff
+            // Sort the results
             results.Sort();
 
-            List<string> diffs = results
+            // Select diffs that are not parented to other diffs.
+            List<Diff> diffs = results
                 .Where(diff => !diff.HasParent)
-                .Select(diff => diff.ToString())
                 .ToList();
 
+            // Merge similar changes
+            foreach (Diff diff in diffs)
+            {
+                if (diff.Type == DiffType.Change && !diff.Merged)
+                {
+                    List<Diff> similarDiffs = diffs
+                        .Where(similar => diff != similar)
+                        .Where(similar => diff.Target == similar.Target)
+                        .ToList();
+
+                    if (similarDiffs.Count > 0)
+                    {
+                        foreach (Diff similar in similarDiffs)
+                        {
+                            if (diff.Field.Contains(" and "))
+                                diff.Field = diff.Field.Replace(" and ", ", ");
+
+                            diff.Field += " and " + similar.Field;
+                            diff.From += " " + similar.From;
+                            diff.To += " " + similar.To;
+
+                            similar.Merged = true;
+                        }
+                    }
+                }
+            }
+
+            // Generate the diff logs.
             List<string> final = new List<string>();
             string prevLead = "";
             string lastLine = "";
 
-            foreach (string line in diffs)
+            List<string> lines = diffs
+                .Where(diff => !diff.Merged)
+                .Select(diff => diff.ToString())
+                .ToList();
+
+            foreach (string line in lines)
             {
                 string[] words = line.Split(' ');
                 if (words.Length >= 2)
@@ -504,12 +538,10 @@ namespace Roblox.Reflection
                     if (!addBreak && lastLineNoBreak && line.EndsWith(Util.NewLine))
                         addBreak = true;
 
+                    // Add a break between this line and the previous.
+                    // This will make things easier to read.
                     if (addBreak)
-                    {
-                        // Add a break between this line and the previous.
-                        // This will make things easier to read.
                         final.Add("");
-                    }
 
                     final.Add(line);
                     lastLine = line;
