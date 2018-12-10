@@ -144,6 +144,7 @@ namespace Roblox.Reflection
     public sealed class ClassDescriptor : Descriptor
     {
         public string Superclass;
+        public ReflectionDatabase Database;
         public DeveloperMemoryTag MemoryCategory;
 
         public List<MemberDescriptor>   Members;
@@ -152,6 +153,8 @@ namespace Roblox.Reflection
         public List<CallbackDescriptor> Callbacks;
         public List<EventDescriptor>    Events;
 
+        private int inheritLevel = -1;
+
         public ClassDescriptor()
         {
             Members    = new List<MemberDescriptor>();
@@ -159,6 +162,32 @@ namespace Roblox.Reflection
             Functions  = new List<FunctionDescriptor>();
             Callbacks  = new List<CallbackDescriptor>();
             Events     = new List<EventDescriptor>();
+        }
+
+        public int InheritanceLevel
+        {
+            get
+            {
+                if (inheritLevel < 0 && Database != null)
+                {
+                    if (Database.ClassLookup.ContainsKey(Superclass))
+                    {
+                        ClassDescriptor parentClass = Database.ClassLookup[Superclass];
+                        if (parentClass.InheritanceLevel >= 0)
+                        {
+                            // Set the inheritance level to the parent's level + 1
+                            inheritLevel = parentClass.InheritanceLevel + 1;
+                        }
+                    }
+                    else if (Superclass == "<<<ROOT>>>")
+                    {
+                        // This is the top level class
+                        inheritLevel = 0;
+                    }
+                }
+
+                return inheritLevel;
+            }
         }
 
         public override string GetSchema(bool detailed = false)
@@ -179,6 +208,21 @@ namespace Roblox.Reflection
                 tokens.Add("Superclass", Superclass);
 
             return tokens;
+        }
+
+        public override int CompareTo(object other)
+        {
+            if (other is ClassDescriptor)
+            {
+                var otherClass = other as ClassDescriptor;
+                if (InheritanceLevel != otherClass.InheritanceLevel)
+                {
+                    int diff = InheritanceLevel - otherClass.InheritanceLevel;
+                    return Math.Sign(diff);
+                }
+            }
+
+            return base.CompareTo(other);
         }
     }
 
@@ -484,9 +528,20 @@ namespace Roblox.Reflection
         public List<ClassDescriptor> Classes;
         public List<EnumDescriptor> Enums;
 
+        public Dictionary<string, ClassDescriptor> ClassLookup;
+
         public static ReflectionDatabase Load(string jsonApiDump)
         {
-            return JsonConvert.DeserializeObject<ReflectionDatabase>(jsonApiDump);
+            var result = JsonConvert.DeserializeObject<ReflectionDatabase>(jsonApiDump);
+            result.ClassLookup = new Dictionary<string, ClassDescriptor>();
+
+            foreach (ClassDescriptor classDesc in result.Classes)
+            {
+                result.ClassLookup.Add(classDesc.Name, classDesc);
+                classDesc.Database = result;
+            }
+
+            return result;
         }
     }
 }
