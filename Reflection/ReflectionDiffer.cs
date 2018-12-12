@@ -25,11 +25,31 @@ namespace Roblox.Reflection
             public string To;
 
             private int stack;
+            private bool detailed;
             private List<Diff> children;
 
             public bool HasParent => (stack > 0);
-            public bool Detailed = false;
-            public bool Merged = false;
+            public bool Deferred = false;
+
+            public bool Detailed
+            {
+                get
+                {
+                    return detailed;
+                }
+                set
+                {
+                    detailed = value;
+
+                    if (children != null)
+                    {
+                        foreach (Diff child in children)
+                        {
+                            child.Detailed = value;
+                        }
+                    }
+                }
+            }
 
             public void AddChild(Diff child)
             {
@@ -159,13 +179,15 @@ namespace Roblox.Reflection
 
         private Diff Added(string field, Descriptor target, bool detailed = true, Diff parent = null)
         {
-            Diff added = new Diff();
-            added.Type = DiffType.Add;
-            added.Detailed = detailed;
+            Diff added = new Diff()
+            {
+                Type = DiffType.Add,
+                Detailed = detailed,
 
-            added.Field = field;
-            added.Target = target;
-            
+                Field = field,
+                Target = target
+            };
+
             if (parent != null)
                 parent.AddChild(added);
             else
@@ -176,12 +198,14 @@ namespace Roblox.Reflection
 
         private Diff Removed(string field, Descriptor target, bool detailed = false, Diff parent = null)
         {
-            Diff removed = new Diff();
-            removed.Type = DiffType.Remove;
-            removed.Detailed = detailed;
+            Diff removed = new Diff()
+            {
+                Type = DiffType.Remove,
+                Detailed = detailed,
 
-            removed.Field = field;
-            removed.Target = target;
+                Field = field,
+                Target = target,
+            };
 
             if (parent != null)
                 parent.AddChild(removed);
@@ -193,15 +217,17 @@ namespace Roblox.Reflection
 
         private Diff Changed(string field, Descriptor target, string from, string to)
         {
-            Diff changed = new Diff();
-            changed.Type = DiffType.Change;
-            changed.Detailed = false;
+            Diff changed = new Diff()
+            {
+                Type = DiffType.Change,
+                Detailed = false,
 
-            changed.Field = field;
-            changed.Target = target;
+                Field = field,
+                Target = target,
 
-            changed.From = from;
-            changed.To = to;
+                From = from,
+                To = to
+            };
 
             results.Add(changed);
             return changed;
@@ -471,7 +497,7 @@ namespace Roblox.Reflection
             // Merge similar changes
             foreach (Diff diff in diffs)
             {
-                if (diff.Type == DiffType.Change && !diff.Merged)
+                if (diff.Type == DiffType.Change && !diff.Deferred)
                 {
                     List<Diff> similarDiffs = diffs
                         .Where(similar => diff != similar)
@@ -489,7 +515,68 @@ namespace Roblox.Reflection
                             diff.From += " " + similar.From;
                             diff.To += " " + similar.To;
 
-                            similar.Merged = true;
+                            similar.Deferred = true;
+                        }
+                    }
+                }
+            }
+
+            // Detect changed class names
+            List<Diff> newClassDiffs = diffs
+                .Where(diff => diff.Target is ClassDescriptor)
+                .Where(diff => diff.Type == DiffType.Add)
+                .ToList();
+
+            List<Diff> oldClassDiffs = diffs
+                .Where(diff => diff.Target is ClassDescriptor)
+                .Where(diff => diff.Type == DiffType.Remove)
+                .ToList();
+
+            if (oldClassDiffs.Count > 0 && newClassDiffs.Count > 0)
+            {
+                foreach (Diff newClassDiff in newClassDiffs)
+                {
+                    Descriptor newClass = newClassDiff.Target;
+
+                    // Temporarily mark the new diff as a summary.
+                    newClassDiff.Detailed = false;
+
+                    // Grab the summary version of the new diff.
+                    string newDiff = newClassDiff.ToString();
+
+                    // Switch the diff back to its detailed mode.
+                    newClassDiff.Detailed = true;
+
+                    foreach (Diff oldClassDiff in oldClassDiffs)
+                    {
+                        Descriptor oldClass = oldClassDiff.Target;
+                        string oldDiff = oldClassDiff.ToString();
+
+                        // Try to convert the old diff into the 'simplified'
+                        // new diff that was generated above.
+                        string nameChange = oldDiff
+                            .Replace(oldClassDiff.Target.Name, newClassDiff.Target.Name)
+                            .Replace("Removed", "Added");
+
+                        // If the signatures match, then this is likely a renamed class.
+                        if (newDiff == nameChange)
+                        {
+                            // Create a change diff describing the classname change.
+                            Diff nameChangeDiff = new Diff()
+                            {
+                                Type = DiffType.Change,
+                                Field = "ClassName",
+                                Target = oldClass,
+                                From = oldClass.Name,
+                                To = newClass.Name
+                            };
+
+                            // Add this change to the diffs.
+                            diffs.Add(nameChangeDiff);
+
+                            // Mark the original class diffs as deferred
+                            oldClassDiff.Deferred = true;
+                            newClassDiff.Deferred = true;
                         }
                     }
                 }
@@ -501,7 +588,7 @@ namespace Roblox.Reflection
             string lastLine = "";
 
             List<string> lines = diffs
-                .Where(diff => !diff.Merged)
+                .Where(diff => !diff.Deferred)
                 .Select(diff => diff.ToString())
                 .ToList();
 
