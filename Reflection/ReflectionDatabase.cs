@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 
@@ -14,7 +13,7 @@ namespace Roblox.Reflection
         public string Signature => Describe(true);
 
         public override string ToString() => Summary;
-        public List<string> Tags = new List<string>();
+        public Tags Tags = new Tags();
 
         /// <summary>
         ///     If called from a derived class, this function returns 
@@ -64,7 +63,7 @@ namespace Roblox.Reflection
             string descType = GetDescriptorType();
             tokens.Add("DescriptorType", descType);
 
-            string tags = Util.DescribeTags(Tags);
+            string tags = Tags.ToString();
             if (detailed && tags.Length > 0)
                 tokens.Add("Tags", tags);
 
@@ -112,16 +111,6 @@ namespace Roblox.Reflection
             return desc;
         }
 
-        protected static string ExtendDescription(params object[] targets)
-        {
-            string[] filtered = targets
-                .Select(target => target.ToString())
-                .Where(target => target.Length > 0)
-                .ToArray();
-
-            return string.Join(" ", filtered);
-        }
-
         public virtual int CompareTo(object other)
         {
             string label;
@@ -144,9 +133,9 @@ namespace Roblox.Reflection
     public sealed class ClassDescriptor : Descriptor
     {
         public string Superclass;
+        public MemoryTag MemoryCategory;
         public ReflectionDatabase Database;
-        public DeveloperMemoryTag MemoryCategory;
-
+        
         public List<MemberDescriptor>   Members;
         public List<PropertyDescriptor> Properties;
         public List<FunctionDescriptor> Functions;
@@ -173,6 +162,7 @@ namespace Roblox.Reflection
                     if (Database.ClassLookup.ContainsKey(Superclass))
                     {
                         ClassDescriptor parentClass = Database.ClassLookup[Superclass];
+
                         if (parentClass.InheritanceLevel >= 0)
                         {
                             // Set the inheritance level to the parent's level + 1
@@ -303,16 +293,16 @@ namespace Roblox.Reflection
             return base.CompareTo(other);
         }
 
-        // Returns a list of parameters if the descriptor calling this function has a
-        // member named Parameters whose type is List<Parameters>. This is a hack to
+        // Returns a Parameters object if the descriptor calling this function has a
+        // member named Parameters whose type is Parameters. This is a hack to
         // make it easier to handle parameters in html.
-        public List<Parameter> GetParameters()
+        public Parameters GetParameters()
         {
             try
             {
                 Type type = GetType();
                 FieldInfo info = type.GetField("Parameters");
-                return info.GetValue(this) as List<Parameter>;
+                return info.GetValue(this) as Parameters;
             }
             catch
             {
@@ -381,10 +371,10 @@ namespace Roblox.Reflection
 
     public sealed class FunctionDescriptor : MemberDescriptor
     {
-        public List<Parameter> Parameters;
-        public TypeDescriptor ReturnType;
+        public Parameters Parameters;
         public SecurityType Security;
-
+        public TypeDescriptor ReturnType;
+        
         public override TypeDescriptor GetResultType()
         {
             return ReturnType;
@@ -399,7 +389,7 @@ namespace Roblox.Reflection
                 string returnType = ReturnType.ToString();
                 tokens.Add("ReturnType", returnType);
 
-                string parameters = Util.DescribeParameters(Parameters);
+                string parameters = Parameters.ToString();
                 tokens.Add("Parameters", parameters);
 
                 string security = Util.DescribeSecurity(Security);
@@ -412,7 +402,7 @@ namespace Roblox.Reflection
 
     public sealed class EventDescriptor : MemberDescriptor
     {
-        public List<Parameter> Parameters;
+        public Parameters Parameters;
         public SecurityType Security;
 
         public override Dictionary<string, string> GetTokens(bool detailed = false)
@@ -421,7 +411,7 @@ namespace Roblox.Reflection
 
             if (detailed)
             {
-                string parameters = Util.DescribeParameters(Parameters);
+                string parameters = Parameters.ToString();
                 tokens.Add("Parameters", parameters);
 
                 string security = Util.DescribeSecurity(Security);
@@ -434,9 +424,9 @@ namespace Roblox.Reflection
 
     public sealed class CallbackDescriptor : MemberDescriptor
     {
-        public List<Parameter> Parameters;
-        public TypeDescriptor ReturnType;
+        public Parameters Parameters;
         public SecurityType Security;
+        public TypeDescriptor ReturnType;
 
         public override TypeDescriptor GetResultType()
         {
@@ -452,7 +442,7 @@ namespace Roblox.Reflection
                 string returnType = ReturnType.ToString();
                 tokens.Add("ReturnType", returnType);
 
-                string parameters = Util.DescribeParameters(Parameters);
+                string parameters = Parameters.ToString();
                 tokens.Add("Parameters", parameters);
 
                 string security = Util.DescribeSecurity(Security);

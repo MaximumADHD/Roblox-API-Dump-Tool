@@ -24,38 +24,20 @@ namespace Roblox.Reflection
             public string From;
             public string To;
 
+            public bool HasParent => (stack > 0);
+            public bool Detailed;
+            public bool Deferred;
+
             private int stack;
-            private bool detailed;
             private List<Diff> children;
 
-            public bool HasParent => (stack > 0);
-            public bool Deferred = false;
-
-            public bool Detailed
+            public Diff()
             {
-                get
-                {
-                    return detailed;
-                }
-                set
-                {
-                    detailed = value;
-
-                    if (children != null)
-                    {
-                        foreach (Diff child in children)
-                        {
-                            child.Detailed = value;
-                        }
-                    }
-                }
+                children = new List<Diff>();
             }
 
             public void AddChild(Diff child)
             {
-                if (children == null)
-                    children = new List<Diff>();
-
                 if (!children.Contains(child))
                 {
                     child.stack++;
@@ -63,14 +45,14 @@ namespace Roblox.Reflection
                 }
             }
 
-            public override string ToString()
+            public string WriteDiff(bool detailed = false)
             {
                 string result = "";
                 for (int i = 0; i < stack; i++)
                     result += '\t';
 
-                string what = Target.Describe(Detailed);
-                
+                string what = Target.Describe(detailed);
+
                 if (Type != DiffType.Change)
                     what = (what.StartsWith(Field) ? "" : Field + ' ') + what;
                 else
@@ -89,8 +71,8 @@ namespace Roblox.Reflection
                             result += " " + merged;
                         else
                             result += ' ' + Util.NewLine +
-                                "\tfrom: " + From + Util.NewLine + 
-                                "\t  to: " + To   + Util.NewLine;
+                                "\tfrom: " + From + Util.NewLine +
+                                "\t  to: " + To + Util.NewLine;
 
                         break;
                     case DiffType.Remove:
@@ -98,16 +80,25 @@ namespace Roblox.Reflection
                         break;
                 }
 
-                if (children != null)
+                if (children.Count > 0)
                 {
                     children.Sort();
+
                     foreach (Diff child in children)
-                        result += Util.NewLine + child.ToString();
+                    {
+                        result += Util.NewLine;
+                        result += child.WriteDiff(detailed);
+                    };
 
                     result += Util.NewLine;
                 }
 
                 return result;
+            }
+
+            public override string ToString()
+            {
+                return WriteDiff(Detailed);
             }
 
             public int CompareTo(object obj)
@@ -156,25 +147,16 @@ namespace Roblox.Reflection
             return lookup;
         }
 
-        private void flagEntireClass(ClassDescriptor classDesc, Func<string, Descriptor, bool, Diff, Diff> record, bool detailed)
+        private void flagEntireClass(ClassDescriptor classDesc, Func<Descriptor, bool, Diff, Diff> record, bool detailed)
         {
-            Diff classDiff = record("Class", classDesc, detailed, null);
-
-            foreach (MemberDescriptor memberDesc in classDesc.Members)
-            {
-                string memberType = Util.GetEnumName(memberDesc.MemberType);
-                record(memberType, memberDesc, detailed, classDiff);
-            }
+            Diff classDiff = record(classDesc, detailed, null);
+            classDesc.Members.ForEach(memberDesc => record(memberDesc, detailed, classDiff));
         }
 
-        private void flagEntireEnum(EnumDescriptor enumDesc, Func<string, Descriptor, bool, Diff, Diff> record, bool detailed)
+        private void flagEntireEnum(EnumDescriptor enumDesc, Func<Descriptor, bool, Diff, Diff> record, bool detailed)
         {
-            Diff enumDiff = record("Enum", enumDesc, detailed, null);
-
-            foreach (EnumItemDescriptor itemDesc in enumDesc.Items)
-            {
-                record("EnumItem", itemDesc, detailed, enumDiff);
-            }
+            Diff enumDiff = record(enumDesc, detailed, null);
+            enumDesc.Items.ForEach(itemDesc => record(itemDesc, detailed, enumDiff));
         }
 
         private Diff Added(string field, Descriptor target, bool detailed = true, Diff parent = null)
@@ -233,26 +215,38 @@ namespace Roblox.Reflection
             return changed;
         }
 
-        private Dictionary<string, Diff> DiffTags(Descriptor target, List<string> oldTags, List<string> newTags)
+        private Diff Added(Descriptor target, bool detailed = true, Diff parent = null)
+        {
+            string descType = target.GetDescriptorType();
+            return Added(descType, target, detailed, parent);
+        }
+
+        private Diff Removed(Descriptor target, bool detailed = true, Diff parent = null)
+        {
+            string descType = target.GetDescriptorType();
+            return Removed(descType, target, detailed, parent);
+        }
+
+        private Dictionary<string, Diff> DiffTags(Descriptor target, Tags oldTags, Tags newTags)
         {
             var tagChanges = new Dictionary<string, Diff>();
 
             // Record tags that were added.
-            List<string> addTags = newTags.Except(oldTags).ToList();
+            Tags addTags = new Tags(newTags.Except(oldTags));
 
             if (addTags.Count > 0)
             {
-                string signature = Util.DescribeTags(addTags, true);
+                string signature = addTags.Signature;
                 Diff diffAdd = Added(signature + " to", target, false);
                 tagChanges.Add('+' + signature, diffAdd);
             }
 
             // Record tags that were removed.
-            List<string> removeTags = oldTags.Except(newTags).ToList();
+            Tags removeTags = new Tags(oldTags.Except(newTags));
 
             if (removeTags.Count > 0)
             {
-                string signature = Util.DescribeTags(removeTags, true);
+                string signature = removeTags.Signature;
                 Diff diffRemove = Removed(signature + " from", target);
                 tagChanges.Add('-' + signature, diffRemove);
             }
@@ -274,14 +268,7 @@ namespace Roblox.Reflection
             string newLbl = '{' + Util.GetEnumName(newEnum) + '}';
             DiffGeneric(target, context, oldLbl, newLbl);
         }
-
-        private void DiffParameters(Descriptor target, List<Parameter> oldParams, List<Parameter> newParams)
-        {
-            string oldParamSig = Util.DescribeParameters(oldParams);
-            string newParamSig = Util.DescribeParameters(newParams); 
-            DiffGeneric(target, "parameters", oldParamSig, newParamSig);
-        }
-
+        
         public string CompareDatabases(ReflectionDatabase oldApi, ReflectionDatabase newApi)
         {
             results.Clear();
@@ -323,8 +310,7 @@ namespace Roblox.Reflection
                         {
                             // Add New Member
                             MemberDescriptor newMember = newMembers[memberName];
-                            string memberType = Util.GetEnumName(newMember.MemberType);
-                            Added(memberType, newMember);
+                            Added(newMember);
                         }
                     }
 
@@ -388,7 +374,7 @@ namespace Roblox.Reflection
 
                                 DiffNativeEnum(newMember, "security", oldFunc.Security, newFunc.Security);
                                 DiffGeneric(newMember, "return type", oldFunc.ReturnType.Name, newFunc.ReturnType.Name);
-                                DiffParameters(newMember, oldFunc.Parameters, newFunc.Parameters);
+                                DiffGeneric(newMember, "parameters",  oldFunc.Parameters, newFunc.Parameters);
                             }
                             else if (newMember is CallbackDescriptor)
                             {
@@ -397,7 +383,7 @@ namespace Roblox.Reflection
 
                                 DiffNativeEnum(newMember, "security", oldCall.Security, newCall.Security);
                                 DiffGeneric(newMember, "expected return type", oldCall.ReturnType.Name, newCall.ReturnType.Name);
-                                DiffParameters(newMember, oldCall.Parameters, newCall.Parameters);
+                                DiffGeneric(newMember, "parameters", oldCall.Parameters, newCall.Parameters);
                             }
                             else if (newMember is EventDescriptor)
                             {
@@ -405,7 +391,7 @@ namespace Roblox.Reflection
                                 var newEvent = newMember as EventDescriptor;
 
                                 DiffNativeEnum(newMember, "security", oldEvent.Security, newEvent.Security);
-                                DiffParameters(newMember, oldEvent.Parameters, newEvent.Parameters);
+                                DiffGeneric(newMember, "parameters", oldEvent.Parameters, newEvent.Parameters);
                             }
                         }
                         else
@@ -457,7 +443,7 @@ namespace Roblox.Reflection
                         {
                             // Add New EnumItem
                             EnumItemDescriptor item = newItems[itemName];
-                            Added("EnumItem", item);
+                            Added(item);
                         }
                     }
 
@@ -475,7 +461,7 @@ namespace Roblox.Reflection
                         else
                         {
                             // Remove Old EnumItem
-                            Removed("EnumItem", oldItem);
+                            Removed(oldItem);
                         }
                     }
                 }
@@ -536,26 +522,26 @@ namespace Roblox.Reflection
             {
                 foreach (Diff newClassDiff in newClassDiffs)
                 {
-                    Descriptor newClass = newClassDiff.Target;
-
-                    // Temporarily mark the new diff as a summary.
-                    newClassDiff.Detailed = false;
+                    // Ignore deferred diffs.
+                    if (newClassDiff.Deferred)
+                        continue;
 
                     // Grab the summary version of the new diff.
-                    string newDiff = newClassDiff.ToString();
-
-                    // Switch the diff back to its detailed mode.
-                    newClassDiff.Detailed = true;
+                    Descriptor newClass = newClassDiff.Target;
+                    string newDiff = newClassDiff.WriteDiff(false);
 
                     foreach (Diff oldClassDiff in oldClassDiffs)
                     {
-                        Descriptor oldClass = oldClassDiff.Target;
-                        string oldDiff = oldClassDiff.ToString();
+                        // Ignore deferred diffs.
+                        if (oldClassDiff.Deferred)
+                            continue;
 
-                        // Try to convert the old diff into the 'simplified'
-                        // new diff that was generated above.
+                        Descriptor oldClass = oldClassDiff.Target;
+                        string oldDiff = oldClassDiff.WriteDiff(false);
+
+                        // Try to convert the old diff into the new diff generated above.
                         string nameChange = oldDiff
-                            .Replace(oldClassDiff.Target.Name, newClassDiff.Target.Name)
+                            .Replace(oldClass.Name, newClass.Name)
                             .Replace("Removed", "Added");
 
                         // If the signatures match, then this is likely a renamed class.
@@ -565,16 +551,18 @@ namespace Roblox.Reflection
                             Diff nameChangeDiff = new Diff()
                             {
                                 Type = DiffType.Change,
+
                                 Field = "ClassName",
                                 Target = oldClass,
-                                From = oldClass.Name,
-                                To = newClass.Name
+
+                                From = "'" + oldClass.Name + "'",
+                                To = "'" + newClass.Name + "'"
                             };
 
                             // Add this change to the diffs.
                             diffs.Add(nameChangeDiff);
 
-                            // Mark the original class diffs as deferred
+                            // Mark the original class diffs as deferred.
                             oldClassDiff.Deferred = true;
                             newClassDiff.Deferred = true;
                         }
@@ -586,6 +574,8 @@ namespace Roblox.Reflection
             List<string> final = new List<string>();
             string prevLead = "";
             string lastLine = "";
+
+            diffs.Sort();
 
             List<string> lines = diffs
                 .Where(diff => !diff.Deferred)
@@ -601,7 +591,7 @@ namespace Roblox.Reflection
                     string first = words[0];
                     string second = words[1];
 
-                    if (second.ToLower() == "the" && words.Length > 3)
+                    if (second.ToLower() == "the" && words.Length > 2)
                         second = words[2];
 
                     string lead = (first + ' ' + second).Trim();

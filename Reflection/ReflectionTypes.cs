@@ -1,4 +1,7 @@
-﻿namespace Roblox.Reflection
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Roblox.Reflection
 {
     public enum MemberType
     {
@@ -27,7 +30,7 @@
         DataType
     }
 
-    public enum DeveloperMemoryTag
+    public enum MemoryTag
     {
         Internal,
         HttpCache,
@@ -93,20 +96,20 @@
 
     public struct TypeDescriptor
     {
-        public TypeCategory Category;
         public string Name;
+        public TypeCategory Category;
         public override string ToString() => GetSignature();
 
         public string GetSignature()
         {
+            string result;
+
             if (Name == "Instance" || Category != TypeCategory.Class && Category != TypeCategory.Enum)
-            {
-                return Name;
-            }
+                result = Name;
             else
-            {
-                return Util.GetEnumName(Category) + '<' + Name + '>';
-            }
+                result = Util.GetEnumName(Category) + '<' + Name + '>';
+
+            return result;
         }
     }
 
@@ -130,6 +133,50 @@
                 result += " = " + Default;
 
             return result;
+        }
+    }
+
+    public class Parameters : List<Parameter>
+    {
+        public override string ToString()
+        {
+            string[] parameters = this.Select(param => param.ToString()).ToArray();
+            return '(' + string.Join(", ", parameters) + ')';
+        }
+    }
+
+    public class Tags : List<string>
+    {
+        public Tags(IEnumerable<string> tags = null)
+        {
+            tags?.ToList().ForEach(Add);
+        }
+
+        public override string ToString()
+        {
+            // (Hopefully) temporary patch.
+            if (Contains("ReadOnly"))
+                Remove("NotReplicated");
+
+            string[] tags = this.Select(tag => '[' + tag + ']').ToArray();
+            return string.Join(" ", tags);
+        }
+
+        public string Signature
+        {
+            get
+            {
+                if (Count > 0)
+                {
+                    string label = "Tag";
+                    if (Count > 1)
+                        label += "s";
+
+                    return label + ' ' + ToString();
+                }
+
+                return "";
+            }
         }
     }
 }

@@ -25,25 +25,6 @@ namespace Roblox.Reflection
             return Enum.GetName(typeof(T), item);
         }
 
-        public static string DescribeParameters(List<Parameter> parameters)
-        {
-            return '(' + string.Join(", ", parameters.Select(param => param.ToString()).ToArray()) + ')';
-        }
-
-        public static string DescribeTags(List<string> tags, bool prefixed = false)
-        {
-            // (Hopefully) temporary patch.
-            if (tags.Contains("ReadOnly"))
-                tags.Remove("NotReplicated");
-
-            string result = string.Join(" ", tags.Select(tag => tag = '[' + tag + ']').ToArray());
-
-            if (prefixed && tags.Count > 0)
-                result = (tags.Count > 1 ? "Tags " : "Tag ") + result;
-
-            return result;
-        }
-
         public static string DescribeSecurity(SecurityType security, string prefix = "")
         {
             if (security != SecurityType.None)
