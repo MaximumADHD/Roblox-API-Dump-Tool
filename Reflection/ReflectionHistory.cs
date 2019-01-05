@@ -30,11 +30,15 @@ namespace Roblox.Reflection
         {
             // Add by version guid
             if (!LookupFromGuid.ContainsKey(deployLog.VersionGuid))
+            {
                 LookupFromGuid.Add(deployLog.VersionGuid, deployLog);
+            }
 
             // Add by version info
             if (!LookupFromVersion.ContainsKey(deployLog.Version) && deployLog.Patch == 0)
+            {
                 LookupFromVersion.Add(deployLog.Version, deployLog);
+            }
         }
 
         private void InitializeLogs(string deployHistory)

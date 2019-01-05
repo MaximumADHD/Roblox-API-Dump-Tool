@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+
+using Newtonsoft.Json;
 
 namespace Roblox.Reflection
 {
@@ -56,24 +59,6 @@ namespace Roblox.Reflection
         Navigation
     }
 
-    public struct ReadWriteSecurity
-    {
-        public SecurityType Read;
-        public SecurityType Write;
-
-        public override string ToString()
-        {
-            return "Read: " + Util.GetEnumName(Read) + " | Write: " + Util.GetEnumName(Read);
-        }
-
-        public bool ShouldMergeWith(ReadWriteSecurity newSecurity)
-        {
-            return Read  != newSecurity.Read  && 
-                   Write != newSecurity.Write && 
-                   newSecurity.Read == newSecurity.Write;
-        }
-    }
-
     public struct Serialization
     {
         public bool CanSave;
@@ -81,20 +66,87 @@ namespace Roblox.Reflection
 
         private static string[] flagLabels = new string[4]
         {
-            "None",
-            "Load-only",
-            "Save-only",
-            "Saves & Loads"
+            "<🕒> Runtime-only",
+
+            "<💾> Save-only", "<📁> Load-only",
+
+            "<💾-📁> Saves & Loads"
         };
 
         public override string ToString()
         {
-            int flags = (CanSave ? 1 : 0) << 1 | (CanLoad ? 1 : 0);
-            return "'" + flagLabels[flags] + "'";
+            int saves = (CanSave ? 1 : 0);
+            int loads = (CanLoad ? 1 : 0);
+
+            return '[' + flagLabels[saves << 1 | loads] + ']';
         }
     }
 
-    public struct TypeDescriptor
+    [JsonConverter( typeof(ReflectionDeserializer) )]
+    public class Security
+    {
+        public SecurityType Type;
+        public string Prefix;
+
+        public Security(string name, string prefix = "")
+        {
+            Enum.TryParse(name, out Type);
+            Prefix = prefix;
+        }
+
+        public string Describe(bool displayNone)
+        {
+            string result = "";
+
+            if (displayNone || Type != SecurityType.None)
+                result += '{' + Prefix + Program.GetEnumName(Type) + '}';
+
+            return result;
+        }
+
+        public override string ToString()
+        {
+            return Describe(false);
+        }
+    }
+
+    [JsonConverter( typeof(ReflectionDeserializer) )]
+    public class ReadWriteSecurity
+    {
+        public Security Read;
+        public Security Write;
+
+        public bool Merged => (Read.Type == Write.Type);
+
+        public ReadWriteSecurity(string read, string write)
+        {
+            Read = new Security(read);
+            Write = new Security(write, "✎");
+        }
+
+        public string Describe(bool displayNone)
+        {
+            string result = "";
+
+            string read = Read.Describe(displayNone);
+            string write = Write.Describe(displayNone);
+
+            if (read.Length > 0)
+                result += read;
+
+            if (Read.Type != Write.Type && write.Length > 0)
+                result += ' ' + write;
+
+            return result.Trim();
+        }
+
+        public override string ToString()
+        {
+            return Describe(false);
+        }
+    }
+
+    public class ReflectionType
     {
         public string Name;
         public TypeCategory Category;
@@ -107,7 +159,7 @@ namespace Roblox.Reflection
             if (Name == "Instance" || Category != TypeCategory.Class && Category != TypeCategory.Enum)
                 result = Name;
             else
-                result = Util.GetEnumName(Category) + '<' + Name + '>';
+                result = Program.GetEnumName(Category) + '<' + Name + '>';
 
             return result;
         }
@@ -115,7 +167,7 @@ namespace Roblox.Reflection
 
     public struct Parameter
     {
-        public TypeDescriptor Type;
+        public ReflectionType Type;
         public string Name;
         public string Default;
 
@@ -145,19 +197,15 @@ namespace Roblox.Reflection
         }
     }
 
-    public class Tags : List<string>
+    public class Tags : HashSet<string>
     {
         public Tags(IEnumerable<string> tags = null)
         {
-            tags?.ToList().ForEach(Add);
+            tags?.ToList().ForEach(tag => Add(tag));
         }
 
         public override string ToString()
         {
-            // (Hopefully) temporary patch.
-            if (Contains("ReadOnly"))
-                Remove("NotReplicated");
-
             string[] tags = this.Select(tag => '[' + tag + ']').ToArray();
             return string.Join(" ", tags);
         }
@@ -169,6 +217,7 @@ namespace Roblox.Reflection
                 if (Count > 0)
                 {
                     string label = "Tag";
+
                     if (Count > 1)
                         label += "s";
 

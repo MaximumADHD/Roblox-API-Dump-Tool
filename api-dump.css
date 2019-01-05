@@ -1,8 +1,8 @@
 body
 {
-	background-color: black;
+	background-color: #111111;
 	color: white;
-	font-family: Consolas;
+	font-family: Courier New;
 	white-space: nowrap;
 }
 
@@ -58,34 +58,32 @@ div.EnumItem::before
 	margin-left: 40px;
 }
 
-span.Tags,
+span.Tag,
 span.Security
 {
-	font-weight: bold;
-	font-size: 12;
+	font-weight: bold !important;
+	font-size: 10px !important;
+	font-style: normal !important;
+	text-decoration: none !important;
 }
 
-span.Tags
+span.Tag
 {
-	color: #F3F385;
+	background-color: #56562C;
+	color: #F3F385 !important;
 }
 
 span.Security
 {
 	background-color: #3F0000;
-	color: #FF0000;
+	color: #FF0000 !important;
 }
 
 span.Type,
-span.ParamDefault.Bool
+span.InnerType,
+span.ParamDefault
 {
 	color: #FF6400;
-	font-weight: bold;
-}
-
-span.InnerType
-{
-	color: #007FFF;
 	font-weight: bold;
 }
 
@@ -104,7 +102,7 @@ span.ClassName::after,
 span.EnumName::after
 {
 	content: '.';
-	margin-right: -8px;
+	margin-right: -10px;
 }
 
 span.ClassName.Function::after
@@ -115,7 +113,8 @@ span.ClassName.Function::after
 span.Superclass::before,
 span.Value::before
 {
-	content: " : "
+	content: ":";
+	margin-right: 10px;
 }
 
 span.Value::before,
@@ -126,7 +125,7 @@ span.Parameter::after,
 span.Parameters::after,
 span.Parameters::before,
 span.Superclass::before,
-span.ParamDefault::before
+span.ParamName.Default::after
 {
 	color: #FFAA50;
 }
@@ -134,7 +133,7 @@ span.ParamDefault::before
 span.Parameters::before
 {
 	content: '(';
-	margin-left: -8px;
+	margin-left: -10px;
 }
 
 span.Parameters::after
@@ -148,13 +147,17 @@ span.Parameter::after
 	margin-left: -8px;
 }
 
-span.Parameter.Last::after
+span.Parameter:first-child
 {
-	content: "";
-	margin-right: 8px;
+	margin-left: -8px;
 }
 
-span.ParamDefault::before
+span.Parameter:last-child::after
+{
+	content: "";
+}
+
+span.ParamName.Default::after
 {
 	content: " = ";
 }
@@ -167,7 +170,6 @@ span.ParamDefault.String
 span.ParamDefault.String::before,
 span.ParamDefault.String::after
 {
-	color: #00FF00;
 	content: '"';
 }
 
@@ -178,4 +180,17 @@ span.ParamDefault.Float,
 span.ParamDefault.Double
 {
 	color: #FF0000;
+	font-weight: normal;
+}
+
+.deprecated *,
+.deprecated ::before,
+.deprecated ::after,
+.deprecated::before,
+.deprecated::after
+{
+	font-style: italic;
+	font-weight: normal !important;
+	text-decoration: line-through;
+	color: #7F7F7F !important;
 }

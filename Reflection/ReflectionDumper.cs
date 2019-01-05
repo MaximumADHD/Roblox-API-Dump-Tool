@@ -28,7 +28,7 @@ namespace Roblox.Reflection
 
         private void nextLine()
         {
-            write(Util.NewLine);
+            write("\r\n");
         }
 
         private void tab(int count = 1)
@@ -69,13 +69,13 @@ namespace Roblox.Reflection
             write('<' + tagName + "/>");
         }
 
-        private void writeTypeElement(TypeDescriptor type, int numTabs = 0)
+        private void writeTypeElement(ReflectionType type, int numTabs = 0)
         {
             string typeVal = type.ToString();
 
             if (typeVal.Contains("<") && typeVal.EndsWith(">"))
             {
-                string category = Util.GetEnumName(type.Category);
+                string category = Program.GetEnumName(type.Category);
                 openSpanTag("Type", numTabs);
                 write(category);
 
@@ -106,16 +106,7 @@ namespace Roblox.Reflection
             for (int i = 0; i < parameters.Count; i++)
             {
                 Parameter param = parameters[i];
-
-                string paramLbl = "Parameter";
-
-                if (i == 0)
-                    paramLbl += " first";
-
-                if (i == parameters.Count - 1)
-                    paramLbl += " last";
-
-                openSpanTag(paramLbl, 2);
+                openSpanTag("Parameter", 2);
                 nextLine();
 
                 // Write Type
@@ -123,7 +114,12 @@ namespace Roblox.Reflection
                 nextLine();
 
                 // Write Name
-                openSpanTag("ParamName", 3);
+                string nameLbl = "ParamName";
+
+                if (param.Default != null)
+                    nameLbl += " default";
+
+                openSpanTag(nameLbl, 3);
                 write(param.Name);
 
                 closeHtmlTag("span");
@@ -196,14 +192,26 @@ namespace Roblox.Reflection
                                 }
                                 else
                                 {
-                                    TypeDescriptor typeDesc = memberDesc.GetResultType();
+                                    ReflectionType typeDesc = memberDesc.GetResultType();
                                     buffer.writeTypeElement(typeDesc, 1);
+                                    buffer.nextLine();
+                                }
+                            }
+                            else if (token == "Tags")
+                            {
+                                Tags tags = desc.Tags;
+                                foreach (string tag in tags)
+                                {
+                                    buffer.openSpanTag("Tag");
+                                    buffer.write('[' + tag + ']');
+                                    buffer.closeHtmlTag("span");
                                     buffer.nextLine();
                                 }
                             }
                             else
                             {
                                 string value = tokens[token]
+                                    .ToString()
                                     .Replace("<", "&lt;")
                                     .Replace(">", "&gt;")
                                     .Trim();

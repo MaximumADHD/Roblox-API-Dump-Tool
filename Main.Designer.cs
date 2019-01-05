@@ -35,6 +35,7 @@
             this.appLogo = new System.Windows.Forms.PictureBox();
             this.branchLbl = new System.Windows.Forms.Label();
             this.apiDumpFormat = new System.Windows.Forms.ComboBox();
+            this.useLatestDeployed = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.appLogo)).BeginInit();
             this.SuspendLayout();
             // 
@@ -79,7 +80,7 @@
             this.status.AutoSize = true;
             this.status.Enabled = false;
             this.status.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.status.Location = new System.Drawing.Point(0, 177);
+            this.status.Location = new System.Drawing.Point(0, 199);
             this.status.Margin = new System.Windows.Forms.Padding(0);
             this.status.Name = "status";
             this.status.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
@@ -140,13 +141,26 @@
             this.apiDumpFormat.Name = "apiDumpFormat";
             this.apiDumpFormat.Size = new System.Drawing.Size(56, 21);
             this.apiDumpFormat.TabIndex = 8;
+            this.apiDumpFormat.SelectedIndexChanged += new System.EventHandler(this.apiDumpFormat_SelectedIndexChanged);
+            // 
+            // useLatestDeployed
+            // 
+            this.useLatestDeployed.AutoSize = true;
+            this.useLatestDeployed.Location = new System.Drawing.Point(10, 179);
+            this.useLatestDeployed.Name = "useLatestDeployed";
+            this.useLatestDeployed.Size = new System.Drawing.Size(163, 17);
+            this.useLatestDeployed.TabIndex = 9;
+            this.useLatestDeployed.Text = "Use Latest Deployed Version";
+            this.useLatestDeployed.UseVisualStyleBackColor = true;
+            this.useLatestDeployed.CheckedChanged += new System.EventHandler(this.useLatestDeployed_CheckedChanged);
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(298, 207);
+            this.ClientSize = new System.Drawing.Size(298, 223);
+            this.Controls.Add(this.useLatestDeployed);
             this.Controls.Add(this.apiDumpFormat);
             this.Controls.Add(this.branchLbl);
             this.Controls.Add(this.appLogo);
@@ -178,6 +192,7 @@
         private System.Windows.Forms.PictureBox appLogo;
         private System.Windows.Forms.Label branchLbl;
         private System.Windows.Forms.ComboBox apiDumpFormat;
+        private System.Windows.Forms.CheckBox useLatestDeployed;
     }
 }
 

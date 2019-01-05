@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -15,6 +15,8 @@ namespace Roblox
     public partial class Main : Form
     {
         private const string VERSION_API_KEY = "76e5a40c-3ae1-4028-9f10-7c62520bd94f";
+        private const string API_DUMP_CSS_FILE = "api-dump-v1-1.css";
+
         private static RegistryKey versionRegistry => Program.GetRegistryKey(Program.MainRegistry, "Current Versions");
 
         private delegate void StatusDelegate(string msg);
@@ -54,16 +56,41 @@ namespace Roblox
             return getSelectedItem(apiDumpFormat);
         }
 
-        private static async Task<string> getLiveVersion(string branch, string endPoint, string binaryType)
+        private void loadSelectedIndex(ComboBox comboBox, string registryKey)
+        {
+            string value = Program.GetRegistryString(registryKey);
+            comboBox.SelectedIndex = Math.Max(0, comboBox.Items.IndexOf(value));
+        }
+
+        private static async Task<string> getLiveVersion(string branch, string binaryType)
         {
             string versionUrl = "https://versioncompatibility.api."
-                                + branch + ".com/" + endPoint + "?binaryType=" 
+                                + branch + ".com/GetCurrentClientVersionUpload?binaryType=" 
                                 + binaryType + "&apiKey=" + VERSION_API_KEY;
 
             string version = await http.DownloadStringTaskAsync(versionUrl);
             version = version.Replace('"', ' ').Trim();
 
             return version;
+        }
+
+        private static async Task<string> getDeployedVersion(string branch, string versionType)
+        {
+            string versionUrl = "https://s3.amazonaws.com/setup." + branch + ".com/" + versionType;
+            return await http.DownloadStringTaskAsync(versionUrl);
+        }
+
+        private static async Task<string> getVersion(string branch)
+        {
+            bool useDeployed = Program.GetRegistryBool("UseDeployedVersion");
+            string result;
+
+            if (useDeployed)
+                result = await getDeployedVersion(branch, "versionQTStudio");
+            else
+                result = await getLiveVersion(branch, "WindowsStudio");
+
+            return result;
         }
 
         private void setStatus(string msg = "")
@@ -95,8 +122,8 @@ namespace Roblox
 
         private static void writeAndViewFile(string path, string contents)
         {
-            if (!File.Exists(path) || File.ReadAllText(path) != contents)
-                File.WriteAllText(path, contents);
+            if (!File.Exists(path) || File.ReadAllText(path, Encoding.UTF8) != contents)
+                File.WriteAllText(path, contents, Encoding.UTF8);
 
             Process.Start(path);
         }
@@ -114,7 +141,7 @@ namespace Roblox
         private static string postProcessHtml(string result)
         {
             return "<head>\n"
-                 + "\t<link rel=\"stylesheet\" href=\"api-dump.css\">\n"
+                 + "\t<link rel=\"stylesheet\" href=\"" + API_DUMP_CSS_FILE + "\">\n"
                  + "</head>\n\n"
                  + result;
         }
@@ -126,7 +153,7 @@ namespace Roblox
             string setupUrl = "https://s3.amazonaws.com/setup." + branch + ".com/";
             setStatus?.Invoke("Checking for update...");
 
-            string version = await getLiveVersion(branch, "GetCurrentClientVersionUpload", "WindowsStudio");
+            string version = await getVersion(branch);
 
             if (fetchPrevious)
                 version = await ReflectionHistory.GetPreviousVersionGuid(branch, version);
@@ -199,7 +226,7 @@ namespace Roblox
                 if (format == "HTML")
                 {
                     string workDir = getWorkDirectory();
-                    string apiDumpCss = Path.Combine(workDir, "api-dump.css");
+                    string apiDumpCss = Path.Combine(workDir, API_DUMP_CSS_FILE);
 
                     if (!File.Exists(apiDumpCss))
                         File.WriteAllText(apiDumpCss, Properties.Resources.ApiDumpStyler);
@@ -296,7 +323,7 @@ namespace Roblox
                 // Fetch the version guids for roblox, and gametest1-gametest5
                 foreach (string branchName in branches)
                 {
-                    string versionGuid = await getLiveVersion(branchName, "GetCurrentClientVersionUpload", "WindowsStudio");
+                    string versionGuid = await getLiveVersion(branchName, "WindowsStudio");
                     versionRegistry.SetValue(branchName, versionGuid);
                 }
 
@@ -312,23 +339,32 @@ namespace Roblox
 
         private async void Main_Load(object sender, EventArgs e)
         {
-            if (Program.GetRegistryString(Program.MainRegistry, "InitializedVersions") != "True")
+            bool initVersions = Program.GetRegistryBool("InitializedVersions");
+
+            if (!initVersions)
             {
                 await initVersionCache();
                 clearOldVersionFiles();
             }
 
-            try
-            {
-                string lastSelectedBranch = Program.GetRegistryString(Program.MainRegistry, "LastSelectedBranch");
-                branch.SelectedIndex = branch.Items.IndexOf(lastSelectedBranch);
-            }
-            catch
-            {
-                branch.SelectedIndex = 0;
-            }
+            bool useLatest = Program.GetRegistryBool("UseDeployedVersion");
+            useLatestDeployed.Checked = useLatest;
 
-            apiDumpFormat.SelectedIndex = 0;
+            // Load combobox selections.
+            loadSelectedIndex(branch, "LastSelectedBranch");
+            loadSelectedIndex(apiDumpFormat, "PreferredFormat");
+        }
+
+        private void useLatestDeployed_CheckedChanged(object sender, EventArgs e)
+        {
+            bool useLatest = useLatestDeployed.Checked;
+            Program.MainRegistry.SetValue("UseDeployedVersion", useLatest);
+        }
+
+        private void apiDumpFormat_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string format = getApiDumpFormat();
+            Program.MainRegistry.SetValue("PreferredFormat", format);
         }
     }
 }

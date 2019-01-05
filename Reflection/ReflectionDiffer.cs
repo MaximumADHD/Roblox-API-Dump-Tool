@@ -7,12 +7,25 @@ namespace Roblox.Reflection
 {
     class ReflectionDiffer
     {
+        private const string NL = "\r\n";
+
         private enum DiffType
         {
             Add,
             Change,
             Remove,
         }
+
+        public static ReadOnlyCollection<string> TypePriority = new ReadOnlyCollection<string>(new string[]
+        {
+            "Class",
+            "Property",
+            "Function",
+            "Event",
+            "Callback",
+            "Enum",
+            "EnumItem"
+        });
 
         private class Diff : IComparable
         {
@@ -25,8 +38,9 @@ namespace Roblox.Reflection
             public string To;
 
             public bool HasParent => (stack > 0);
+
             public bool Detailed;
-            public bool Deferred;
+            public bool Processed;
 
             private int stack;
             private List<Diff> children;
@@ -70,9 +84,9 @@ namespace Roblox.Reflection
                         if (merged.Length < 24)
                             result += " " + merged;
                         else
-                            result += ' ' + Util.NewLine +
-                                "\tfrom: " + From + Util.NewLine +
-                                "\t  to: " + To + Util.NewLine;
+                            result += ' ' + NL +
+                                "\tfrom: " + From + NL +
+                                "\t  to: " + To + NL;
 
                         break;
                     case DiffType.Remove:
@@ -86,11 +100,11 @@ namespace Roblox.Reflection
 
                     foreach (Diff child in children)
                     {
-                        result += Util.NewLine;
+                        result += NL;
                         result += child.WriteDiff(detailed);
                     };
 
-                    result += Util.NewLine;
+                    result += NL;
                 }
 
                 return result;
@@ -114,11 +128,10 @@ namespace Roblox.Reflection
                     return sortByType;
 
                 // Try sorting by the field priority.
-                ReadOnlyCollection<string> priority = Util.TypePriority;
                 int sortByField = 0;
                 
-                if (priority.Contains(Field) && priority.Contains(diff.Field))
-                    sortByField = priority.IndexOf(Field) - priority.IndexOf(diff.Field);
+                if (TypePriority.Contains(Field) && TypePriority.Contains(diff.Field))
+                    sortByField = TypePriority.IndexOf(Field) - TypePriority.IndexOf(diff.Field);
                 else
                     sortByField = Field.CompareTo(diff.Field);
                 
@@ -178,6 +191,12 @@ namespace Roblox.Reflection
             return added;
         }
 
+        private Diff Added(Descriptor target, bool detailed = true, Diff parent = null)
+        {
+            string descType = target.GetDescriptorType();
+            return Added(descType, target, detailed, parent);
+        }
+
         private Diff Removed(string field, Descriptor target, bool detailed = false, Diff parent = null)
         {
             Diff removed = new Diff()
@@ -197,6 +216,12 @@ namespace Roblox.Reflection
             return removed;
         }
 
+        private Diff Removed(Descriptor target, bool detailed = true, Diff parent = null)
+        {
+            string descType = target.GetDescriptorType();
+            return Removed(descType, target, detailed, parent);
+        }
+
         private Diff Changed(string field, Descriptor target, string from, string to)
         {
             Diff changed = new Diff()
@@ -213,18 +238,6 @@ namespace Roblox.Reflection
 
             results.Add(changed);
             return changed;
-        }
-
-        private Diff Added(Descriptor target, bool detailed = true, Diff parent = null)
-        {
-            string descType = target.GetDescriptorType();
-            return Added(descType, target, detailed, parent);
-        }
-
-        private Diff Removed(Descriptor target, bool detailed = true, Diff parent = null)
-        {
-            string descType = target.GetDescriptorType();
-            return Removed(descType, target, detailed, parent);
         }
 
         private Dictionary<string, Diff> DiffTags(Descriptor target, Tags oldTags, Tags newTags)
@@ -264,8 +277,8 @@ namespace Roblox.Reflection
 
         private void DiffNativeEnum<T>(Descriptor target, string context, T oldEnum, T newEnum)
         {
-            string oldLbl = '{' + Util.GetEnumName(oldEnum) + '}';
-            string newLbl = '{' + Util.GetEnumName(newEnum) + '}';
+            string oldLbl = '{' + Program.GetEnumName(oldEnum) + '}';
+            string newLbl = '{' + Program.GetEnumName(newEnum) + '}';
             DiffGeneric(target, context, oldLbl, newLbl);
         }
         
@@ -317,7 +330,7 @@ namespace Roblox.Reflection
                     foreach (string memberName in oldMembers.Keys)
                     {
                         MemberDescriptor oldMember = oldMembers[memberName];
-                        string memberType = Util.GetEnumName(oldMember.MemberType);
+                        string memberType = Program.GetEnumName(oldMember.MemberType);
 
                         if (newMembers.ContainsKey(memberName))
                         {
@@ -326,8 +339,8 @@ namespace Roblox.Reflection
                             // Diff Tags
                             var memberTagDiffs = DiffTags(newMember, oldMember.Tags, newMember.Tags);
 
-                            // Check if any tags that were added to this member were
-                            // also added to its parent class.
+                            // Check if any tags that were added to this member
+                            // were also added to its parent class.
                             foreach (string classTag in classTagDiffs.Keys)
                             {
                                 if (memberTagDiffs.ContainsKey(classTag))
@@ -345,35 +358,28 @@ namespace Roblox.Reflection
                                 var newProp = newMember as PropertyDescriptor;
 
                                 // If the read and write permissions are both changed to the same value, try to group them.
-                                if (oldProp.Security.ToString() != newProp.Security.ToString())
+                                if (oldProp.Security.Merged && newProp.Security.Merged)
                                 {
-                                    if (oldProp.Security.ShouldMergeWith(newProp.Security))
-                                    {
-                                        // Doesn't matter if we read from 'Read' or 'Write' in this case.
-                                        // ... so why not both! This outta balance out the pain.
-
-                                        SecurityType oldSecurity = oldProp.Security.Read;
-                                        SecurityType newSecurity = newProp.Security.Write;
-
-                                        DiffNativeEnum(newMember, "security", oldSecurity, newSecurity);
-                                    }
-                                    else
-                                    {
-                                        DiffNativeEnum(newMember, "read permissions", oldProp.Security.Read, newProp.Security.Read);
-                                        DiffNativeEnum(newMember, "write permissions", oldProp.Security.Write, newProp.Security.Write);
-                                    }
+                                    string oldSecurity = oldProp.Security.Describe(true);
+                                    string newSecurity = newProp.Security.Describe(true);
+                                    DiffGeneric(newMember, "security", oldSecurity, newSecurity);
+                                }
+                                else
+                                {
+                                    DiffGeneric(newMember, "read permissions", oldProp.Security.Read, newProp.Security.Read);
+                                    DiffGeneric(newMember, "write permissions", oldProp.Security.Write, newProp.Security.Write);
                                 }
 
-                                DiffGeneric(newMember, "serialization", oldProp.Serialization.ToString(), newProp.Serialization.ToString());
-                                DiffGeneric(newMember, "value type", oldProp.ValueType.Name, newProp.ValueType.Name);
+                                DiffGeneric(newMember, "serialization", oldProp.Serialization, newProp.Serialization);
+                                DiffGeneric(newMember, "value type", oldProp.ValueType, newProp.ValueType);
                             }
                             else if (newMember is FunctionDescriptor)
                             {
                                 var oldFunc = oldMember as FunctionDescriptor;
                                 var newFunc = newMember as FunctionDescriptor;
 
-                                DiffNativeEnum(newMember, "security", oldFunc.Security, newFunc.Security);
-                                DiffGeneric(newMember, "return type", oldFunc.ReturnType.Name, newFunc.ReturnType.Name);
+                                DiffGeneric(newMember, "security", oldFunc.Security, newFunc.Security);
+                                DiffGeneric(newMember, "return type", oldFunc.ReturnType, newFunc.ReturnType);
                                 DiffGeneric(newMember, "parameters",  oldFunc.Parameters, newFunc.Parameters);
                             }
                             else if (newMember is CallbackDescriptor)
@@ -381,8 +387,8 @@ namespace Roblox.Reflection
                                 var oldCall = oldMember as CallbackDescriptor;
                                 var newCall = newMember as CallbackDescriptor;
 
-                                DiffNativeEnum(newMember, "security", oldCall.Security, newCall.Security);
-                                DiffGeneric(newMember, "expected return type", oldCall.ReturnType.Name, newCall.ReturnType.Name);
+                                DiffGeneric(newMember, "security", oldCall.Security, newCall.Security);
+                                DiffGeneric(newMember, "expected return type", oldCall.ReturnType, newCall.ReturnType);
                                 DiffGeneric(newMember, "parameters", oldCall.Parameters, newCall.Parameters);
                             }
                             else if (newMember is EventDescriptor)
@@ -390,7 +396,7 @@ namespace Roblox.Reflection
                                 var oldEvent = oldMember as EventDescriptor;
                                 var newEvent = newMember as EventDescriptor;
 
-                                DiffNativeEnum(newMember, "security", oldEvent.Security, newEvent.Security);
+                                DiffGeneric(newMember, "security", oldEvent.Security, newEvent.Security);
                                 DiffGeneric(newMember, "parameters", oldEvent.Parameters, newEvent.Parameters);
                             }
                         }
@@ -472,20 +478,21 @@ namespace Roblox.Reflection
                 }
             }
 
-            // Sort the results
-            results.Sort();
-
             // Select diffs that are not parented to other diffs.
             List<Diff> diffs = results
                 .Where(diff => !diff.HasParent)
                 .ToList();
 
             // Merge similar changes
-            foreach (Diff diff in diffs)
+            List<Diff> changeDiffs = diffs
+                .Where(diff => diff.Type == DiffType.Change)
+                .ToList();
+
+            foreach (Diff diff in changeDiffs)
             {
-                if (diff.Type == DiffType.Change && !diff.Deferred)
+                if (!diff.Processed)
                 {
-                    List<Diff> similarDiffs = diffs
+                    List<Diff> similarDiffs = changeDiffs
                         .Where(similar => diff != similar)
                         .Where(similar => diff.Target == similar.Target)
                         .ToList();
@@ -501,7 +508,7 @@ namespace Roblox.Reflection
                             diff.From += " " + similar.From;
                             diff.To += " " + similar.To;
 
-                            similar.Deferred = true;
+                            similar.Processed = true;
                         }
                     }
                 }
@@ -522,8 +529,8 @@ namespace Roblox.Reflection
             {
                 foreach (Diff newClassDiff in newClassDiffs)
                 {
-                    // Ignore deferred diffs.
-                    if (newClassDiff.Deferred)
+                    // Ignore processed diffs.
+                    if (newClassDiff.Processed)
                         continue;
 
                     // Grab the summary version of the new diff.
@@ -532,8 +539,8 @@ namespace Roblox.Reflection
 
                     foreach (Diff oldClassDiff in oldClassDiffs)
                     {
-                        // Ignore deferred diffs.
-                        if (oldClassDiff.Deferred)
+                        // Ignore processed diffs.
+                        if (oldClassDiff.Processed)
                             continue;
 
                         Descriptor oldClass = oldClassDiff.Target;
@@ -555,16 +562,16 @@ namespace Roblox.Reflection
                                 Field = "ClassName",
                                 Target = oldClass,
 
-                                From = "'" + oldClass.Name + "'",
-                                To = "'" + newClass.Name + "'"
+                                From = '"' + oldClass.Name + '"',
+                                To = '"' + newClass.Name + '"'
                             };
 
                             // Add this change to the diffs.
                             diffs.Add(nameChangeDiff);
 
-                            // Mark the original class diffs as deferred.
-                            oldClassDiff.Deferred = true;
-                            newClassDiff.Deferred = true;
+                            // Mark the original class diffs as processed.
+                            oldClassDiff.Processed = true;
+                            newClassDiff.Processed = true;
                         }
                     }
                 }
@@ -575,10 +582,11 @@ namespace Roblox.Reflection
             string prevLead = "";
             string lastLine = "";
 
+            // Sort the results.
             diffs.Sort();
 
             List<string> lines = diffs
-                .Where(diff => !diff.Deferred)
+                .Where(diff => !diff.Processed)
                 .Select(diff => diff.ToString())
                 .ToList();
 
@@ -597,7 +605,7 @@ namespace Roblox.Reflection
                     string lead = (first + ' ' + second).Trim();
 
                     bool addBreak = false;
-                    bool lastLineNoBreak = !lastLine.EndsWith(Util.NewLine);
+                    bool lastLineNoBreak = !lastLine.EndsWith(NL);
 
                     // If the first two words of this line aren't the same as the last...
                     if (lead != prevLead)
@@ -612,7 +620,7 @@ namespace Roblox.Reflection
 
                     // If we didn't add a break, but this line has a break and the
                     // previous line doesn't, then we will add a break.
-                    if (!addBreak && lastLineNoBreak && line.EndsWith(Util.NewLine))
+                    if (!addBreak && lastLineNoBreak && line.EndsWith(NL))
                         addBreak = true;
 
                     // Add a break between this line and the previous.
@@ -625,7 +633,7 @@ namespace Roblox.Reflection
                 }
             }
 
-            return string.Join(Util.NewLine, final.ToArray()).Trim();
+            return string.Join(NL, final.ToArray()).Trim();
         }
     }
 }

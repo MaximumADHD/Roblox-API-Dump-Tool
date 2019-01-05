@@ -73,13 +73,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Reflection\ReflectionConverter.cs" />
+    <Compile Include="Reflection\ReflectionDeserializer.cs" />
     <Compile Include="Reflection\ReflectionDiffer.cs" />
     <Compile Include="Reflection\ReflectionDatabase.cs" />
     <Compile Include="Reflection\ReflectionDumper.cs" />
     <Compile Include="Reflection\ReflectionHistory.cs" />
     <Compile Include="Reflection\ReflectionTypes.cs" />
-    <Compile Include="Reflection\ReflectionUtil.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

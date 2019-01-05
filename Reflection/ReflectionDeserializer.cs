@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Roblox.Reflection
 {
-    public class ReflectionConverter : JsonConverter
+    public class ReflectionDeserializer : JsonConverter
     {
         public override bool CanRead => true;
         public override bool CanWrite => false;
@@ -30,6 +30,7 @@ namespace Roblox.Reflection
             foreach (JToken member in obj.GetValue("Members"))
             {
                 MemberType memberType;
+
                 if (Enum.TryParse(member.Value<string>("MemberType"), out memberType))
                 {
                     switch (memberType)
@@ -82,20 +83,40 @@ namespace Roblox.Reflection
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            JObject obj = JObject.Load(reader);
-            Descriptor desc = obj.ToObject<Descriptor>();
+            if (objectType.Name.EndsWith("Descriptor"))
+            {
+                JObject obj = JObject.Load(reader);
 
-            if (objectType == typeof(ClassDescriptor))
-            {
-                return ReadClassDescriptor(obj, desc);
-            }
-            else if (objectType == typeof(EnumDescriptor))
-            {
-                return ReadEnumDescriptor(obj, desc);
+                Descriptor desc = obj.ToObject<Descriptor>();
+                object result = null;
+
+                if (objectType == typeof(ClassDescriptor))
+                    result = ReadClassDescriptor(obj, desc);
+                else if (objectType == typeof(EnumDescriptor))
+                    result = ReadEnumDescriptor(obj, desc);
+
+                return result;
             }
             else
             {
-                throw new NotImplementedException();
+                object result = null;
+
+                if (objectType == typeof(ReadWriteSecurity))
+                {
+                    JObject obj = JObject.Load(reader);
+
+                    string read = obj.Value<string>("Read");
+                    string write = obj.Value<string>("Write");
+
+                    result = new ReadWriteSecurity(read, write);
+                }
+                else if (objectType == typeof(Security))
+                {
+                    string value = reader.Value as string;
+                    result = new Security(value);
+                }
+
+                return result;
             }
         }
 

@@ -23,7 +23,37 @@ namespace Roblox
             return key.GetValue(name, "") as string;
         }
 
-        public static async Task processArgs(string[] args)
+        public static RegistryKey GetRegistryKey(params string[] subKeys)
+        {
+            return GetRegistryKey(MainRegistry, subKeys);
+        }
+
+        public static string GetRegistryString(string name)
+        {
+            return GetRegistryString(MainRegistry, name);
+        }
+
+        public static bool GetRegistryBool(RegistryKey key, string name)
+        {
+            string value = GetRegistryString(key, name);
+
+            bool result = false;
+            bool.TryParse(value, out result);
+
+            return result;
+        }
+
+        public static bool GetRegistryBool(string name)
+        {
+            return GetRegistryBool(MainRegistry, name);
+        }
+
+        public static string GetEnumName<T>(T item)
+        {
+            return Enum.GetName(typeof(T), item);
+        }
+
+        private static async Task processArgs(string[] args)
         {
             if (args.Length > 1 && args[0] == "-export")
             {
