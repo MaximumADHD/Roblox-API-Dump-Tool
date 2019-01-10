@@ -15,7 +15,7 @@ namespace Roblox
     public partial class Main : Form
     {
         private const string VERSION_API_KEY = "76e5a40c-3ae1-4028-9f10-7c62520bd94f";
-        private const string API_DUMP_CSS_FILE = "api-dump-v1-1.css";
+        private const string API_DUMP_CSS_FILE = "api-dump-v1-2.css";
 
         private static RegistryKey versionRegistry => Program.GetRegistryKey(Program.MainRegistry, "Current Versions");
 
@@ -93,6 +93,17 @@ namespace Roblox
             return result;
         }
 
+        private static void preloadApiDumpCssFile()
+        {
+            string workDir = getWorkDirectory();
+            string apiDumpCss = Path.Combine(workDir, API_DUMP_CSS_FILE);
+
+            if (!File.Exists(apiDumpCss))
+            {
+                File.WriteAllText(apiDumpCss, Properties.Resources.ApiDumpStyler);
+            }
+        }
+
         private void setStatus(string msg = "")
         {
             if (InvokeRequired)
@@ -138,12 +149,12 @@ namespace Roblox
             return workDir;
         }
 
-        private static string postProcessHtml(string result)
+        public static string PostProcessHtml(string result)
         {
             return "<head>\n"
                  + "\t<link rel=\"stylesheet\" href=\"" + API_DUMP_CSS_FILE + "\">\n"
                  + "</head>\n\n"
-                 + result;
+                 + result.Trim();
         }
 
         public static async Task<string> GetApiDumpFilePath(string branch, Action<string> setStatus = null, bool fetchPrevious = false)
@@ -197,9 +208,7 @@ namespace Roblox
                 compareVersions.Text = "Compare to Production";
 
             Program.MainRegistry.SetValue("LastSelectedBranch", branch);
-
             viewApiDump.Enabled = true;
-            compareVersions.Enabled = true;
         }
 
         private async void viewApiDumpClassic_Click(object sender, EventArgs e)
@@ -225,13 +234,8 @@ namespace Roblox
 
                 if (format == "HTML")
                 {
-                    string workDir = getWorkDirectory();
-                    string apiDumpCss = Path.Combine(workDir, API_DUMP_CSS_FILE);
-
-                    if (!File.Exists(apiDumpCss))
-                        File.WriteAllText(apiDumpCss, Properties.Resources.ApiDumpStyler);
-
-                    result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml, postProcessHtml);
+                    preloadApiDumpCssFile();
+                    result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml, PostProcessHtml);
                 }
                 else
                 {
@@ -265,15 +269,23 @@ namespace Roblox
                 ReflectionDatabase newApi = ReflectionDatabase.Load(newApiJson);
 
                 setStatus("Comparing APIs...");
+
+                string format = getApiDumpFormat();
+
+                if (format == "JSON")
+                    format = "TXT";
+                else if (format == "HTML")
+                    preloadApiDumpCssFile();
+
                 ReflectionDiffer differ = new ReflectionDiffer();
-                string result = differ.CompareDatabases(oldApi, newApi);
+                string result = differ.CompareDatabases(oldApi, newApi, format);
 
                 if (result.Length > 0)
                 {
                     FileInfo info = new FileInfo(newApiFilePath);
 
                     string directory = info.DirectoryName;
-                    string resultPath = Path.Combine(directory, newBranch + "-diff.txt");
+                    string resultPath = Path.Combine(directory, newBranch + "-diff." + format.ToLower());
 
                     writeAndViewFile(resultPath, result);
                 }
@@ -365,6 +377,7 @@ namespace Roblox
         {
             string format = getApiDumpFormat();
             Program.MainRegistry.SetValue("PreferredFormat", format);
+            compareVersions.Enabled = (format != "JSON");
         }
     }
 }

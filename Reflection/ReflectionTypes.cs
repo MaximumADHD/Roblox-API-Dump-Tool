@@ -121,7 +121,7 @@ namespace Roblox.Reflection
         public ReadWriteSecurity(string read, string write)
         {
             Read = new Security(read);
-            Write = new Security(write, "✎");
+            Write = new Security(write, "✏️ ");
         }
 
         public string Describe(bool displayNone)

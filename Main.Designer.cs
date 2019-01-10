@@ -36,6 +36,7 @@
             this.branchLbl = new System.Windows.Forms.Label();
             this.apiDumpFormat = new System.Windows.Forms.ComboBox();
             this.useLatestDeployed = new System.Windows.Forms.CheckBox();
+            this.formatLbl = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.appLogo)).BeginInit();
             this.SuspendLayout();
             // 
@@ -56,7 +57,7 @@
             this.branch.Location = new System.Drawing.Point(10, 87);
             this.branch.Margin = new System.Windows.Forms.Padding(20, 3, 20, 5);
             this.branch.Name = "branch";
-            this.branch.Size = new System.Drawing.Size(278, 21);
+            this.branch.Size = new System.Drawing.Size(218, 21);
             this.branch.TabIndex = 0;
             this.branch.SelectedIndexChanged += new System.EventHandler(this.branch_SelectedIndexChanged);
             // 
@@ -99,7 +100,7 @@
             this.viewApiDump.Location = new System.Drawing.Point(10, 118);
             this.viewApiDump.Margin = new System.Windows.Forms.Padding(15, 5, 15, 5);
             this.viewApiDump.Name = "viewApiDump";
-            this.viewApiDump.Size = new System.Drawing.Size(218, 23);
+            this.viewApiDump.Size = new System.Drawing.Size(278, 23);
             this.viewApiDump.TabIndex = 5;
             this.viewApiDump.Text = "View API Dump";
             this.viewApiDump.UseVisualStyleBackColor = true;
@@ -137,7 +138,7 @@
             "TXT",
             "HTML",
             "JSON"});
-            this.apiDumpFormat.Location = new System.Drawing.Point(232, 119);
+            this.apiDumpFormat.Location = new System.Drawing.Point(232, 86);
             this.apiDumpFormat.Name = "apiDumpFormat";
             this.apiDumpFormat.Size = new System.Drawing.Size(56, 21);
             this.apiDumpFormat.TabIndex = 8;
@@ -154,12 +155,23 @@
             this.useLatestDeployed.UseVisualStyleBackColor = true;
             this.useLatestDeployed.CheckedChanged += new System.EventHandler(this.useLatestDeployed_CheckedChanged);
             // 
+            // formatLbl
+            // 
+            this.formatLbl.AutoSize = true;
+            this.formatLbl.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.formatLbl.Location = new System.Drawing.Point(229, 70);
+            this.formatLbl.Name = "formatLbl";
+            this.formatLbl.Size = new System.Drawing.Size(49, 13);
+            this.formatLbl.TabIndex = 10;
+            this.formatLbl.Text = "Format:";
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(298, 223);
+            this.Controls.Add(this.formatLbl);
             this.Controls.Add(this.useLatestDeployed);
             this.Controls.Add(this.apiDumpFormat);
             this.Controls.Add(this.branchLbl);
@@ -193,6 +205,7 @@
         private System.Windows.Forms.Label branchLbl;
         private System.Windows.Forms.ComboBox apiDumpFormat;
         private System.Windows.Forms.CheckBox useLatestDeployed;
+        private System.Windows.Forms.Label formatLbl;
     }
 }
 

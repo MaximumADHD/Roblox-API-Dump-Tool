@@ -6,10 +6,15 @@ namespace Roblox.Reflection
 {
     class ReflectionDumper
     {
+        public bool HtmlDiffMode = false;
+        public bool HtmlMarkDeprecated = true;
+        public bool HtmlDumpUsingDetail = true;
+        public string HtmlDescriptorTagType = "div";
+
         private ReflectionDatabase api;
         private StringBuilder buffer;
 
-        public ReflectionDumper(ReflectionDatabase database)
+        public ReflectionDumper(ReflectionDatabase database = null)
         {
             api = database;
             buffer = new StringBuilder();
@@ -21,97 +26,95 @@ namespace Roblox.Reflection
             return list;
         }
         
-        private void write(object text)
+        public void Write(object text)
         {
             buffer.Append(text);
         }
 
-        private void nextLine()
+        public void NextLine()
         {
-            write("\r\n");
+            Write("\r\n");
         }
 
-        private void tab(int count = 1)
+        public void Tab(int count = 1)
         {
             for (int i = 0; i < count; i++)
             {
-                write('\t');
+                Write('\t');
             }
         }
 
-        private void openHtmlTag(string tagName, string attributes = "", int numTabs = 0)
+        public void OpenHtmlTag(string tagName, string attributes = "", int numTabs = 0)
         {
-            tab(numTabs);
-            write('<' + tagName);
+            Tab(numTabs);
+            Write('<' + tagName);
 
             if (attributes.Length > 0)
-                write(" " + attributes);
+                Write(" " + attributes);
 
-            write('>');
+            Write('>');
         }
 
-        private void closeHtmlTag(string tagName, int numTabs = 0)
+        public void CloseHtmlTag(string tagName, int numTabs = 0)
         {
-            tab(numTabs);
-            write("</" + tagName + ">");
+            Tab(numTabs);
+            Write("</" + tagName + ">");
         }
 
-        private void openSpanTag(string spanClass, int numTabs = 0, string tagType = "span")
+        public void OpenSpanTag(string spanClass, int numTabs = 0, string tagType = "span")
         {
             string attributes = "class=\"" + spanClass + '"';
-            tab(numTabs);
-            openHtmlTag(tagType, attributes);
+            Tab(numTabs);
+            OpenHtmlTag(tagType, attributes);
         }
 
-        private void writeVoidTag(string tagName, int numTabs = 0)
-        {
-            tab(numTabs);
-            write('<' + tagName + "/>");
-        }
-
-        private void writeTypeElement(ReflectionType type, int numTabs = 0)
+        public void WriteTypeElement(ReflectionType type, int numTabs = 0)
         {
             string typeVal = type.ToString();
 
             if (typeVal.Contains("<") && typeVal.EndsWith(">"))
             {
                 string category = Program.GetEnumName(type.Category);
-                openSpanTag("Type", numTabs);
-                write(category);
+                OpenSpanTag("Type", numTabs);
+                Write(category);
 
-                closeHtmlTag("span");
-                nextLine();
+                CloseHtmlTag("span");
+                NextLine();
 
-                openSpanTag("InnerType", numTabs);
-                write(type.Name);
+                OpenSpanTag("InnerType", numTabs);
+                Write(type.Name);
 
-                closeHtmlTag("span");
-                nextLine();
+                CloseHtmlTag("span");
+                NextLine();
             }
             else
             {
-                openSpanTag("Type", numTabs);
-                write(type);
-                closeHtmlTag("span");
+                OpenSpanTag("Type", numTabs);
+                Write(type);
+                CloseHtmlTag("span");
             }
         }
 
-        private void writeParamsElement(List<Parameter> parameters)
+        public void WriteParametersElement(Parameters parameters, int numTabs = 0, bool change = false)
         {
-            openSpanTag("Parameters", 1);
+            string paramsTag = "Parameters";
+            if (change)
+                paramsTag += " change";
+
+            OpenSpanTag(paramsTag, numTabs);
 
             if (parameters.Count > 0)
-                nextLine();
+                NextLine();
 
             for (int i = 0; i < parameters.Count; i++)
             {
                 Parameter param = parameters[i];
-                openSpanTag("Parameter", 2);
-                nextLine();
+                OpenSpanTag("Parameter", numTabs + 1);
+                NextLine();
 
                 // Write Type
-                writeTypeElement(param.Type, 3);
-                nextLine();
+                WriteTypeElement(param.Type, numTabs + 2);
+                NextLine();
 
                 // Write Name
                 string nameLbl = "ParamName";
@@ -119,49 +122,65 @@ namespace Roblox.Reflection
                 if (param.Default != null)
                     nameLbl += " default";
 
-                openSpanTag(nameLbl, 3);
-                write(param.Name);
+                OpenSpanTag(nameLbl, numTabs + 2);
+                Write(param.Name);
 
-                closeHtmlTag("span");
-                nextLine();
+                CloseHtmlTag("span");
+                NextLine();
 
                 // Write Default
                 if (param.Default != null)
                 {
-                    openSpanTag("ParamDefault " + param.Type.Name, 3);
-                    write(param.Default);
+                    OpenSpanTag("ParamDefault " + param.Type.Name, numTabs + 2);
+                    Write(param.Default);
 
-                    closeHtmlTag("span");
-                    nextLine();
+                    CloseHtmlTag("span");
+                    NextLine();
                 }
 
-                closeHtmlTag("span", 2);
-                nextLine();
+                CloseHtmlTag("span", numTabs + 1);
+                NextLine();
             }
 
-            closeHtmlTag("span", parameters.Count > 0 ? 1 : 0);
-            nextLine();
+            CloseHtmlTag("span", parameters.Count > 0 ? numTabs : 0);
+            NextLine();
+        }
+
+        public void WriteTagElements(Tags tags, int numTabs = 0)
+        {
+            foreach (string tag in tags)
+            {
+                OpenSpanTag("Tag", numTabs);
+                Write('[' + tag + ']');
+                CloseHtmlTag("span");
+                NextLine();
+            }
         }
 
         public static void DumpUsingTxt(ReflectionDumper dumper, Descriptor desc, int numTabs = 0)
         {
-            dumper.tab(numTabs);
-            dumper.write(desc.Signature);
+            dumper.Tab(numTabs);
+            dumper.Write(desc.Signature);
         }
 
         public static void DumpUsingHtml(ReflectionDumper buffer, Descriptor desc, int numTabs = 0)
         {
-            var tokens = desc.GetTokens(true);
+            var tokens = desc.GetTokens(buffer.HtmlDumpUsingDetail);
             tokens.Remove("DescriptorType");
 
-            string schema = desc.GetSchema(true);
+            string schema = desc.GetSchema(buffer.HtmlDumpUsingDetail);
             string descType = desc.GetDescriptorType();
 
-            if (desc.Tags.Contains("Deprecated"))
-                descType += " deprecated"; // The CSS will strike-through this.
+            string descTag = descType;
 
-            buffer.openSpanTag(descType, 0, "div");
-            buffer.nextLine();
+            if (desc.Tags.Contains("Deprecated") && buffer.HtmlMarkDeprecated)
+                descTag += " deprecated"; // The CSS will strike-through this.
+
+            if (!buffer.HtmlDiffMode && descType != "Class" && descType != "Enum")
+                descTag += " child";
+            
+            buffer.OpenSpanTag(descTag, numTabs, buffer.HtmlDescriptorTagType);
+            buffer.NextLine();
 
             int search = 0;
             bool keepGoing = true;
@@ -174,6 +193,7 @@ namespace Roblox.Reflection
                 if (openToken >= 0)
                 {
                     int closeToken = schema.IndexOf('}', openToken);
+
                     if (closeToken >= 0)
                     {
                         // Check if any text came before this.
@@ -187,26 +207,20 @@ namespace Roblox.Reflection
 
                                 if (token == "Parameters")
                                 {
-                                    List<Parameter> parameters = memberDesc.GetParameters();
-                                    buffer.writeParamsElement(parameters);
+                                    Parameters parameters = memberDesc.GetParameters();
+                                    buffer.WriteParametersElement(parameters, numTabs + 1);
                                 }
                                 else
                                 {
                                     ReflectionType typeDesc = memberDesc.GetResultType();
-                                    buffer.writeTypeElement(typeDesc, 1);
-                                    buffer.nextLine();
+                                    buffer.WriteTypeElement(typeDesc, numTabs + 1);
+                                    buffer.NextLine();
                                 }
                             }
                             else if (token == "Tags")
                             {
                                 Tags tags = desc.Tags;
-                                foreach (string tag in tags)
-                                {
-                                    buffer.openSpanTag("Tag");
-                                    buffer.write('[' + tag + ']');
-                                    buffer.closeHtmlTag("span");
-                                    buffer.nextLine();
-                                }
+                                buffer.WriteTagElements(tags, numTabs + 1);
                             }
                             else
                             {
@@ -221,10 +235,10 @@ namespace Roblox.Reflection
                                     if (token == "ClassName")
                                         token += " " + descType;
 
-                                    buffer.openSpanTag(token, 1);
-                                    buffer.write(value);
-                                    buffer.closeHtmlTag("span");
-                                    buffer.nextLine();
+                                    buffer.OpenSpanTag(token, numTabs + 1);
+                                    buffer.Write(value);
+                                    buffer.CloseHtmlTag("span");
+                                    buffer.NextLine();
                                 }
                             }
                         }
@@ -235,35 +249,38 @@ namespace Roblox.Reflection
                 }
             }
 
-            buffer.closeHtmlTag("div");
-            buffer.nextLine();
+            buffer.CloseHtmlTag(buffer.HtmlDescriptorTagType, numTabs);
+            buffer.NextLine();
         }
 
-        public string DumpApi(Action<ReflectionDumper, Descriptor, int> writeSignature, Func<string, string> postProcess = null)
+        public string DumpApi(Action<ReflectionDumper, Descriptor, int> WriteSignature, Func<string, string> postProcess = null)
         {
+            if (api == null)
+                throw new Exception("Cannot Dump API without a database defined.");
+
             buffer.Clear();
 
             foreach (ClassDescriptor classDesc in api.Classes)
             {
-                writeSignature(this, classDesc, 0);
-                nextLine();
+                WriteSignature(this, classDesc, 0);
+                NextLine();
 
                 foreach (MemberDescriptor memberDesc in sorted(classDesc.Members))
                 {
-                    writeSignature(this, memberDesc, 1);
-                    nextLine();
+                    WriteSignature(this, memberDesc, 1);
+                    NextLine();
                 }
             }
 
             foreach (EnumDescriptor enumDesc in api.Enums)
             {
-                writeSignature(this, enumDesc, 0);
-                nextLine();
+                WriteSignature(this, enumDesc, 0);
+                NextLine();
 
                 foreach (EnumItemDescriptor itemDesc in sorted(enumDesc.Items))
                 {
-                    writeSignature(this, itemDesc, 1);
-                    nextLine();
+                    WriteSignature(this, itemDesc, 1);
+                    NextLine();
                 }
             }
 
@@ -274,6 +291,11 @@ namespace Roblox.Reflection
                 result = post;
  
             return result;
+        }
+
+        public string GetBuffer()
+        {
+            return buffer.ToString();
         }
     }
 }
