@@ -5,9 +5,12 @@ using System.Linq;
 
 namespace Roblox.Reflection
 {
-    class ReflectionDiffer
+    public class ReflectionDiffer
     {
         private const string NL = "\r\n";
+        private const string HTML_BREAK = NL + "<br/>" + NL;
+
+        private List<Diff> results = new List<Diff>();
 
         private enum DiffType
         {
@@ -26,13 +29,95 @@ namespace Roblox.Reflection
             "Enum",
             "EnumItem"
         });
-
+        
+        private delegate Diff DiffRecorder(Descriptor target, bool detailed = true, Diff parent = null);
+        private delegate void DiffResultLineAdder(string line, bool addBreak);
+        private delegate string DiffResultFinalizer();
+        
         private class ChangeList : List<object>
         {
+            public string Name { get; private set; }
+
+            public ChangeList(string name)
+            {
+                Name = name;
+            }
+
             public override string ToString()
             {
                 string[] elements = this.Select(elem => elem.ToString()).ToArray();
                 return string.Join(" ", elements);
+            }
+
+            public void WriteHtml(ReflectionDumper buffer, bool multiline = false)
+            {
+                int numTabs;
+
+                if (multiline)
+                {
+                    buffer.OpenClassTag(Name, 1, "div");
+                    buffer.NextLine();
+
+                    buffer.OpenClassTag("ChangeList", 2);
+                    numTabs = 3;
+                }
+                else
+                {
+                    buffer.OpenClassTag(Name, 1);
+                    numTabs = 2;
+                }
+
+                buffer.NextLine();
+
+                foreach (object change in this)
+                {
+                    if (change is Parameters)
+                    {
+                        var parameters = change as Parameters;
+                        parameters.WriteHtml(buffer, numTabs, true);
+                    }
+                    else if (change is ReflectionType)
+                    {
+                        var type = change as ReflectionType;
+                        type.WriteHtml(buffer, numTabs);
+                    }
+                    else
+                    {
+                        string value;
+
+                        if (change is Security)
+                        {
+                            var security = change as Security;
+                            value = security.Describe(true);
+                        }
+                        else
+                        {
+                            value = change.ToString();
+                        }
+
+                        string tagClass;
+
+                        if (value.StartsWith("{") && value.EndsWith("}"))
+                            tagClass = "Security";
+                        else if (value.StartsWith("[") && value.EndsWith("]"))
+                            tagClass = "Serialization";
+                        else if (value.StartsWith("\"") && value.EndsWith("\""))
+                            tagClass = "String";
+                        else
+                            tagClass = change.GetType().Name;
+
+                        buffer.OpenClassTag(tagClass, numTabs);
+                        buffer.Write(value);
+                        buffer.CloseClassTag();
+                    }
+                }
+
+                buffer.CloseClassTag(numTabs - 1);
+                
+                if (multiline)
+                {
+                    buffer.CloseClassTag(1, "div");
+                }
             }
         }
 
@@ -45,8 +130,8 @@ namespace Roblox.Reflection
 
             public Descriptor Target;
 
-            public ChangeList From = new ChangeList();
-            public ChangeList To = new ChangeList();
+            public ChangeList From = new ChangeList("ChangeFrom");
+            public ChangeList To = new ChangeList("ChangeTo");
 
             public bool HasParent => (stack > 0);
 
@@ -54,12 +139,7 @@ namespace Roblox.Reflection
             public bool Processed;
 
             private int stack;
-            private List<Diff> children;
-
-            public Diff()
-            {
-                children = new List<Diff>();
-            }
+            private List<Diff> children = new List<Diff>();
 
             public void AddChild(Diff child)
             {
@@ -128,66 +208,7 @@ namespace Roblox.Reflection
             {
                 return WriteDiffTxt(Detailed);
             }
-
-            private void processHtmlChangeList(ReflectionDumper buffer, string name, ChangeList changeList)
-            {
-                buffer.OpenSpanTag(name, 1, "div");
-                buffer.NextLine();
-
-                buffer.OpenSpanTag("ChangeList", 2);
-                buffer.NextLine();
-
-                foreach (object change in changeList)
-                {
-                    if (change is Parameters)
-                    {
-                        var parameters = change as Parameters;
-                        buffer.WriteParametersElement(parameters, 3, true);
-                    }
-                    else if (change is ReflectionType)
-                    {
-                        var type = change as ReflectionType;
-                        buffer.WriteTypeElement(type, 3);
-                    }
-                    else
-                    {
-                        string value;
-
-                        if (change is Security)
-                        {
-                            var security = change as Security;
-                            value = security.Describe(true);
-                        }
-                        else
-                        {
-                            value = change.ToString();
-                        }
-
-                        string tagType = "Unknown";
-
-                        if (value.StartsWith("{") && value.EndsWith("}"))
-                            tagType = "Security";
-                        else if (value.StartsWith("[") && value.EndsWith("]"))
-                            tagType = "Serialization";
-                        else if (value.StartsWith("\"") && value.EndsWith("\""))
-                            tagType = "String";
-                        else
-                            tagType = change.GetType().Name;
-
-                        buffer.OpenSpanTag(tagType, 3);
-                        buffer.Write(value);
-                        buffer.CloseHtmlTag("span");
-                        buffer.NextLine();
-                    }
-                }
-
-                buffer.CloseHtmlTag("span", 2);
-                buffer.NextLine();
-
-                buffer.CloseHtmlTag("div", 1);
-                buffer.NextLine();
-            }
-
+            
             public void WriteDiffHtml(ReflectionDumper buffer)
             {
                 string diffType = Program.GetEnumName(Type);
@@ -200,24 +221,26 @@ namespace Roblox.Reflection
                 if (HasParent)
                     diffType += " child";
 
-                buffer.OpenSpanTag(diffType, stack, "div");
+                buffer.OpenClassTag(diffType, stack, "div");
                 buffer.NextLine();
 
                 if (Type == DiffType.Change)
                 {
-                    // Write what we changed.
-                    buffer.OpenSpanTag("WhatChanged", 1);
-                    buffer.Write(Field);
-                    buffer.CloseHtmlTag("span");
-                    buffer.NextLine();
+                    // Check if we should keep this on one line, based on the text version.
+                    string textSignature = WriteDiffTxt();
+                    bool multiline = textSignature.Contains(NL);
 
-                    // What what was changed.
-                    buffer.HtmlDumpUsingDetail = false;
-                    ReflectionDumper.DumpUsingHtml(buffer, Target, 1);
+                    // Write what we changed.
+                    buffer.OpenClassTag("WhatChanged", stack + 1);
+                    buffer.Write(Field);
+                    buffer.CloseClassTag();
+
+                    // Write what was changed.
+                    Target.WriteHtml(buffer, stack + 1, false, true);
 
                     // Changed From, Changed To.
-                    processHtmlChangeList(buffer, "ChangeFrom", From);
-                    processHtmlChangeList(buffer, "ChangeTo", To);
+                    From.WriteHtml(buffer, multiline);
+                    To.WriteHtml(buffer, multiline);
                 }
                 else
                 {
@@ -239,33 +262,27 @@ namespace Roblox.Reflection
                             else
                                 tagClass += " from";
 
-                            buffer.OpenSpanTag(tagClass, stack + 1);
+                            buffer.OpenClassTag(tagClass, stack + 1);
                             buffer.NextLine();
 
-                            buffer.WriteTagElements(tags, stack + 2);
-
-                            buffer.CloseHtmlTag("span", stack + 1);
-                            buffer.NextLine();
+                            tags.WriteHtml(buffer, stack + 2);
+                            buffer.CloseClassTag(stack + 1);
 
                             detailed = false;
                         }
                         else
                         {
-                            buffer.OpenSpanTag("Field", stack + 1);
+                            buffer.OpenClassTag("Field", stack + 1);
                             buffer.Write(Field);
-                            buffer.CloseHtmlTag("span");
-                            buffer.NextLine();
+                            buffer.CloseClassTag();
                         }
                     }
 
-                    buffer.OpenSpanTag("Target", stack + 1);
+                    buffer.OpenClassTag("Target", stack + 1);
                     buffer.NextLine();
 
-                    buffer.HtmlDumpUsingDetail = detailed;
-                    ReflectionDumper.DumpUsingHtml(buffer, Target, stack + 2);
-
-                    buffer.CloseHtmlTag("span", stack + 1);
-                    buffer.NextLine();
+                    Target.WriteHtml(buffer, stack + 2, detailed, true);
+                    buffer.CloseClassTag(stack + 1);
                 }
                 
                 if (children.Count > 0)
@@ -274,12 +291,7 @@ namespace Roblox.Reflection
                     children.ForEach(child => child.WriteDiffHtml(buffer));
                 }
 
-                buffer.CloseHtmlTag("div", stack);
-
-                if (!HasParent)
-                    buffer.NextLine();
-
-                buffer.NextLine();
+                buffer.CloseClassTag(stack, "div");
             }
 
             public int CompareTo(object obj)
@@ -315,27 +327,21 @@ namespace Roblox.Reflection
             }
         }
 
-        private List<Diff> results = new List<Diff>();
 
-        private static Dictionary<string,T> createLookupTable<T>(List<T> entries) where T : Descriptor
+        private static Dictionary<string, T> createLookupTable<T>(List<T> entries) where T : Descriptor
         {
-            Dictionary<string, T> lookup = new Dictionary<string, T>();
-
-            foreach (T entry in entries)
-                lookup.Add(entry.Name, entry);
-
-            return lookup;
+            return entries.ToDictionary(entry => entry.Name);
         }
 
-        private void flagEntireClass(ClassDescriptor classDesc, Func<Descriptor, bool, Diff, Diff> record, bool detailed)
+        private void flagEntireClass(ClassDescriptor classDesc, DiffRecorder record, bool detailed)
         {
-            Diff classDiff = record(classDesc, detailed, null);
+            Diff classDiff = record(classDesc, detailed);
             classDesc.Members.ForEach(memberDesc => record(memberDesc, detailed, classDiff));
         }
 
-        private void flagEntireEnum(EnumDescriptor enumDesc, Func<Descriptor, bool, Diff, Diff> record, bool detailed)
+        private void flagEntireEnum(EnumDescriptor enumDesc, DiffRecorder record, bool detailed)
         {
-            Diff enumDiff = record(enumDesc, detailed, null);
+            Diff enumDiff = record(enumDesc, detailed);
             enumDesc.Items.ForEach(itemDesc => record(itemDesc, detailed, enumDiff));
         }
 
@@ -455,7 +461,7 @@ namespace Roblox.Reflection
             DiffGeneric(target, context, oldLbl, newLbl);
         }
         
-        public string CompareDatabases(ReflectionDatabase oldApi, ReflectionDatabase newApi, string format = "HTML")
+        public string CompareDatabases(ReflectionDatabase oldApi, ReflectionDatabase newApi, string format = "TXT")
         {
             results.Clear();
 
@@ -467,7 +473,7 @@ namespace Roblox.Reflection
             {
                 if (!oldClasses.ContainsKey(className))
                 {
-                    // Add this class.
+                    // Add New Class
                     ClassDescriptor classDesc = newClasses[className];
                     flagEntireClass(classDesc, Added, true);
                 }
@@ -508,8 +514,6 @@ namespace Roblox.Reflection
                         if (newMembers.ContainsKey(memberName))
                         {
                             MemberDescriptor newMember = newMembers[memberName];
-
-                            // Diff Tags
                             var memberTagDiffs = DiffTags(newMember, oldMember.Tags, newMember.Tags);
 
                             // Check if any tags that were added to this member
@@ -524,7 +528,7 @@ namespace Roblox.Reflection
                                 }
                             }
 
-                            // Diff Specific Member Types
+                            // Diff specific member types
                             if (newMember is PropertyDescriptor)
                             {
                                 var oldProp = oldMember as PropertyDescriptor;
@@ -552,7 +556,7 @@ namespace Roblox.Reflection
                                 }
 
                                 DiffGeneric(newMember, "serialization", oldProp.Serialization, newProp.Serialization);
-                                DiffGeneric(newMember, "value type", oldProp.ValueType, newProp.ValueType);
+                                DiffGeneric(newMember, "value-type", oldProp.ValueType, newProp.ValueType);
                             }
                             else if (newMember is FunctionDescriptor)
                             {
@@ -560,7 +564,7 @@ namespace Roblox.Reflection
                                 var newFunc = newMember as FunctionDescriptor;
 
                                 DiffGeneric(newMember, "security", oldFunc.Security, newFunc.Security);
-                                DiffGeneric(newMember, "return type", oldFunc.ReturnType, newFunc.ReturnType);
+                                DiffGeneric(newMember, "return-type", oldFunc.ReturnType, newFunc.ReturnType);
                                 DiffGeneric(newMember, "parameters",  oldFunc.Parameters, newFunc.Parameters);
                             }
                             else if (newMember is CallbackDescriptor)
@@ -569,7 +573,7 @@ namespace Roblox.Reflection
                                 var newCall = newMember as CallbackDescriptor;
 
                                 DiffGeneric(newMember, "security", oldCall.Security, newCall.Security);
-                                DiffGeneric(newMember, "expected return type", oldCall.ReturnType, newCall.ReturnType);
+                                DiffGeneric(newMember, "expected return-type", oldCall.ReturnType, newCall.ReturnType);
                                 DiffGeneric(newMember, "parameters", oldCall.Parameters, newCall.Parameters);
                             }
                             else if (newMember is EventDescriptor)
@@ -616,8 +620,6 @@ namespace Roblox.Reflection
                 if (newEnums.ContainsKey(enumName))
                 {
                     EnumDescriptor newEnum = newEnums[enumName];
-
-                    // Diff Tags
                     DiffTags(newEnum, oldEnum.Tags, newEnum.Tags);
 
                     // Diff Items
@@ -648,7 +650,7 @@ namespace Roblox.Reflection
                         else
                         {
                             // Remove Old EnumItem
-                            Removed(oldItem);
+                            Removed(oldItem, false);
                         }
                     }
                 }
@@ -682,10 +684,9 @@ namespace Roblox.Reflection
                     {
                         foreach (Diff similar in similarDiffs)
                         {
-                            if (diff.Field.Contains(" and "))
-                                diff.Field = diff.Field.Replace(" and ", ", ");
-
+                            diff.Field = diff.Field.Replace(" and ", ", ");
                             diff.Field += " and " + similar.Field;
+
                             similar.From.ForEach(elem => diff.From.Add(elem));
                             similar.To.ForEach(elem => diff.To.Add(elem));
 
@@ -696,13 +697,16 @@ namespace Roblox.Reflection
             }
 
             // Detect changed class names
-            List<Diff> newClassDiffs = diffs
+            List<Diff> memberedClassDiffs = diffs
                 .Where(diff => diff.Target is ClassDescriptor)
+                .Where(diff => (diff.Target as ClassDescriptor).Members.Count > 0)
+                .ToList();
+
+            List<Diff> newClassDiffs = memberedClassDiffs
                 .Where(diff => diff.Type == DiffType.Add)
                 .ToList();
 
-            List<Diff> oldClassDiffs = diffs
-                .Where(diff => diff.Target is ClassDescriptor)
+            List<Diff> oldClassDiffs = memberedClassDiffs
                 .Where(diff => diff.Type == DiffType.Remove)
                 .ToList();
 
@@ -714,8 +718,12 @@ namespace Roblox.Reflection
                     if (newClassDiff.Processed)
                         continue;
 
+                    // Ignore classes that don't have members.
+                    ClassDescriptor newClass = newClassDiff.Target as ClassDescriptor;
+                    if (newClass.Members.Count == 0)
+                        continue;
+
                     // Grab the summary version of the new diff.
-                    Descriptor newClass = newClassDiff.Target;
                     string newDiff = newClassDiff.WriteDiffTxt(false);
 
                     foreach (Diff oldClassDiff in oldClassDiffs)
@@ -758,31 +766,67 @@ namespace Roblox.Reflection
                 }
             }
 
-            // Generate the diff logs.
-            List<string> final = new List<string>();
-            string prevLead = "";
-            string lastLine = "";
-
-            // Sort the results.
+            // Remove processed diffs, and sort the results.
+            diffs = diffs.Where(diff => !diff.Processed).ToList();
             diffs.Sort();
 
-            List<string> lines = new List<string>();
-            Dictionary<string, Diff> diffLookup = new Dictionary<string, Diff>();
+            // Setup actions for generating the final result, based on the requested format.
+            DiffResultLineAdder addLineToResults;
+            DiffResultFinalizer finalizeResults;
 
-            ReflectionDumper htmlDump = new ReflectionDumper();
-            htmlDump.HtmlDiffMode = true;
-            htmlDump.HtmlMarkDeprecated = false;
-            htmlDump.HtmlDescriptorTagType = "span";
+            List<string> lines = diffs.Select(diff => diff.ToString()).ToList();
 
-            foreach (Diff diff in diffs)
+            if (format == "HTML")
             {
-                if (!diff.Processed)
+                ReflectionDumper htmlDumper = new ReflectionDumper();
+                Dictionary<string, Diff> diffLookup = diffs.ToDictionary(diff => diff.ToString());
+
+                finalizeResults = new DiffResultFinalizer(() =>
                 {
-                    string signature = diff.ToString();
-                    lines.Add(signature);
-                    diffLookup.Add(signature, diff);
-                }
+                    string result = htmlDumper.GetBuffer();
+                    return Main.PostProcessHtml(result);
+                });
+
+                addLineToResults = new DiffResultLineAdder((line, addBreak) =>
+                {
+                    if (addBreak)
+                    {
+                        htmlDumper.Write(HTML_BREAK);
+                        htmlDumper.NextLine();
+                    }
+
+                    Diff diff = diffLookup[line];
+                    diff.WriteDiffHtml(htmlDumper);
+
+                    if (line.EndsWith(NL))
+                    {
+                        htmlDumper.Write(HTML_BREAK);
+                        htmlDumper.NextLine();
+                    }
+                });
             }
+            else
+            {
+                List<string> final = new List<string>();
+
+                addLineToResults = new DiffResultLineAdder((line, addBreak) =>
+                {
+                    if (addBreak)
+                        final.Add("");
+
+                    final.Add(line);
+                });
+
+                finalizeResults = new DiffResultFinalizer(() =>
+                {
+                    string[] finalLines = final.ToArray();
+                    return string.Join(NL, finalLines).Trim();
+                });
+            }
+
+            // Generate the final diff results
+            string prevLead = "";
+            string lastLine = NL;
 
             foreach (string line in lines)
             {
@@ -819,44 +863,12 @@ namespace Roblox.Reflection
                         addBreak = true;
 
                     // Handle writing this line depending on the format we're using.
-                    if (format == "HTML")
-                    {
-                        if (addBreak && lastLine != "")
-                        {
-                            htmlDump.Write("<br/>" + NL);
-                            htmlDump.NextLine();
-                        }
-
-                        Diff diff = diffLookup[line];
-                        diff.WriteDiffHtml(htmlDump);
-
-                        if (line.EndsWith(NL))
-                        {
-                            htmlDump.Write("<br/>" + NL);
-                            htmlDump.NextLine();
-                        }
-                    }
-                    else
-                    {
-                        if (addBreak && lastLine != "")
-                            final.Add("");
-
-                        final.Add(line);
-                    }
-
+                    addLineToResults(line, addBreak);
                     lastLine = line;
                 }
             }
 
-            if (format == "HTML")
-            {
-                string html = htmlDump.GetBuffer();
-                return Main.PostProcessHtml(html);
-            }
-            else
-            {
-                return string.Join(NL, final.ToArray()).Trim();
-            }
+            return finalizeResults();
         }
     }
 }

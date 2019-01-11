@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 
@@ -100,6 +99,91 @@ namespace Roblox.Reflection
 
             return string.CompareOrdinal(Name, label);
         }
+
+        public void WriteHtml(ReflectionDumper buffer, int numTabs = 0, bool detailed = true, bool diffMode = false)
+        {
+            var tokens = GetTokens(detailed);
+            tokens.Remove("DescriptorType");
+
+            string schema = GetSchema(detailed);
+            string descType = GetDescriptorType();
+
+            string tagClass = descType;
+
+            if (!diffMode && Tags.Contains("Deprecated"))
+                tagClass += " deprecated"; // The CSS will strike-through this.
+
+            if (!diffMode && descType != "Class" && descType != "Enum")
+                tagClass += " child";
+
+            string tagType = diffMode ? "span" : "div";
+            buffer.OpenClassTag(tagClass, numTabs, tagType);
+            buffer.NextLine();
+
+            int search = 0;
+
+            while (true)
+            {
+                int openToken = schema.IndexOf('{', search);
+                if (openToken < 0)
+                    break;
+
+                int closeToken = schema.IndexOf('}', openToken);
+                if (closeToken < 0)
+                    break;
+
+                string token = schema.Substring(openToken + 1, closeToken - openToken - 1);
+                if (tokens.ContainsKey(token))
+                {
+                    if (token == "Tags")
+                    {
+                        Tags.WriteHtml(buffer, numTabs + 1);
+                    }
+                    else if (token == "Parameters" || token.EndsWith("Type"))
+                    {
+                        Type type = GetType();
+
+                        foreach (FieldInfo info in type.GetFields())
+                        {
+                            if (info.FieldType == typeof(Parameters) && token == "Parameters")
+                            {
+                                Parameters parameters = info.GetValue(this) as Parameters;
+                                parameters.WriteHtml(buffer, numTabs + 1);
+                                break;
+                            }
+                            else if (info.FieldType == typeof(ReflectionType) && token.EndsWith("Type"))
+                            {
+                                ReflectionType refType = info.GetValue(this) as ReflectionType;
+                                refType.WriteHtml(buffer, numTabs + 1);
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        string value = tokens[token]
+                            .ToString()
+                            .Replace("<", "&lt;")
+                            .Replace(">", "&gt;")
+                            .Trim();
+
+                        if (value.Length > 0)
+                        {
+                            if (token == "ClassName")
+                                token += " " + descType;
+
+                            buffer.OpenClassTag(token, numTabs + 1);
+                            buffer.Write(value);
+                            buffer.CloseClassTag();
+                        }
+                    }
+                }
+
+                search = closeToken + 1;
+            }
+
+            buffer.CloseClassTag(numTabs, tagType);
+        }
     }
 
     [JsonConverter( typeof(ReflectionDeserializer) )]
@@ -108,7 +192,7 @@ namespace Roblox.Reflection
         public string Superclass;
         public MemoryTag MemoryCategory;
         public ReflectionDatabase Database;
-        
+
         public List<MemberDescriptor>   Members;
         public List<PropertyDescriptor> Properties;
         public List<FunctionDescriptor> Functions;
@@ -173,19 +257,30 @@ namespace Roblox.Reflection
             return tokens;
         }
 
+        public int CompareTo(ClassDescriptor otherClass, bool compareInheritance = false)
+        {
+            if (compareInheritance && InheritanceLevel != otherClass.InheritanceLevel)
+            {
+                int diff = InheritanceLevel - otherClass.InheritanceLevel;
+                return Math.Sign(diff);
+            }
+            else
+            {
+                return base.CompareTo(otherClass);
+            }
+        }
+
         public override int CompareTo(object other)
         {
             if (other is ClassDescriptor)
             {
                 var otherClass = other as ClassDescriptor;
-                if (InheritanceLevel != otherClass.InheritanceLevel)
-                {
-                    int diff = InheritanceLevel - otherClass.InheritanceLevel;
-                    return Math.Sign(diff);
-                }
+                return CompareTo(otherClass, true);
             }
-
-            return base.CompareTo(other);
+            else
+            {
+                return base.CompareTo(other);
+            }
         }
     }
 
@@ -235,6 +330,17 @@ namespace Roblox.Reflection
             var tokens = base.GetTokens(detailed);
             tokens.Add("ClassName", Class.Name);
 
+            Type type = GetType();
+
+            foreach (FieldInfo field in type.GetFields())
+            {
+                if (field.DeclaringType == type)
+                {
+                    object value = field.GetValue(this);
+                    tokens.Add(field.Name, value);
+                }
+            }
+
             return tokens;
         }
 
@@ -245,9 +351,7 @@ namespace Roblox.Reflection
                 var otherDesc = other as MemberDescriptor;
 
                 if (Class != otherDesc.Class)
-                {
                     return Class.CompareTo(otherDesc.Class);
-                }
 
                 if (MemberType != otherDesc.MemberType)
                 {
@@ -265,42 +369,6 @@ namespace Roblox.Reflection
 
             return base.CompareTo(other);
         }
-
-        // Returns a Parameters object if the descriptor calling this function has a
-        // member named Parameters whose type is Parameters. This is a hack to
-        // make it easier to handle parameters in html.
-        public Parameters GetParameters()
-        {
-            try
-            {
-                Type type = GetType();
-                FieldInfo info = type.GetField("Parameters");
-                return info.GetValue(this) as Parameters;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        // Returns a ReflectionType object if the descriptor calling 
-        // this function has a field whose type is ReflectionType.
-        // This is a hack to make type handling easier in html.
-        public ReflectionType GetResultType()
-        {
-            Type type = GetType();
-
-            foreach (FieldInfo info in type.GetFields())
-            {
-                if (info.FieldType == typeof(ReflectionType))
-                {
-                    var result = info.GetValue(this);
-                    return result as ReflectionType;
-                }
-            }
-
-            return null;
-        }
     }
 
     public sealed class PropertyDescriptor : MemberDescriptor
@@ -310,24 +378,14 @@ namespace Roblox.Reflection
         public ReadWriteSecurity Security;
         public Serialization Serialization;
         
-        public override Dictionary<string, object> GetTokens(bool detailed = false)
-        {
-            var tokens = base.GetTokens(detailed);
-
-            if (detailed)
-            {
-                tokens.Add("ValueType", ValueType);
-                tokens.Add("Security", Security);
-            }
-
-            return tokens;
-        }
-        
         public override int CompareTo(object other)
         {
             if (other is PropertyDescriptor)
             {
                 var otherDesc = other as PropertyDescriptor;
+
+                if (Class != otherDesc.Class)
+                    return Class.CompareTo(otherDesc.Class);
 
                 bool thisIsCamel = char.IsLower(Name[0]);
                 bool otherIsCamel = char.IsLower(otherDesc.Name[0]);
@@ -353,39 +411,12 @@ namespace Roblox.Reflection
         public Security Security;
         public Parameters Parameters;
         public ReflectionType ReturnType;
-        
-        public override Dictionary<string, object> GetTokens(bool detailed = false)
-        {
-            var tokens = base.GetTokens(detailed);
-
-            if (detailed)
-            {
-                tokens.Add("Security", Security);
-                tokens.Add("Parameters", Parameters);
-                tokens.Add("ReturnType", ReturnType);
-            }
-
-            return tokens;
-        }
     }
 
     public sealed class EventDescriptor : MemberDescriptor
     {
         public Security Security;
         public Parameters Parameters;
-        
-        public override Dictionary<string, object> GetTokens(bool detailed = false)
-        {
-            var tokens = base.GetTokens(detailed);
-
-            if (detailed)
-            {
-                tokens.Add("Security", Security);
-                tokens.Add("Parameters", Parameters);
-            }
-
-            return tokens;
-        }
     }
 
     public sealed class CallbackDescriptor : MemberDescriptor
@@ -393,31 +424,12 @@ namespace Roblox.Reflection
         public Security Security;
         public Parameters Parameters;
         public ReflectionType ReturnType;
-        
-        public override Dictionary<string, object> GetTokens(bool detailed = false)
-        {
-            var tokens = base.GetTokens(detailed);
-
-            if (detailed)
-            {
-                tokens.Add("Security", Security);
-                tokens.Add("Parameters", Parameters);
-                tokens.Add("ReturnType", ReturnType);
-            }
-
-            return tokens;
-        }
     }
 
     [JsonConverter( typeof(ReflectionDeserializer) )]
     public sealed class EnumDescriptor : Descriptor
     {
-        public List<EnumItemDescriptor> Items;
-
-        public EnumDescriptor()
-        {
-            Items = new List<EnumItemDescriptor>();
-        }
+        public List<EnumItemDescriptor> Items = new List<EnumItemDescriptor>();
     }
 
     public sealed class EnumItemDescriptor : Descriptor

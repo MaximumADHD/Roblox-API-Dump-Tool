@@ -70,11 +70,14 @@ namespace Roblox.Reflection
 
             "<💾> Save-only", "<📁> Load-only",
 
-            "<💾-📁> Saves & Loads"
+            "<💾|📁> Saves & Loads"
         };
 
         public override string ToString()
         {
+            // sure would be nice if booleans could be 
+            // casted as ints in C# like in C++ lol
+
             int saves = (CanSave ? 1 : 0);
             int loads = (CanLoad ? 1 : 0);
 
@@ -121,9 +124,9 @@ namespace Roblox.Reflection
         public ReadWriteSecurity(string read, string write)
         {
             Read = new Security(read);
-            Write = new Security(write, "✏️ ");
+            Write = new Security(write, "✏️");
         }
-
+        
         public string Describe(bool displayNone)
         {
             string result = "";
@@ -163,28 +166,90 @@ namespace Roblox.Reflection
 
             return result;
         }
+
+        public void WriteHtml(ReflectionDumper buffer, int numTabs = 0)
+        {
+            string typeVal = GetSignature();
+            buffer.OpenClassTag("Type", numTabs);
+
+            if (typeVal.Contains("<") && typeVal.EndsWith(">"))
+            {
+                string category = Program.GetEnumName(Category);
+                buffer.Write(category);
+                buffer.CloseClassTag();
+
+                buffer.OpenClassTag("InnerType", numTabs);
+                buffer.Write(Name);
+            }
+            else
+            {
+                buffer.Write(typeVal);
+            }
+
+            buffer.CloseClassTag();
+        }
     }
 
     public struct Parameter
     {
+        private const string quote = "\"";
+
         public ReflectionType Type;
         public string Name;
         public string Default;
 
-        private const string quote = "\"";
-
         public override string ToString()
         {
             string result = Type.ToString() + " " + Name;
+            string category = Program.GetEnumName(Type.Category);
 
-            if (Type.Name == "string" && Default != null)
-                if (!Default.StartsWith(quote) || !Default.EndsWith(quote))
+            if ((Type.Name == "string" || category == "Enum") && Default != null)
+                if (!Default.StartsWith(quote) && !Default.EndsWith(quote))
                     Default = quote + Default + quote;
 
             if (Default != null && Default.Length > 0)
                 result += " = " + Default;
 
             return result;
+        }
+
+        public void WriteHtml(ReflectionDumper buffer, int numTabs = 0)
+        {
+            buffer.OpenClassTag("Parameter", numTabs);
+            buffer.NextLine();
+
+            // Write Type
+            Type.WriteHtml(buffer, numTabs + 1);
+
+            // Write Name
+            string nameLbl = "ParamName";
+            if (Default != null)
+                nameLbl += " default";
+
+            buffer.OpenClassTag(nameLbl, numTabs + 1);
+            buffer.Write(Name);
+            buffer.CloseClassTag();
+
+            // Write Default
+            if (Default != null)
+            {
+                string typeLbl = Type.GetSignature();
+                string typeName;
+
+                if (typeLbl.Contains("<") && typeLbl.EndsWith(">"))
+                    typeName = Program.GetEnumName(Type.Category);
+                else
+                    typeName = Type.Name;
+
+                if (typeName == "Enum")
+                    typeName = "String";
+
+                buffer.OpenClassTag("ParamDefault " + typeName, numTabs + 1);
+                buffer.Write(Default);
+                buffer.CloseClassTag();
+            }
+
+            buffer.CloseClassTag(numTabs);
         }
     }
 
@@ -194,6 +259,29 @@ namespace Roblox.Reflection
         {
             string[] parameters = this.Select(param => param.ToString()).ToArray();
             return '(' + string.Join(", ", parameters) + ')';
+        }
+
+        public void WriteHtml(ReflectionDumper buffer, int numTabs = 0, bool diffMode = false)
+        {
+            string paramsTag = "Parameters";
+            if (diffMode)
+                paramsTag += " change";
+
+            buffer.OpenClassTag(paramsTag, numTabs);
+
+            if (Count > 0)
+            {
+                buffer.NextLine();
+
+                foreach (Parameter parameter in this)
+                    parameter.WriteHtml(buffer, numTabs + 1);
+
+                buffer.CloseClassTag(numTabs);
+            }
+            else
+            {
+                buffer.CloseClassTag();
+            }
         }
     }
 
@@ -217,7 +305,6 @@ namespace Roblox.Reflection
                 if (Count > 0)
                 {
                     string label = "Tag";
-
                     if (Count > 1)
                         label += "s";
 
@@ -225,6 +312,16 @@ namespace Roblox.Reflection
                 }
 
                 return "";
+            }
+        }
+
+        public void WriteHtml(ReflectionDumper buffer, int numTabs = 0)
+        {
+            foreach (string tag in this)
+            {
+                buffer.OpenClassTag("Tag", numTabs);
+                buffer.Write('[' + tag + ']');
+                buffer.CloseClassTag();
             }
         }
     }

@@ -15,7 +15,7 @@ namespace Roblox
     public partial class Main : Form
     {
         private const string VERSION_API_KEY = "76e5a40c-3ae1-4028-9f10-7c62520bd94f";
-        private const string API_DUMP_CSS_FILE = "api-dump-v1-2.css";
+        private const string API_DUMP_CSS_FILE = "api-dump-v1-3.css";
 
         private static RegistryKey versionRegistry => Program.GetRegistryKey(Program.MainRegistry, "Current Versions");
 

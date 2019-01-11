@@ -82,6 +82,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="packages.config" />
   </ItemGroup>
@@ -95,7 +96,7 @@
     <None Include="Resources\AppLogo.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="api-dump.css" />
+    <None Include="Resources\api-dump.css" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
