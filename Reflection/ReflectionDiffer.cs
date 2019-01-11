@@ -718,11 +718,6 @@ namespace Roblox.Reflection
                     if (newClassDiff.Processed)
                         continue;
 
-                    // Ignore classes that don't have members.
-                    ClassDescriptor newClass = newClassDiff.Target as ClassDescriptor;
-                    if (newClass.Members.Count == 0)
-                        continue;
-
                     // Grab the summary version of the new diff.
                     string newDiff = newClassDiff.WriteDiffTxt(false);
 
