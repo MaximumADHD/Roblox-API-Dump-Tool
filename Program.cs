@@ -66,7 +66,7 @@ namespace Roblox
                 string apiFilePath = await Roblox.Main.GetApiDumpFilePath(branch);
                 string apiJson = File.ReadAllText(apiFilePath);
 
-                ReflectionDatabase api = ReflectionDatabase.Load(apiJson);
+                ReflectionDatabase api = new ReflectionDatabase(apiJson);
                 ReflectionDumper dumper = new ReflectionDumper(api);
 
                 string result = dumper.DumpApi(ReflectionDumper.DumpUsingTxt);

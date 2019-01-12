@@ -89,7 +89,7 @@ namespace Roblox.Reflection
 
             buffer.Clear();
 
-            foreach (ClassDescriptor classDesc in Database.Classes)
+            foreach (ClassDescriptor classDesc in Database.Classes.Values)
             {
                 WriteSignature(this, classDesc, 0);
                 NextLine();
@@ -101,7 +101,7 @@ namespace Roblox.Reflection
                 }
             }
 
-            foreach (EnumDescriptor enumDesc in Database.Enums)
+            foreach (EnumDescriptor enumDesc in Database.Enums.Values)
             {
                 WriteSignature(this, enumDesc, 0);
                 NextLine();

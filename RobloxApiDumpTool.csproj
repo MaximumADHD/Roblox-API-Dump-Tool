@@ -73,12 +73,28 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Reflection\ReflectionDeserializer.cs" />
-    <Compile Include="Reflection\ReflectionDiffer.cs" />
-    <Compile Include="Reflection\ReflectionDatabase.cs" />
-    <Compile Include="Reflection\ReflectionDumper.cs" />
-    <Compile Include="Reflection\ReflectionHistory.cs" />
-    <Compile Include="Reflection\ReflectionTypes.cs" />
+    <Compile Include="Descriptors\Callback.cs" />
+    <Compile Include="Descriptors\Class.cs" />
+    <Compile Include="Descriptors\Descriptor.cs" />
+    <Compile Include="Descriptors\Enum.cs" />
+    <Compile Include="Descriptors\EnumItem.cs" />
+    <Compile Include="Descriptors\Function.cs" />
+    <Compile Include="Descriptors\Event.cs" />
+    <Compile Include="Descriptors\Member.cs" />
+    <Compile Include="Descriptors\Property.cs" />
+    <Compile Include="Differ\DiffChangeList.cs" />
+    <Compile Include="Differ\Diff.cs" />
+    <Compile Include="Differ\MergeRenamedClasses.cs" />
+    <Compile Include="Differ\MergeSimilarChangeDiffs.cs" />
+    <Compile Include="Core\ReflectionDiffer.cs" />
+    <Compile Include="Core\ReflectionDatabase.cs" />
+    <Compile Include="Core\ReflectionDumper.cs" />
+    <Compile Include="Core\ReflectionHistory.cs" />
+    <Compile Include="Types\LuaType.cs" />
+    <Compile Include="Types\Parameters.cs" />
+    <Compile Include="Types\Security.cs" />
+    <Compile Include="Types\Serialization.cs" />
+    <Compile Include="Types\Tags.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

@@ -227,7 +227,7 @@ namespace Roblox
                 }
 
                 string apiJson = File.ReadAllText(apiFilePath);
-                ReflectionDatabase api = ReflectionDatabase.Load(apiJson);
+                ReflectionDatabase api = new ReflectionDatabase(apiJson);
                 ReflectionDumper dumper = new ReflectionDumper(api);
 
                 string result;
@@ -262,11 +262,11 @@ namespace Roblox
 
                 setStatus("Reading the " + (fetchPrevious ? "Previous" : "Production") + " API...");
                 string oldApiJson = File.ReadAllText(oldApiFilePath);
-                ReflectionDatabase oldApi = ReflectionDatabase.Load(oldApiJson);
+                ReflectionDatabase oldApi = new ReflectionDatabase(oldApiJson);
 
                 setStatus("Reading the " + (fetchPrevious ? "Production" : "New") + " API...");
                 string newApiJson = File.ReadAllText(newApiFilePath);
-                ReflectionDatabase newApi = ReflectionDatabase.Load(newApiJson);
+                ReflectionDatabase newApi = new ReflectionDatabase(newApiJson);
 
                 setStatus("Comparing APIs...");
 
