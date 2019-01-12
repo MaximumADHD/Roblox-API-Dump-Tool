@@ -719,6 +719,7 @@ namespace Roblox.Reflection
                         continue;
 
                     // Grab the summary version of the new diff.
+                    ClassDescriptor newClass = newClassDiff.Target as ClassDescriptor;
                     string newDiff = newClassDiff.WriteDiffTxt(false);
 
                     foreach (Diff oldClassDiff in oldClassDiffs)
