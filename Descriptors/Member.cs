@@ -44,10 +44,17 @@ namespace Roblox.Reflection
 
             if (detailed)
             {
-                if (MemberType != MemberType.Property)
-                    schema += "{Parameters}";
+                string details = "";
 
-                schema += " {Security} {Tags}";
+                if (MemberType != MemberType.Property)
+                    details = "{Parameters}";
+
+                details += " {Security}";
+
+                if (MemberType == MemberType.Property)
+                    details += " {Serialization}";
+
+                schema += details + " {Tags}";
             }
 
             return schema;
