@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -55,25 +56,81 @@ namespace Roblox
 
         private static async Task processArgs(string[] args)
         {
-            if (args.Length > 1 && args[0] == "-export")
+            if (args.Length < 2)
+                return;
+
+            string arg = args[0];
+            string branch = args[1];
+
+            if (arg == "-export")
             {
-                string branch = args[1];
                 string bin = Directory.GetCurrentDirectory();
 
                 string exportBin = Path.Combine(bin, "ExportAPI");
                 Directory.CreateDirectory(exportBin);
 
                 string apiFilePath = await Roblox.Main.GetApiDumpFilePath(branch);
-                string apiJson = File.ReadAllText(apiFilePath);
+                ReflectionDatabase api = new ReflectionDatabase(apiFilePath);
 
-                ReflectionDatabase api = new ReflectionDatabase(apiJson);
                 ReflectionDumper dumper = new ReflectionDumper(api);
-
                 string result = dumper.DumpApi(ReflectionDumper.DumpUsingTxt);
-                string exportPath = Path.Combine(exportBin, branch + ".txt");
 
+                string exportPath = Path.Combine(exportBin, branch + ".txt");
                 File.WriteAllText(exportPath, result);
+
                 Environment.Exit(0);
+            }
+            else if (arg == "-history")
+            {
+                string baseApiFilePath = await Roblox.Main.GetApiDumpFilePath(branch);
+                
+                ReflectionDiffer differ = new ReflectionDiffer();
+                differ.PostProcessHtml = false;
+
+                ReflectionDatabase currentDatabase = new ReflectionDatabase(baseApiFilePath);
+                currentDatabase.Branch = "roblox";
+
+                string currentGuid = GetRegistryString(Roblox.Main.VersionRegistry, branch);
+                string currentPath = baseApiFilePath;
+
+                ReflectionDumper history = new ReflectionDumper();
+
+                while (true)
+                {
+                    string previousGuid = await ReflectionHistory.GetPreviousVersionGuid(branch, currentGuid);
+                    string previousPath = await Roblox.Main.GetApiDumpFilePath(branch, previousGuid);
+
+                    ReflectionDatabase previousDatabase = new ReflectionDatabase(previousPath);
+                    previousDatabase.Branch = branch;
+                    previousDatabase.VersionGuid = previousGuid;
+
+                    DeployLog deployLog = await ReflectionHistory.FindDeployLog(branch, previousGuid);
+                    Console.WriteLine("Working on {0}", deployLog.ToString());
+
+                    string differences = await differ.CompareDatabases(previousDatabase, currentDatabase, "HTML");
+                    history.Write(differences);
+
+                    if (currentPath != baseApiFilePath)
+                        File.Delete(currentPath);
+
+                    if (deployLog.Version == StudioDeployLogs.EarliestVersion)
+                        break;
+
+                    currentGuid = previousGuid;
+                    currentPath = previousPath;
+
+                    currentDatabase = previousDatabase;
+                }
+
+                string results = history.ExportResults(Roblox.Main.PostProcessHtml);
+
+                FileInfo info = new FileInfo(baseApiFilePath);
+                string exportPath = Path.Combine(info.Directory.FullName, branch + "-history.html");
+
+                File.WriteAllText(exportPath, results);
+                Roblox.Main.PreloadApiDumpCssFile();
+
+                Process.Start(exportPath);
             }
         }
 

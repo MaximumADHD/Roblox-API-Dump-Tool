@@ -60,6 +60,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="History\HistoryCache.cs" />
+    <Compile Include="History\DeployLog.cs" />
+    <Compile Include="History\StudioDeployLogs.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>

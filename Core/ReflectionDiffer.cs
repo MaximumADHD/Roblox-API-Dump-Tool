@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Roblox.Reflection
 {
     public class ReflectionDiffer
     {
+        public bool PostProcessHtml = true;
+
         private const string NL = "\r\n";
         private const string HTML_BREAK = NL + "<br/>" + NL;
 
@@ -154,7 +157,7 @@ namespace Roblox.Reflection
             }
         }
 
-        public string CompareDatabases(ReflectionDatabase oldApi, ReflectionDatabase newApi, string format = "TXT")
+        public async Task<string> CompareDatabases(ReflectionDatabase oldApi, ReflectionDatabase newApi, string format = "TXT")
         {
             results.Clear();
 
@@ -345,6 +348,10 @@ namespace Roblox.Reflection
                 }
             }
 
+            // Peace out early if no diffs were recorded.
+            if (results.Count == 0)
+                return "";
+
             // Select diffs that are not parented to other diffs.
             List<Diff> diffs = results
                 .Where(diff => !diff.HasParent)
@@ -368,7 +375,7 @@ namespace Roblox.Reflection
             // Remove diffs that were discarded during a merge, and sort the results.
             diffs = diffs.Where(diff => !diff.Merged).ToList();
             diffs.Sort();
-
+            
             // Setup actions for generating the final result, based on the requested format.
             DiffResultLineAdder addLineToResults;
             DiffResultFinalizer finalizeResults;
@@ -388,9 +395,12 @@ namespace Roblox.Reflection
                         htmlDumper.NextLine();
                     }
 
-                    Diff diff = diffLookup[line];
-                    diff.WriteDiffHtml(htmlDumper);
-
+                    if (diffLookup.ContainsKey(line))
+                    {
+                        Diff diff = diffLookup[line];
+                        diff.WriteDiffHtml(htmlDumper);
+                    }
+                    
                     if (line.EndsWith(NL))
                     {
                         htmlDumper.Write(HTML_BREAK);
@@ -400,9 +410,30 @@ namespace Roblox.Reflection
 
                 finalizeResults = new DiffResultFinalizer(() =>
                 {
-                    string result = htmlDumper.GetBuffer();
-                    return Main.PostProcessHtml(result);
+                    if (newApi.Branch != null)
+                        htmlDumper.NextLine();
+
+                    string result = htmlDumper.ExportResults();
+
+                    if (PostProcessHtml)
+                        result = Main.PostProcessHtml(result);
+
+                    return result;
                 });
+
+                if (newApi.Branch != null)
+                {
+                    if (newApi.VersionGuid == null)
+                        newApi.VersionGuid = Program.GetRegistryString(Main.VersionRegistry, newApi.Branch);
+
+                    DeployLog deployLog = await ReflectionHistory.FindDeployLog(newApi.Branch, newApi.VersionGuid);
+                    string version = deployLog.ToString();
+
+                    htmlDumper.OpenHtmlTag("h2");
+                    htmlDumper.Write("Version " + version);
+                    htmlDumper.CloseHtmlTag("h2");
+                    htmlDumper.NextLine();
+                }
             }
             else
             {

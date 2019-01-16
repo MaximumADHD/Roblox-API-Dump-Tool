@@ -17,12 +17,11 @@ namespace Roblox
         private const string VERSION_API_KEY = "76e5a40c-3ae1-4028-9f10-7c62520bd94f";
         private const string API_DUMP_CSS_FILE = "api-dump-v1-3.css";
 
-        private static RegistryKey versionRegistry => Program.GetRegistryKey(Program.MainRegistry, "Current Versions");
-
         private delegate void StatusDelegate(string msg);
         private delegate string ItemDelegate(ComboBox comboBox);
-
         private static WebClient http = new WebClient();
+
+        public static RegistryKey VersionRegistry => Program.GetRegistryKey(Program.MainRegistry, "Current Versions");
 
         public Main()
         {
@@ -80,7 +79,7 @@ namespace Roblox
             return await http.DownloadStringTaskAsync(versionUrl);
         }
 
-        private static async Task<string> getVersion(string branch)
+        public static async Task<string> GetVersion(string branch)
         {
             bool useDeployed = Program.GetRegistryBool("UseDeployedVersion");
             string result;
@@ -93,7 +92,7 @@ namespace Roblox
             return result;
         }
 
-        private static void preloadApiDumpCssFile()
+        public static void PreloadApiDumpCssFile()
         {
             string workDir = getWorkDirectory();
             string apiDumpCss = Path.Combine(workDir, API_DUMP_CSS_FILE);
@@ -157,38 +156,46 @@ namespace Roblox
                  + result.Trim();
         }
 
-        public static async Task<string> GetApiDumpFilePath(string branch, Action<string> setStatus = null, bool fetchPrevious = false)
+        public static async Task<string> GetApiDumpFilePath(string branch, string versionGuid, Action<string> setStatus = null)
         {
-            string coreBin = getWorkDirectory();
-
             string setupUrl = "https://s3.amazonaws.com/setup." + branch + ".com/";
-            setStatus?.Invoke("Checking for update...");
 
-            string version = await getVersion(branch);
+            DeployLog deployLog = await ReflectionHistory.FindDeployLog(branch, versionGuid);
+            string version = deployLog.ToString();
 
-            if (fetchPrevious)
-                version = await ReflectionHistory.GetPreviousVersionGuid(branch, version);
-
-            string file = Path.Combine(coreBin, version + ".json");
+            string coreBin = getWorkDirectory();
+            string file = Path.Combine(coreBin, versionGuid + ".json");
 
             if (!File.Exists(file))
             {
-                setStatus?.Invoke("Grabbing the" + (fetchPrevious ? " previous " : " ") + "API Dump from " + branch);
+                setStatus?.Invoke("Grabbing API Dump for " + version);
 
-                string apiDump = await http.DownloadStringTaskAsync(setupUrl + version + "-API-Dump.json");
+                string apiDump = await http.DownloadStringTaskAsync(setupUrl + versionGuid + "-API-Dump.json");
                 File.WriteAllText(file, apiDump);
-
-                if (fetchPrevious)
-                    versionRegistry.SetValue(branch + "-prev", version);
-                else
-                    versionRegistry.SetValue(branch, version);
-
-                clearOldVersionFiles();
             }
             else
             {
                 setStatus?.Invoke("Already up to date!");
             }
+
+            return file;
+        }
+
+        public static async Task<string> GetApiDumpFilePath(string branch, Action<string> setStatus = null, bool fetchPrevious = false)
+        {
+            setStatus?.Invoke("Checking for update...");
+            string versionGuid = await GetVersion(branch);
+
+            if (fetchPrevious)
+                versionGuid = await ReflectionHistory.GetPreviousVersionGuid(branch, versionGuid);
+
+            string file = await GetApiDumpFilePath(branch, versionGuid, setStatus);
+
+            if (fetchPrevious)
+                branch += "-prev";
+
+            VersionRegistry.SetValue(branch, versionGuid);
+            clearOldVersionFiles();
 
             return file;
         }
@@ -234,7 +241,7 @@ namespace Roblox
 
                 if (format == "HTML")
                 {
-                    preloadApiDumpCssFile();
+                    PreloadApiDumpCssFile();
                     result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml, PostProcessHtml);
                 }
                 else
@@ -261,24 +268,23 @@ namespace Roblox
                 string oldApiFilePath = await getApiDumpFilePath("roblox", fetchPrevious);
 
                 setStatus("Reading the " + (fetchPrevious ? "Previous" : "Production") + " API...");
-                string oldApiJson = File.ReadAllText(oldApiFilePath);
-                ReflectionDatabase oldApi = new ReflectionDatabase(oldApiJson);
+                ReflectionDatabase oldApi = new ReflectionDatabase(oldApiFilePath);
+                oldApi.Branch = fetchPrevious ? "roblox-prev" : "roblox";
 
                 setStatus("Reading the " + (fetchPrevious ? "Production" : "New") + " API...");
-                string newApiJson = File.ReadAllText(newApiFilePath);
-                ReflectionDatabase newApi = new ReflectionDatabase(newApiJson);
+                ReflectionDatabase newApi = new ReflectionDatabase(newApiFilePath);
+                newApi.Branch = newBranch;
 
                 setStatus("Comparing APIs...");
-
                 string format = getApiDumpFormat();
 
                 if (format == "JSON")
                     format = "TXT";
                 else if (format == "HTML")
-                    preloadApiDumpCssFile();
+                    PreloadApiDumpCssFile();
 
                 ReflectionDiffer differ = new ReflectionDiffer();
-                string result = differ.CompareDatabases(oldApi, newApi, format);
+                string result = await differ.CompareDatabases(oldApi, newApi, format);
 
                 if (result.Length > 0)
                 {
@@ -302,8 +308,8 @@ namespace Roblox
         {
             string workDir = getWorkDirectory();
 
-            string[] activeVersions = versionRegistry.GetValueNames()
-                .Select(branch => Program.GetRegistryString(versionRegistry, branch))
+            string[] activeVersions = VersionRegistry.GetValueNames()
+                .Select(branch => Program.GetRegistryString(VersionRegistry, branch))
                 .ToArray();
 
             string[] oldFiles = Directory.GetFiles(workDir, "version-*.json")
@@ -336,13 +342,13 @@ namespace Roblox
                 foreach (string branchName in branches)
                 {
                     string versionGuid = await getLiveVersion(branchName, "WindowsStudio");
-                    versionRegistry.SetValue(branchName, versionGuid);
+                    VersionRegistry.SetValue(branchName, versionGuid);
                 }
 
                 // Fetch the previous version guid for roblox.
-                string robloxGuid = Program.GetRegistryString(versionRegistry, "roblox");
+                string robloxGuid = Program.GetRegistryString(VersionRegistry, "roblox");
                 string prevGuid = await ReflectionHistory.GetPreviousVersionGuid("roblox", robloxGuid);
-                versionRegistry.SetValue("roblox-prev", prevGuid);
+                VersionRegistry.SetValue("roblox-prev", prevGuid);
 
                 // Done.
                 Program.MainRegistry.SetValue("InitializedVersions", true);

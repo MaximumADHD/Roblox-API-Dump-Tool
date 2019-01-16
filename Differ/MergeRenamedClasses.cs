@@ -8,7 +8,7 @@ namespace Roblox.Reflection
         public void RunMergeTask(ref List<Diff> diffs)
         {
             List<Diff> memberedClassDiffs = diffs
-                .Where(diff => diff.Target is ClassDescriptor)
+                .Where(diff =>  diff.Target is ClassDescriptor)
                 .Where(diff => (diff.Target as ClassDescriptor).Members.Count > 0)
                 .ToList();
 
@@ -38,6 +38,7 @@ namespace Roblox.Reflection
                         if (oldClassDiff.Merged)
                             continue;
 
+                        // Grab the summary version of the old diff.
                         Descriptor oldClass = oldClassDiff.Target;
                         string oldDiff = oldClassDiff.WriteDiffTxt(false);
 

@@ -13,7 +13,7 @@ namespace Roblox.Reflection
         public string Signature => Describe(true);
 
         public override string ToString() => Summary;
-        
+
         public string GetDescriptorType()
         {
             string descType = GetType().Name;
@@ -22,6 +22,16 @@ namespace Roblox.Reflection
                 descType = descType.Replace("Descriptor", "");
 
             return descType;
+        }
+
+        public bool AddTag(string tag)
+        {
+            return Tags.Add(tag);
+        }
+
+        public bool HasTag(string tag)
+        {
+            return Tags.Contains(tag);
         }
 
         public virtual string GetSchema(bool detailed = false)
@@ -81,24 +91,7 @@ namespace Roblox.Reflection
 
             return desc;
         }
-
-        public virtual int CompareTo(object other)
-        {
-            string label;
-
-            if (other is Descriptor)
-            {
-                var otherDesc = other as Descriptor;
-                label = otherDesc.Name;
-            }
-            else
-            {
-                label = other.ToString();
-            }
-
-            return string.CompareOrdinal(Name, label);
-        }
-
+        
         public void WriteHtml(ReflectionDumper buffer, int numTabs = 0, bool detailed = true, bool diffMode = false)
         {
             var tokens = GetTokens(detailed);
@@ -182,6 +175,23 @@ namespace Roblox.Reflection
             }
 
             buffer.CloseClassTag(numTabs, tagType);
+        }
+
+        public virtual int CompareTo(object other)
+        {
+            string label;
+
+            if (other is Descriptor)
+            {
+                var otherDesc = other as Descriptor;
+                label = otherDesc.Name;
+            }
+            else
+            {
+                label = other.ToString();
+            }
+
+            return string.CompareOrdinal(Name, label);
         }
     }
 }

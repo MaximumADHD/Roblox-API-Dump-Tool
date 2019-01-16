@@ -17,6 +17,17 @@ namespace Roblox.Reflection
             Database = database;
         }
 
+        public string ExportResults(DumpPostProcesser postProcess = null)
+        {
+            string result = buffer.ToString();
+
+            string post = postProcess?.Invoke(result);
+            if (post != null)
+                result = post;
+
+            return result;
+        }
+
         private static List<T> sorted<T>(List<T> list)
         {
             list.Sort();
@@ -55,12 +66,12 @@ namespace Roblox.Reflection
         public void CloseHtmlTag(string tagName, int numTabs = 0)
         {
             Tab(numTabs);
-            Write("</" + tagName + ">");
+            Write("</" + tagName + '>');
         }
 
-        public void OpenClassTag(string spanClass, int numTabs = 0, string tagType = "span")
+        public void OpenClassTag(string tagClass, int numTabs = 0, string tagType = "span")
         {
-            string attributes = "class=\"" + spanClass + '"';
+            string attributes = "class=\"" + tagClass + '"';
             Tab(numTabs);
             OpenHtmlTag(tagType, attributes);
         }
@@ -113,18 +124,7 @@ namespace Roblox.Reflection
                 }
             }
 
-            string result = buffer.ToString();
-
-            string post = postProcess?.Invoke(result);
-            if (post != null)
-                result = post;
- 
-            return result;
-        }
-
-        public string GetBuffer()
-        {
-            return buffer.ToString();
+            return ExportResults(postProcess);
         }
     }
 }
