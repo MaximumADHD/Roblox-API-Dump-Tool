@@ -27,7 +27,6 @@ namespace Roblox.Reflection
             "EnumItem"
         });
 
-        public ReflectionDatabase(string jsonApiDump)
         public ReflectionDatabase(string filePath)
         {
             string jsonApiDump = File.ReadAllText(filePath);
