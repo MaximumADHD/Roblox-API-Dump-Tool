@@ -229,8 +229,7 @@ namespace Roblox
                     return;
                 }
 
-                string apiJson = File.ReadAllText(apiFilePath);
-                ReflectionDatabase api = new ReflectionDatabase(apiJson);
+                ReflectionDatabase api = new ReflectionDatabase(apiFilePath);
                 ReflectionDumper dumper = new ReflectionDumper(api);
 
                 string result;
