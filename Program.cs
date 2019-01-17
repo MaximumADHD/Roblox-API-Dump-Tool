@@ -69,7 +69,7 @@ namespace Roblox
                 string exportBin = Path.Combine(bin, "ExportAPI");
                 Directory.CreateDirectory(exportBin);
 
-                string apiFilePath = await Roblox.Main.GetApiDumpFilePath(branch);
+                string apiFilePath = await Roblox.ApiDumpTool.GetApiDumpFilePath(branch);
                 ReflectionDatabase api = new ReflectionDatabase(apiFilePath);
 
                 ReflectionDumper dumper = new ReflectionDumper(api);
@@ -82,7 +82,7 @@ namespace Roblox
             }
             else if (arg == "-history")
             {
-                string baseApiFilePath = await Roblox.Main.GetApiDumpFilePath(branch);
+                string baseApiFilePath = await ApiDumpTool.GetApiDumpFilePath(branch);
                 
                 ReflectionDiffer differ = new ReflectionDiffer();
                 differ.PostProcessHtml = false;
@@ -90,7 +90,7 @@ namespace Roblox
                 ReflectionDatabase currentDatabase = new ReflectionDatabase(baseApiFilePath);
                 currentDatabase.Branch = "roblox";
 
-                string currentGuid = GetRegistryString(Roblox.Main.VersionRegistry, branch);
+                string currentGuid = GetRegistryString(ApiDumpTool.VersionRegistry, branch);
                 string currentPath = baseApiFilePath;
 
                 ReflectionDumper history = new ReflectionDumper();
@@ -98,7 +98,7 @@ namespace Roblox
                 while (true)
                 {
                     string previousGuid = await ReflectionHistory.GetPreviousVersionGuid(branch, currentGuid);
-                    string previousPath = await Roblox.Main.GetApiDumpFilePath(branch, previousGuid);
+                    string previousPath = await ApiDumpTool.GetApiDumpFilePath(branch, previousGuid);
 
                     ReflectionDatabase previousDatabase = new ReflectionDatabase(previousPath);
                     previousDatabase.Branch = branch;
@@ -122,14 +122,12 @@ namespace Roblox
                     currentDatabase = previousDatabase;
                 }
 
-                string results = history.ExportResults(Roblox.Main.PostProcessHtml);
+                string workDir = ApiDumpTool.GetWorkDirectory();
+                string exportPath = Path.Combine(workDir, branch + "-history.html");
 
-                FileInfo info = new FileInfo(baseApiFilePath);
-                string exportPath = Path.Combine(info.Directory.FullName, branch + "-history.html");
-
+                string results = history.ExportResults(ApiDumpTool.PostProcessHtml);
                 File.WriteAllText(exportPath, results);
-                Roblox.Main.PreloadApiDumpCssFile();
-
+                
                 Process.Start(exportPath);
             }
         }
@@ -145,7 +143,7 @@ namespace Roblox
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Main());
+            Application.Run(new ApiDumpTool());
         }
     }
 }

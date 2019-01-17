@@ -5,3 +5,4 @@ packages/*
 *.suo
 *.ide
 *.xsd
+*.user

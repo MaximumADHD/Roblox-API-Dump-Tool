@@ -1,6 +1,6 @@
 ﻿namespace Roblox
 {
-    partial class Main
+    partial class ApiDumpTool
     {
         /// <summary>
         /// Required designer variable.
@@ -188,7 +188,7 @@
             this.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Roblox API Dump Tool";
-            this.Load += new System.EventHandler(this.Main_Load);
+            this.Load += new System.EventHandler(this.ApiDumpTool_Load);
             ((System.ComponentModel.ISupportInitialize)(this.appLogo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

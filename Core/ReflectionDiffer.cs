@@ -416,7 +416,7 @@ namespace Roblox.Reflection
                     string result = htmlDumper.ExportResults();
 
                     if (PostProcessHtml)
-                        result = Main.PostProcessHtml(result);
+                        result = ApiDumpTool.PostProcessHtml(result);
 
                     return result;
                 });
@@ -424,7 +424,7 @@ namespace Roblox.Reflection
                 if (newApi.Branch != null)
                 {
                     if (newApi.VersionGuid == null)
-                        newApi.VersionGuid = Program.GetRegistryString(Main.VersionRegistry, newApi.Branch);
+                        newApi.VersionGuid = Program.GetRegistryString(ApiDumpTool.VersionRegistry, newApi.Branch);
 
                     DeployLog deployLog = await ReflectionHistory.FindDeployLog(newApi.Branch, newApi.VersionGuid);
                     string version = deployLog.ToString();

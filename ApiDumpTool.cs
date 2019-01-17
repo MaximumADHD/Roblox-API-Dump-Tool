@@ -12,18 +12,18 @@ using Microsoft.Win32;
 
 namespace Roblox
 {
-    public partial class Main : Form
+    public partial class ApiDumpTool : Form
     {
+        public static RegistryKey VersionRegistry => Program.GetRegistryKey(Program.MainRegistry, "Current Versions");
+        
         private const string VERSION_API_KEY = "76e5a40c-3ae1-4028-9f10-7c62520bd94f";
-        private const string API_DUMP_CSS_FILE = "api-dump-v1-3.css";
+        private const string API_DUMP_CSS_FILE = "api-dump-v1-4.css";
 
         private delegate void StatusDelegate(string msg);
         private delegate string ItemDelegate(ComboBox comboBox);
         private static WebClient http = new WebClient();
 
-        public static RegistryKey VersionRegistry => Program.GetRegistryKey(Program.MainRegistry, "Current Versions");
-
-        public Main()
+        public ApiDumpTool()
         {
             InitializeComponent();
         }
@@ -92,17 +92,6 @@ namespace Roblox
             return result;
         }
 
-        public static void PreloadApiDumpCssFile()
-        {
-            string workDir = getWorkDirectory();
-            string apiDumpCss = Path.Combine(workDir, API_DUMP_CSS_FILE);
-
-            if (!File.Exists(apiDumpCss))
-            {
-                File.WriteAllText(apiDumpCss, Properties.Resources.ApiDumpStyler);
-            }
-        }
-
         private void setStatus(string msg = "")
         {
             if (InvokeRequired)
@@ -138,7 +127,7 @@ namespace Roblox
             Process.Start(path);
         }
 
-        private static string getWorkDirectory()
+        public static string GetWorkDirectory()
         {
             string localAppData = Environment.GetEnvironmentVariable("LocalAppData");
 
@@ -150,6 +139,13 @@ namespace Roblox
 
         public static string PostProcessHtml(string result)
         {
+            // Preload the API Dump CSS file.
+            string workDir = GetWorkDirectory();
+            string apiDumpCss = Path.Combine(workDir, API_DUMP_CSS_FILE);
+
+            if (!File.Exists(apiDumpCss))
+                File.WriteAllText(apiDumpCss, Properties.Resources.ApiDumpStyler);
+
             return "<head>\n"
                  + "\t<link rel=\"stylesheet\" href=\"" + API_DUMP_CSS_FILE + "\">\n"
                  + "</head>\n\n"
@@ -163,7 +159,7 @@ namespace Roblox
             DeployLog deployLog = await ReflectionHistory.FindDeployLog(branch, versionGuid);
             string version = deployLog.ToString();
 
-            string coreBin = getWorkDirectory();
+            string coreBin = GetWorkDirectory();
             string file = Path.Combine(coreBin, versionGuid + ".json");
 
             if (!File.Exists(file))
@@ -240,14 +236,9 @@ namespace Roblox
                 string result;
 
                 if (format == "HTML")
-                {
-                    PreloadApiDumpCssFile();
                     result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml, PostProcessHtml);
-                }
                 else
-                {
                     result = dumper.DumpApi(ReflectionDumper.DumpUsingTxt);
-                }
 
                 FileInfo info = new FileInfo(apiFilePath);
                 string directory = info.DirectoryName;
@@ -278,11 +269,6 @@ namespace Roblox
                 setStatus("Comparing APIs...");
                 string format = getApiDumpFormat();
 
-                if (format == "JSON")
-                    format = "TXT";
-                else if (format == "HTML")
-                    PreloadApiDumpCssFile();
-
                 ReflectionDiffer differ = new ReflectionDiffer();
                 string result = await differ.CompareDatabases(oldApi, newApi, format);
 
@@ -306,7 +292,7 @@ namespace Roblox
 
         private static void clearOldVersionFiles()
         {
-            string workDir = getWorkDirectory();
+            string workDir = GetWorkDirectory();
 
             string[] activeVersions = VersionRegistry.GetValueNames()
                 .Select(branch => Program.GetRegistryString(VersionRegistry, branch))
@@ -355,7 +341,7 @@ namespace Roblox
             });
         }
 
-        private async void Main_Load(object sender, EventArgs e)
+        private async void ApiDumpTool_Load(object sender, EventArgs e)
         {
             bool initVersions = Program.GetRegistryBool("InitializedVersions");
 
