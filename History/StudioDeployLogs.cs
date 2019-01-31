@@ -32,7 +32,13 @@ namespace Roblox.Reflection
             if (deployLog.Version >= EarliestVersion)
             {
                 // Add by version info
-                if (deployLog.Patch == 0)
+                int version = deployLog.Version;
+                int currentPatch = -1;
+
+                if (LookupFromVersion.ContainsKey(version))
+                    currentPatch = LookupFromVersion[version].Patch;
+
+                if (deployLog.Patch > currentPatch)
                     LookupFromVersion[deployLog.Version] = deployLog;
 
                 // Add by version guid
