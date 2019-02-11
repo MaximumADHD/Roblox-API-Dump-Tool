@@ -13,10 +13,36 @@ namespace Roblox.Reflection
         private const string HTML_BREAK = NL + "<br/>" + NL;
 
         private List<Diff> results = new List<Diff>();
+        private static List<IDiffMerger> preMergers = new List<IDiffMerger>();
+        private static List<IDiffMerger> postMergers = new List<IDiffMerger>(); 
 
         private delegate Diff DiffRecorder(Descriptor target, bool detailed = true, Diff parent = null);
         private delegate void DiffResultLineAdder(string line, bool addBreak);
         private delegate string DiffResultFinalizer();
+
+        static ReflectionDiffer()
+        {
+            // Initialize the IDiffMerger singletons
+            Type IDiffMerger = typeof(IDiffMerger);
+
+            var taskTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(type => type != IDiffMerger)
+                .Where(type => IDiffMerger.IsAssignableFrom(type));
+
+            foreach (Type taskType in taskTypes)
+            {
+                IDiffMerger merger = Activator.CreateInstance(taskType) as IDiffMerger;
+                List<IDiffMerger> orderList = null;
+
+                if (merger.Order == IDiffMergerOrder.PreMemberDiff)
+                    orderList = preMergers;
+                else if (merger.Order == IDiffMergerOrder.PostMemberDiff)
+                    orderList = postMergers;
+
+                orderList?.Add(merger);
+            }
+        }
 
         private static Dictionary<string, T> createLookupTable<T>(List<T> entries) where T : Descriptor
         {
@@ -165,6 +191,7 @@ namespace Roblox.Reflection
             var oldClasses = oldApi.Classes;
             var newClasses = newApi.Classes;
 
+            // Record added classes
             foreach (string className in newClasses.Keys)
             {
                 if (!oldClasses.ContainsKey(className))
@@ -175,6 +202,21 @@ namespace Roblox.Reflection
                 }
             }
 
+            // Record removed classes
+            foreach (string className in oldClasses.Keys)
+            {
+                if (!newClasses.ContainsKey(className))
+                {
+                    ClassDescriptor classDesc = oldClasses[className];
+                    flagEntireClass(classDesc, Removed, false);
+                }
+            }
+
+            // Run pre-merger tasks.
+            foreach (IDiffMerger preMerge in preMergers)
+                preMerge.RunMergeTask(ref results);
+
+            // Compare class changes.
             foreach (string className in oldClasses.Keys)
             {
                 ClassDescriptor oldClass = oldClasses[className];
@@ -273,14 +315,9 @@ namespace Roblox.Reflection
                         else
                         {
                             // Remove Old Member
-                            Removed(oldMember);
+                            Removed(oldMember, false);
                         }
                     }
-                }
-                else
-                {
-                    // Remove Old Class
-                    flagEntireClass(oldClass, Removed, false);
                 }
             }
 
@@ -357,20 +394,9 @@ namespace Roblox.Reflection
                 .Where(diff => !diff.HasParent)
                 .ToList();
 
-            // Find all types that implement IDiffMerger
-            Type IDiffMerger = typeof(IDiffMerger);
-
-            var taskTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type != IDiffMerger)
-                .Where(type => IDiffMerger.IsAssignableFrom(type));
-
-            // Handle diff-merger tasks.
-            foreach (Type taskType in taskTypes)
-            {
-                var merger = Activator.CreateInstance(taskType) as IDiffMerger;
-                merger.RunMergeTask(ref diffs);
-            }
+            // Run post-merger tasks.
+            foreach (IDiffMerger postMerge in postMergers)
+                postMerge.RunMergeTask(ref diffs);
 
             // Remove diffs that were discarded during a merge, and sort the results.
             diffs = diffs.Where(diff => !diff.Merged).ToList();

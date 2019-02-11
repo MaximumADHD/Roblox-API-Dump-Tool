@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Differ\IDiffMerger.cs" />
     <Compile Include="History\HistoryCache.cs" />
     <Compile Include="History\DeployLog.cs" />
     <Compile Include="History\StudioDeployLogs.cs" />

@@ -137,10 +137,12 @@ namespace Roblox
             return workDir;
         }
 
-        public static string PostProcessHtml(string result)
+        public static string PostProcessHtml(string result, string workDir = "")
         {
             // Preload the API Dump CSS file.
-            string workDir = GetWorkDirectory();
+            if (workDir == "")
+                workDir = GetWorkDirectory();
+
             string apiDumpCss = Path.Combine(workDir, API_DUMP_CSS_FILE);
 
             if (!File.Exists(apiDumpCss))

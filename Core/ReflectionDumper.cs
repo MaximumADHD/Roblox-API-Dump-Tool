@@ -10,7 +10,7 @@ namespace Roblox.Reflection
         private StringBuilder buffer = new StringBuilder();
 
         public delegate void SignatureWriter(ReflectionDumper buffer, Descriptor desc, int numTabs = 0);
-        public delegate string DumpPostProcesser(string result);
+        public delegate string DumpPostProcesser(string result, string workDir = "");
 
         public ReflectionDumper(ReflectionDatabase database = null)
         {

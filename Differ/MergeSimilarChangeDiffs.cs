@@ -5,6 +5,8 @@ namespace Roblox.Reflection
 {
     public sealed class MergeSimilarChangeDiffs : IDiffMerger
     {
+        public IDiffMergerOrder Order => IDiffMergerOrder.PostMemberDiff;
+
         public void RunMergeTask(ref List<Diff> diffs)
         {
             List<Diff> changeDiffs = diffs

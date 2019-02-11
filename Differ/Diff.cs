@@ -10,11 +10,6 @@ namespace Roblox.Reflection
         Remove
     }
 
-    public interface IDiffMerger
-    {
-        void RunMergeTask(ref List<Diff> diffs);
-    }
-
     public class Diff : IComparable
     {
         private const string NL = "\r\n";

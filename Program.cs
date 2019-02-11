@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -59,76 +60,139 @@ namespace Roblox
             if (args.Length < 2)
                 return;
 
-            string arg = args[0];
-            string branch = args[1];
+            Dictionary<string, string> argMap = new Dictionary<string, string>();
+            string currentArg = "";
 
-            if (arg == "-export")
+            foreach (string arg in args)
             {
-                string bin = Directory.GetCurrentDirectory();
+                if (arg.StartsWith("-"))
+                {
+                    if (currentArg != "")
+                        argMap.Add(currentArg, "");
+
+                    currentArg = arg;
+                }
+                else if (currentArg != "")
+                {
+                    argMap.Add(currentArg, arg);
+                    currentArg = "";
+                }
+            }
+
+            if (currentArg != "")
+                argMap.Add(currentArg, "");
+
+            string format = "TXT";
+            if (argMap.ContainsKey("-format"))
+                format = argMap["-format"];
+
+            string bin = Directory.GetCurrentDirectory();
+
+            if (argMap.ContainsKey("-export"))
+            {
+                string branch = argMap["-export"];
+                string apiFilePath = await ApiDumpTool.GetApiDumpFilePath(branch);
 
                 string exportBin = Path.Combine(bin, "ExportAPI");
-                Directory.CreateDirectory(exportBin);
+                if (argMap.ContainsKey("-outdir"))
+                    exportBin = argMap["-outdir"];
+                else
+                    Directory.CreateDirectory(exportBin);
 
-                string apiFilePath = await Roblox.ApiDumpTool.GetApiDumpFilePath(branch);
+                if (format.ToLower() == "json")
+                {
+                    string jsonPath = Path.Combine(exportBin, branch + ".json");
+                    File.Copy(apiFilePath, jsonPath);
+
+                    Environment.Exit(0);
+                    return;
+                }
+
                 ReflectionDatabase api = new ReflectionDatabase(apiFilePath);
 
                 ReflectionDumper dumper = new ReflectionDumper(api);
-                string result = dumper.DumpApi(ReflectionDumper.DumpUsingTxt);
+                string result = "";
 
-                string exportPath = Path.Combine(exportBin, branch + ".txt");
+                if (format.ToLower() != "html")
+                {
+                    format = "txt";
+                    result = dumper.DumpApi(ReflectionDumper.DumpUsingTxt);
+                }
+                else
+                {
+                    format = "html";
+                    result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml);
+                }
+
+                string exportPath = Path.Combine(exportBin, branch + '.' + format);
+
+                if (format == "html")
+                {
+                    FileInfo info = new FileInfo(exportPath);
+                    string dir = info.DirectoryName;
+                    result = ApiDumpTool.PostProcessHtml(result, dir);
+                }
+
                 File.WriteAllText(exportPath, result);
+
+                if (argMap.ContainsKey("-start"))
+                    Process.Start(exportPath);
 
                 Environment.Exit(0);
             }
-            else if (arg == "-history")
+            else if (argMap.ContainsKey("-compare"))
             {
-                string baseApiFilePath = await ApiDumpTool.GetApiDumpFilePath(branch);
-                
+                if (!argMap.ContainsKey("-old") || !argMap.ContainsKey("-new"))
+                    Environment.Exit(1);
+
+                string oldFile = "";
+                string oldArg = argMap["-old"];
+
+                if (oldArg == "roblox" || oldArg.StartsWith("gametest") && oldArg.EndsWith(".robloxlabs"))
+                    oldFile = await ApiDumpTool.GetApiDumpFilePath(oldArg);
+                else
+                    oldFile = oldArg;
+
+                string newFile = "";
+                string newArg = argMap["-new"];
+
+                if (newArg == "roblox" || newArg.StartsWith("gametest") && newArg.EndsWith(".robloxlabs"))
+                    newFile = await ApiDumpTool.GetApiDumpFilePath(newArg);
+                else
+                    newFile = newArg;
+
+                ReflectionDatabase oldApi = new ReflectionDatabase(oldFile);
+                ReflectionDatabase newApi = new ReflectionDatabase(newFile);
+
                 ReflectionDiffer differ = new ReflectionDiffer();
                 differ.PostProcessHtml = false;
 
-                ReflectionDatabase currentDatabase = new ReflectionDatabase(baseApiFilePath);
-                currentDatabase.Branch = "roblox";
+                if (format.ToLower() == "html")
+                    format = "HTML";
+                else
+                    format = "TXT";
 
-                string currentGuid = GetRegistryString(ApiDumpTool.VersionRegistry, branch);
-                string currentPath = baseApiFilePath;
+                string result = await differ.CompareDatabases(oldApi, newApi, format);
+                string exportPath = "";
 
-                ReflectionDumper history = new ReflectionDumper();
+                if (argMap.ContainsKey("-out"))
+                    exportPath = argMap["-out"];
+                else
+                    exportPath = Path.Combine(bin, "custom-comp." + format.ToLower());
 
-                while (true)
+                if (format == "HTML")
                 {
-                    string previousGuid = await ReflectionHistory.GetPreviousVersionGuid(branch, currentGuid);
-                    string previousPath = await ApiDumpTool.GetApiDumpFilePath(branch, previousGuid);
-
-                    ReflectionDatabase previousDatabase = new ReflectionDatabase(previousPath);
-                    previousDatabase.Branch = branch;
-                    previousDatabase.VersionGuid = previousGuid;
-
-                    DeployLog deployLog = await ReflectionHistory.FindDeployLog(branch, previousGuid);
-                    Console.WriteLine("Working on {0}", deployLog.ToString());
-
-                    string differences = await differ.CompareDatabases(previousDatabase, currentDatabase, "HTML");
-                    history.Write(differences);
-
-                    if (currentPath != baseApiFilePath)
-                        File.Delete(currentPath);
-
-                    if (deployLog.Version == StudioDeployLogs.EarliestVersion)
-                        break;
-
-                    currentGuid = previousGuid;
-                    currentPath = previousPath;
-
-                    currentDatabase = previousDatabase;
+                    FileInfo info = new FileInfo(exportPath);
+                    string dir = info.DirectoryName;
+                    result = ApiDumpTool.PostProcessHtml(result, dir);
                 }
 
-                string workDir = ApiDumpTool.GetWorkDirectory();
-                string exportPath = Path.Combine(workDir, branch + "-history.html");
+                File.WriteAllText(exportPath, result);
 
-                string results = history.ExportResults(ApiDumpTool.PostProcessHtml);
-                File.WriteAllText(exportPath, results);
-                
-                Process.Start(exportPath);
+                if (argMap.ContainsKey("-start"))
+                    Process.Start(exportPath);
+
+                Environment.Exit(0);
             }
         }
 
