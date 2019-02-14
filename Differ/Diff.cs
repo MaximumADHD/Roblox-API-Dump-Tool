@@ -5,9 +5,10 @@ namespace Roblox.Reflection
 {
     public enum DiffType
     {
-        Add,
-        Change,
-        Remove
+        Add    = 1,
+        Change = 2,
+        Remove = 3,
+        Rename = 0,
     }
 
     public class Diff : IComparable
@@ -15,7 +16,7 @@ namespace Roblox.Reflection
         private const string NL = "\r\n";
         public DiffType Type;
 
-        public string Field;
+        public string Field = "";
         public object Context;
 
         public Descriptor Target;
@@ -76,6 +77,10 @@ namespace Roblox.Reflection
                 case DiffType.Remove:
                     result += "Removed " + what;
                     break;
+                case DiffType.Rename:
+                    string renameTo = '"' + To.ToString() + '"';
+                    result += "Renamed " + what + " to " + renameTo;
+                    break;
             }
 
             if (children.Count > 0)
@@ -131,6 +136,14 @@ namespace Roblox.Reflection
                 // Changed From, Changed To.
                 From.WriteHtml(buffer, multiline);
                 To.WriteHtml(buffer, multiline);
+            }
+            else if (Type == DiffType.Rename)
+            {
+                // What what was renamed.
+                Target.WriteHtml(buffer, stack + 1, false, true);
+
+                // Write its new name.
+                To.WriteHtml(buffer);
             }
             else
             {

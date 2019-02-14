@@ -458,7 +458,7 @@ namespace Roblox.Reflection
                     htmlDumper.OpenHtmlTag("h2");
                     htmlDumper.Write("Version " + version);
                     htmlDumper.CloseHtmlTag("h2");
-                    htmlDumper.NextLine();
+                    htmlDumper.NextLine(2);
                 }
             }
             else

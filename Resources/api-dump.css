@@ -1,4 +1,4 @@
-/* API Dump CSS (Version 1.3) */
+/* API Dump CSS (Version 1.5) */
 
 body
 {
@@ -75,6 +75,12 @@ div.Removed::before
 {
 	content: "Removed";
 	color: #FF7F7F;
+}
+
+div.Renamed::before
+{
+	content: "Renamed";
+	color: #7F7FFF;
 }
 
 .ChangeTo::before,
@@ -275,11 +281,15 @@ span.String,
 span.ParamDefault.String
 {
 	color: #00FF00;
+	font-weight: normal;
 }
 
+span.String::after,
+span.String::before,
 span.ParamDefault.String::after,
 span.ParamDefault.String::before
 {
+	font-weight: normal;
 	content: '"' !important;
 }
 

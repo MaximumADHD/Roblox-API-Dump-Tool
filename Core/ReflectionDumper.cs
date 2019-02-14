@@ -39,9 +39,12 @@ namespace Roblox.Reflection
             buffer.Append(text);
         }
 
-        public void NextLine()
+        public void NextLine(int count = 1)
         {
-            Write("\r\n");
+            for (int i = 0; i < count; i++)
+            {
+                Write("\r\n");
+            }
         }
 
         public void Tab(int count = 1)

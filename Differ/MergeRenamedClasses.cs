@@ -76,15 +76,12 @@ namespace Roblox.Reflection
                             dummy.Name = oldClass.Name;
 
                             // Create a change diff describing the ClassName change.
+                            // Create a diff describing the ClassName change.
                             Diff nameChangeDiff = new Diff()
                             {
-                                Type = DiffType.Change,
-
-                                Field = "ClassName",
+                                Type = DiffType.Rename,
                                 Target = dummy,
-
-                                From = { '"' + oldClass.Name + '"' },
-                                To = { '"' + newClass.Name + '"' }
+                                To = { newClass.Name }
                             };
 
                             // Add this change to the diffs.
