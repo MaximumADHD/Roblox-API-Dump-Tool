@@ -75,7 +75,6 @@ namespace Roblox.Reflection
                             ClassDescriptor dummy = new ClassDescriptor();
                             dummy.Name = oldClass.Name;
 
-                            // Create a change diff describing the ClassName change.
                             // Create a diff describing the ClassName change.
                             Diff nameChangeDiff = new Diff()
                             {
