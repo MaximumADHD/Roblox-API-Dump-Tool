@@ -61,10 +61,10 @@ namespace Roblox
             comboBox.SelectedIndex = Math.Max(0, comboBox.Items.IndexOf(value));
         }
 
-        private static async Task<string> getLiveVersion(string branch, string binaryType)
+        public static async Task<string> GetLiveVersion(string branch, string currentType = "ClientVersionUpload", string binaryType = "WindowsStudio")
         {
             string versionUrl = "https://versioncompatibility.api."
-                                + branch + ".com/GetCurrentClientVersionUpload?binaryType=" 
+                                + branch + ".com/GetCurrent" + currentType + "?binaryType=" 
                                 + binaryType + "&apiKey=" + VERSION_API_KEY;
 
             string version = await http.DownloadStringTaskAsync(versionUrl);
@@ -73,7 +73,7 @@ namespace Roblox
             return version;
         }
 
-        private static async Task<string> getDeployedVersion(string branch, string versionType)
+        public static async Task<string> GetDeployedVersion(string branch, string versionType = "versionQTStudio")
         {
             string versionUrl = "https://s3.amazonaws.com/setup." + branch + ".com/" + versionType;
             return await http.DownloadStringTaskAsync(versionUrl);
@@ -85,9 +85,9 @@ namespace Roblox
             string result;
 
             if (useDeployed)
-                result = await getDeployedVersion(branch, "versionQTStudio");
+                result = await GetDeployedVersion(branch);
             else
-                result = await getLiveVersion(branch, "WindowsStudio");
+                result = await GetLiveVersion(branch);
 
             return result;
         }
@@ -158,15 +158,12 @@ namespace Roblox
         {
             string setupUrl = "https://s3.amazonaws.com/setup." + branch + ".com/";
 
-            DeployLog deployLog = await ReflectionHistory.FindDeployLog(branch, versionGuid);
-            string version = deployLog.ToString();
-
             string coreBin = GetWorkDirectory();
             string file = Path.Combine(coreBin, versionGuid + ".json");
 
             if (!File.Exists(file))
             {
-                setStatus?.Invoke("Grabbing API Dump for " + version);
+                setStatus?.Invoke("Grabbing API Dump for " + branch);
 
                 string apiDump = await http.DownloadStringTaskAsync(setupUrl + versionGuid + "-API-Dump.json");
                 File.WriteAllText(file, apiDump);
@@ -261,12 +258,14 @@ namespace Roblox
 
                 setStatus("Reading the " + (fetchPrevious ? "Previous" : "Production") + " API...");
                 ReflectionDatabase oldApi = new ReflectionDatabase(oldApiFilePath);
+                oldApi.Version = await GetLiveVersion("roblox", "ClientVersion");
                 oldApi.Branch = fetchPrevious ? "roblox-prev" : "roblox";
 
                 setStatus("Reading the " + (fetchPrevious ? "Production" : "New") + " API...");
                 ReflectionDatabase newApi = new ReflectionDatabase(newApiFilePath);
+                newApi.Version = await GetLiveVersion(newBranch, "ClientVersion");
                 newApi.Branch = newBranch;
-
+                
                 setStatus("Comparing APIs...");
                 string format = getApiDumpFormat();
 
@@ -328,7 +327,7 @@ namespace Roblox
                 // Fetch the version guids for roblox, and gametest1-gametest5
                 foreach (string branchName in branches)
                 {
-                    string versionGuid = await getLiveVersion(branchName, "WindowsStudio");
+                    string versionGuid = await GetLiveVersion(branchName);
                     VersionRegistry.SetValue(branchName, versionGuid);
                 }
 

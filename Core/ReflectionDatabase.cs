@@ -11,7 +11,7 @@ namespace Roblox.Reflection
     public class ReflectionDatabase
     {
         public string Branch;
-        public string VersionGuid;
+        public string Version;
 
         public Dictionary<string, ClassDescriptor> Classes;
         public Dictionary<string, EnumDescriptor> Enums;

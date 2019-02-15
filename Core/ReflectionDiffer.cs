@@ -449,14 +449,11 @@ namespace Roblox.Reflection
 
                 if (newApi.Branch != null)
                 {
-                    if (newApi.VersionGuid == null)
-                        newApi.VersionGuid = Program.GetRegistryString(ApiDumpTool.VersionRegistry, newApi.Branch);
-
-                    DeployLog deployLog = await ReflectionHistory.FindDeployLog(newApi.Branch, newApi.VersionGuid);
-                    string version = deployLog.ToString();
+                    if (newApi.Version == null)
+                        newApi.Version = await ApiDumpTool.GetLiveVersion(newApi.Branch);
 
                     htmlDumper.OpenHtmlTag("h2");
-                    htmlDumper.Write("Version " + version);
+                    htmlDumper.Write("Version " + newApi.Version);
                     htmlDumper.CloseHtmlTag("h2");
                     htmlDumper.NextLine(2);
                 }
