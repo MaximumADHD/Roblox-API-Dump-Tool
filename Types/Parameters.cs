@@ -39,9 +39,7 @@ namespace Roblox.Reflection
             if (Default != null)
                 nameLbl += " default";
 
-            buffer.OpenClassTag(nameLbl, numTabs + 1);
-            buffer.Write(Name);
-            buffer.CloseClassTag();
+            buffer.WriteElement(nameLbl, Name, numTabs + 1);
 
             // Write Default
             if (Default != null)
@@ -57,9 +55,7 @@ namespace Roblox.Reflection
                 if (typeName == "Enum")
                     typeName = "String";
 
-                buffer.OpenClassTag("ParamDefault " + typeName, numTabs + 1);
-                buffer.Write(Default);
-                buffer.CloseClassTag();
+                buffer.WriteElement("ParamDefault " + typeName, Default, numTabs + 1);
             }
 
             buffer.CloseClassTag(numTabs);
@@ -77,9 +73,11 @@ namespace Roblox.Reflection
         public void WriteHtml(ReflectionDumper buffer, int numTabs = 0, bool diffMode = false)
         {
             string paramsTag = "Parameters";
+
             if (diffMode)
                 paramsTag += " change";
 
+            int closingTabs = 0;
             buffer.OpenClassTag(paramsTag, numTabs);
 
             if (Count > 0)
@@ -89,12 +87,10 @@ namespace Roblox.Reflection
                 foreach (Parameter parameter in this)
                     parameter.WriteHtml(buffer, numTabs + 1);
 
-                buffer.CloseClassTag(numTabs);
+                closingTabs = numTabs;
             }
-            else
-            {
-                buffer.CloseClassTag();
-            }
+
+            buffer.CloseClassTag(closingTabs);
         }
     }
 }

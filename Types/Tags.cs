@@ -35,12 +35,8 @@ namespace Roblox.Reflection
 
         public void WriteHtml(ReflectionDumper buffer, int numTabs = 0)
         {
-            foreach (string tag in this)
-            {
-                buffer.OpenClassTag("Tag", numTabs);
-                buffer.Write('[' + tag + ']');
-                buffer.CloseClassTag();
-            }
+            var tags = this.ToList();
+            tags.ForEach(tag => buffer.WriteElement("Tag", '[' + tag + ']', numTabs));
         }
     }
 }

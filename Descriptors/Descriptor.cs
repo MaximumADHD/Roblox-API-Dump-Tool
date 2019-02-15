@@ -164,9 +164,7 @@ namespace Roblox.Reflection
                             if (token == "ClassName")
                                 token += " " + descType;
 
-                            buffer.OpenClassTag(token, numTabs + 1);
-                            buffer.Write(value);
-                            buffer.CloseClassTag();
+                            buffer.WriteElement(token, value, numTabs + 1);
                         }
                     }
                 }

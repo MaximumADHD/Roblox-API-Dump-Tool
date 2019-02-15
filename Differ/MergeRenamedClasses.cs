@@ -79,7 +79,10 @@ namespace Roblox.Reflection
                             Diff nameChangeDiff = new Diff()
                             {
                                 Type = DiffType.Rename,
+
+                                Field = "Class",
                                 Target = dummy,
+                                
                                 To = { newClass.Name }
                             };
 

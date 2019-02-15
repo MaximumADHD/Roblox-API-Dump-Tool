@@ -85,6 +85,13 @@ namespace Roblox.Reflection
             NextLine();
         }
 
+        public void WriteElement(string tagClass, object value, int numTabs = 0, string tagType = "span")
+        {
+            OpenClassTag(tagClass, numTabs, tagType);
+            Write(value);
+            CloseClassTag(0, tagType);
+        }
+
         public static SignatureWriter DumpUsingTxt = (buffer, desc, numTabs) =>
         {
             buffer.Tab(numTabs);

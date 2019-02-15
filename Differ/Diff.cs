@@ -79,7 +79,9 @@ namespace Roblox.Reflection
                     break;
                 case DiffType.Rename:
                     string renameTo = '"' + To.ToString() + '"';
-                    result += "Renamed " + what + " to " + renameTo;
+                    string renameTarget = '"' + Target.Name + '"';
+                    
+                    result += "Renamed " + Field + ' ' + renameTarget + " to " + renameTo;
                     break;
             }
 
@@ -126,9 +128,7 @@ namespace Roblox.Reflection
                 bool multiline = textSignature.Contains(NL);
 
                 // Write what we changed.
-                buffer.OpenClassTag("WhatChanged", stack + 1);
-                buffer.Write(Field);
-                buffer.CloseClassTag();
+                buffer.WriteElement("WhatChanged", Field, stack + 1);
 
                 // Write what was changed.
                 Target.WriteHtml(buffer, stack + 1, false, true);
@@ -139,9 +139,11 @@ namespace Roblox.Reflection
             }
             else if (Type == DiffType.Rename)
             {
-                // What what was renamed.
-                Target.WriteHtml(buffer, stack + 1, false, true);
-
+                // Write what we're renaming.
+                buffer.OpenClassTag(Field, stack + 1);
+                buffer.WriteElement("String", Target.Name, stack + 2);
+                buffer.CloseClassTag(stack + 1);
+                
                 // Write its new name.
                 To.WriteHtml(buffer);
             }
@@ -175,9 +177,7 @@ namespace Roblox.Reflection
                     }
                     else
                     {
-                        buffer.OpenClassTag("Field", stack + 1);
-                        buffer.Write(Field);
-                        buffer.CloseClassTag();
+                        buffer.WriteElement("Field", Field, stack + 1);
                     }
                 }
 

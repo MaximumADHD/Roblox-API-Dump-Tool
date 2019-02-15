@@ -257,11 +257,13 @@ namespace Roblox
                 string oldApiFilePath = await getApiDumpFilePath("roblox", fetchPrevious);
 
                 setStatus("Reading the " + (fetchPrevious ? "Previous" : "Production") + " API...");
+
                 ReflectionDatabase oldApi = new ReflectionDatabase(oldApiFilePath);
                 oldApi.Version = await GetLiveVersion("roblox", "ClientVersion");
                 oldApi.Branch = fetchPrevious ? "roblox-prev" : "roblox";
 
                 setStatus("Reading the " + (fetchPrevious ? "Production" : "New") + " API...");
+
                 ReflectionDatabase newApi = new ReflectionDatabase(newApiFilePath);
                 newApi.Version = await GetLiveVersion(newBranch, "ClientVersion");
                 newApi.Branch = newBranch;
@@ -331,32 +333,24 @@ namespace Roblox
                     VersionRegistry.SetValue(branchName, versionGuid);
                 }
 
-                // Fetch the previous version guid for roblox.
-                string robloxGuid = Program.GetRegistryString(VersionRegistry, "roblox");
-                string prevGuid = await ReflectionHistory.GetPreviousVersionGuid("roblox", robloxGuid);
-                VersionRegistry.SetValue("roblox-prev", prevGuid);
-
-                // Done.
                 Program.MainRegistry.SetValue("InitializedVersions", true);
             });
         }
 
         private async void ApiDumpTool_Load(object sender, EventArgs e)
         {
-            bool initVersions = Program.GetRegistryBool("InitializedVersions");
+            WebRequest.DefaultWebProxy = null;
 
-            if (!initVersions)
+            if (!Program.GetRegistryBool("InitializedVersions"))
             {
                 await initVersionCache();
                 clearOldVersionFiles();
             }
 
-            bool useLatest = Program.GetRegistryBool("UseDeployedVersion");
-            useLatestDeployed.Checked = useLatest;
-
-            // Load combobox selections.
             loadSelectedIndex(branch, "LastSelectedBranch");
             loadSelectedIndex(apiDumpFormat, "PreferredFormat");
+
+            useLatestDeployed.Checked = Program.GetRegistryBool("UseDeployedVersion");
         }
 
         private void useLatestDeployed_CheckedChanged(object sender, EventArgs e)

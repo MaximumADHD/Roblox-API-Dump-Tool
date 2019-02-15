@@ -75,9 +75,7 @@ namespace Roblox.Reflection
                     else
                         tagClass = change.GetType().Name;
 
-                    buffer.OpenClassTag(tagClass, numTabs);
-                    buffer.Write(value);
-                    buffer.CloseClassTag();
+                    buffer.WriteElement(tagClass, value, numTabs);
                 }
             }
 
