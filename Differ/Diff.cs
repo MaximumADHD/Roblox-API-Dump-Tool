@@ -93,7 +93,7 @@ namespace Roblox.Reflection
                 {
                     result += NL;
                     result += child.WriteDiffTxt(detailed);
-                };
+                }
 
                 result += NL;
             }
