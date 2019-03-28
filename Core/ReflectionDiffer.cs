@@ -13,6 +13,8 @@ namespace Roblox.Reflection
         private const string HTML_BREAK = NL + "<br/>" + NL;
 
         private List<Diff> results = new List<Diff>();
+        private string currentFormat;
+
         private static List<IDiffMerger> preMergers = new List<IDiffMerger>();
         private static List<IDiffMerger> postMergers = new List<IDiffMerger>(); 
 
@@ -137,6 +139,20 @@ namespace Roblox.Reflection
             }
         }
 
+        private void Compare(Descriptor target, string context, string oldVal, string newVal, bool inQuotes = false)
+        {
+            if (oldVal != newVal)
+            {
+                if (inQuotes && currentFormat != "html")
+                {
+                    oldVal = '"' + oldVal + '"';
+                    newVal = '"' + newVal + '"';
+                }
+
+                Changed(context, target, oldVal, newVal);
+            }
+        }
+
         private Dictionary<string, Diff> CompareTags(Descriptor target, Tags oldTags, Tags newTags)
         {
             var tagChanges = new Dictionary<string, Diff>();
@@ -186,6 +202,7 @@ namespace Roblox.Reflection
         public async Task<string> CompareDatabases(ReflectionDatabase oldApi, ReflectionDatabase newApi, string format = "TXT")
         {
             results.Clear();
+            currentFormat = format.ToLower();
 
             // Diff Classes
             var oldClasses = oldApi.Classes;
@@ -281,9 +298,10 @@ namespace Roblox.Reflection
                                     string newWrite = newSecurity.Write.Describe(true);
                                     Compare(newMember, "write permissions", oldWrite, newWrite);
                                 }
-
-                                Compare(newMember, "serialization", oldProp.Serialization, newProp.Serialization);
+                                
                                 Compare(newMember, "value-type", oldProp.ValueType, newProp.ValueType);
+                                Compare(newMember, "serialization", oldProp.Serialization, newProp.Serialization);
+                                Compare(newMember, "category", oldProp.Category, newProp.Category, true);
                             }
                             else if (newMember is FunctionDescriptor)
                             {
