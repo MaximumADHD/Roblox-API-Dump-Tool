@@ -12,6 +12,10 @@ namespace Roblox.Reflection
         public string Summary => Describe(false);
         public string Signature => Describe(true);
 
+        public bool AddTag  (string tag) => Tags.Add(tag);
+        public bool DropTag (string tag) => Tags.Remove(tag);
+        public bool HasTag  (string tag) => Tags.Contains(tag);
+
         public override string ToString() => Summary;
 
         public string GetDescriptorType()
@@ -24,15 +28,7 @@ namespace Roblox.Reflection
             return descType;
         }
 
-        public bool AddTag(string tag)
-        {
-            return Tags.Add(tag);
-        }
 
-        public bool HasTag(string tag)
-        {
-            return Tags.Contains(tag);
-        }
 
         public virtual string GetSchema(bool detailed = false)
         {
@@ -49,12 +45,9 @@ namespace Roblox.Reflection
             var tokens = new Dictionary<string, object>();
             tokens.Add("Name", Name);
 
-            string descType = GetDescriptorType();
-            tokens.Add("DescriptorType", descType);
-
             string tags = Tags.ToString();
             if (detailed && tags.Length > 0)
-                tokens.Add("Tags", Tags);
+                tokens.Add("Tags", tags);
 
             return tokens;
         }
@@ -62,9 +55,10 @@ namespace Roblox.Reflection
         public string Describe(bool detailed = false)
         {
             int search = 0;
+            var descType = GetDescriptorType();
 
             var tokens = GetTokens(detailed);
-            string desc = GetSchema(detailed);
+            string desc = descType + ' ' + GetSchema(detailed);
 
             while (search < desc.Length)
             {

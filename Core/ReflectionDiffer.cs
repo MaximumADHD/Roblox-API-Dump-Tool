@@ -372,6 +372,13 @@ namespace Roblox.Reflection
                         {
                             // Add New EnumItem
                             EnumItemDescriptor item = newItems[itemName];
+
+                            if (item.HasTag("Deprecated"))
+                            {
+                                item.AddTag("NotBrowsable");
+                                item.DropTag("Deprecated");
+                            }
+
                             Added(item);
                         }
                     }

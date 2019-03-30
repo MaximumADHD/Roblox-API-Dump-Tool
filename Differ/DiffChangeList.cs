@@ -75,6 +75,9 @@ namespace Roblox.Reflection
                     else
                         tagClass = change.GetType().Name;
 
+                    if (tagClass == "Security" && value == "{None}")
+                        tagClass += " darken";
+
                     buffer.WriteElement(tagClass, value, numTabs);
                 }
             }

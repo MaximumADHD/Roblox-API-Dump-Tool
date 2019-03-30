@@ -19,45 +19,7 @@ namespace Roblox.Reflection
 
         public override string GetSchema(bool detailed = true)
         {
-            string schema = "{DescriptorType} ";
-
-            if (detailed && MemberType != MemberType.Event)
-            {
-                string typeName;
-
-                if (MemberType == MemberType.Property)
-                    typeName = "{ValueType}";
-                else
-                    typeName = "{ReturnType}";
-
-                schema += typeName + ' ';
-            }
-
-            schema += "{ClassName}";
-
-            if (MemberType == MemberType.Function)
-                schema += ':';
-            else
-                schema += '.';
-
-            schema += "{Name}";
-
-            if (detailed)
-            {
-                string details = "";
-
-                if (MemberType != MemberType.Property)
-                    details = "{Parameters}";
-
-                details += " {Security}";
-
-                if (MemberType == MemberType.Property)
-                    details += " {Serialization}";
-
-                schema += details + " {Tags}";
-            }
-
-            return schema;
+            return "{ClassName}.{Name}";
         }
 
         public override Dictionary<string, object> GetTokens(bool detailed = false)

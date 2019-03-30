@@ -9,6 +9,16 @@ namespace Roblox.Reflection
         public ReadWriteSecurity Security;
         public Serialization Serialization;
 
+        public override string GetSchema(bool detailed = true)
+        {
+            string schema = base.GetSchema();
+
+            if (detailed)
+                schema = "{ValueType} " + schema + " {Security} {Serialization} {Tags}";
+
+            return schema;
+        }
+
         public override Dictionary<string, object> GetTokens(bool detailed = false)
         {
             var tokens = base.GetTokens(detailed);
