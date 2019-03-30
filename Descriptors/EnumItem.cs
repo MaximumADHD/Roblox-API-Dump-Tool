@@ -9,7 +9,7 @@ namespace Roblox.Reflection
 
         public override string GetSchema(bool detailed = false)
         {
-            string schema = "{DescriptorType} {EnumName}.{Name}";
+            string schema = "{EnumName}.{Name}";
 
             if (detailed)
                 schema += " : {Value} {Tags}";
