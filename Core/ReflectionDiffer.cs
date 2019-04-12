@@ -375,7 +375,7 @@ namespace Roblox.Reflection
 
                             if (item.HasTag("Deprecated"))
                             {
-                                item.AddTag("NotBrowsable");
+                                item.AddTag("Preliminary");
                                 item.DropTag("Deprecated");
                             }
 
