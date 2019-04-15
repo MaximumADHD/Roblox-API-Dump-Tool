@@ -43,6 +43,29 @@ namespace Roblox.Reflection
             }
         }
 
+        public bool IsAncestorOf(ClassDescriptor desc)
+        {
+            if (Database != desc.Database)
+                return false;
+
+            var classes = Database.Classes;
+
+            while (desc.InheritanceLevel >= InheritanceLevel)
+            {
+                string superClass = desc.Superclass;
+
+                if (!classes.ContainsKey(superClass))
+                    break;
+
+                if (Name == superClass)
+                    return true;
+
+                desc = classes[superClass];
+            }
+
+            return false;
+        }
+
         public override string GetSchema(bool detailed = false)
         {
             string schema = base.GetSchema();

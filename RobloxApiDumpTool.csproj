@@ -60,7 +60,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Differ\IDiffMerger.cs" />
+    <Compile Include="Differ\IDiffModifier.cs" />
+    <Compile Include="Differ\Modifiers\MoveMemberToSuperclass.cs" />
     <Compile Include="History\HistoryCache.cs" />
     <Compile Include="History\DeployLog.cs" />
     <Compile Include="History\StudioDeployLogs.cs" />
@@ -88,8 +89,8 @@
     <Compile Include="Descriptors\Property.cs" />
     <Compile Include="Differ\DiffChangeList.cs" />
     <Compile Include="Differ\Diff.cs" />
-    <Compile Include="Differ\MergeRenamedClasses.cs" />
-    <Compile Include="Differ\MergeSimilarChangeDiffs.cs" />
+    <Compile Include="Differ\Modifiers\MergeRenamedClasses.cs" />
+    <Compile Include="Differ\Modifiers\MergeDiffChanges.cs" />
     <Compile Include="Core\ReflectionDiffer.cs" />
     <Compile Include="Core\ReflectionDatabase.cs" />
     <Compile Include="Core\ReflectionDumper.cs" />

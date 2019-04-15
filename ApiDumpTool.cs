@@ -14,10 +14,10 @@ namespace Roblox
 {
     public partial class ApiDumpTool : Form
     {
-        public static RegistryKey VersionRegistry => Program.GetRegistryKey(Program.MainRegistry, "Current Versions");
+        public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
         
         private const string VERSION_API_KEY = "76e5a40c-3ae1-4028-9f10-7c62520bd94f";
-        private const string API_DUMP_CSS_FILE = "api-dump-v1.5.1.css";
+        private const string API_DUMP_CSS_FILE = "api-dump-v1.6.css";
 
         private delegate void StatusDelegate(string msg);
         private delegate string ItemDelegate(ComboBox comboBox);

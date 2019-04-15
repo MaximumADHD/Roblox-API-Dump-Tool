@@ -27,6 +27,11 @@ namespace Roblox.Reflection
             "EnumItem"
         });
 
+        public override string ToString()
+        {
+            return (Branch ?? "unknown") + " - " + (Version ?? "0.0.0.0");
+        }
+
         public ReflectionDatabase(string filePath)
         {
             string jsonApiDump = File.ReadAllText(filePath);

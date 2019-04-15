@@ -6,14 +6,19 @@ namespace Roblox.Reflection
     public enum DiffType
     {
         Add    = 1,
+        Merge  = 3,
         Change = 2,
-        Remove = 3,
+        Remove = 4,
         Rename = 0,
     }
 
     public class Diff : IComparable
     {
         private const string NL = "\r\n";
+        
+        private List<Diff> children = new List<Diff>();
+        private int stack;
+
         public DiffType Type;
 
         public string Field = "";
@@ -25,13 +30,11 @@ namespace Roblox.Reflection
         public DiffChangeList To = new DiffChangeList("ChangeTo");
 
         public bool HasParent => (stack > 0);
+        public Diff[] Children => children.ToArray();
 
         public bool Detailed;
-        public bool Merged;
-
-        private int stack;
-        private List<Diff> children = new List<Diff>();
-
+        public bool Disposed;
+        
         public void AddChild(Diff child)
         {
             if (!children.Contains(child))
@@ -70,8 +73,8 @@ namespace Roblox.Reflection
                         result += " " + merged;
                     else
                         result += ' ' + NL +
-                            "\tfrom: " + from + NL +
-                            "\t  to: " + to + NL;
+                            "     from: " + from + NL +
+                            "       to: " + to + NL;
 
                     break;
                 case DiffType.Remove:
@@ -81,7 +84,13 @@ namespace Roblox.Reflection
                     string renameTo = '"' + To.ToString() + '"';
                     string renameTarget = '"' + Target.Name + '"';
                     
-                    result += "Renamed " + Field + ' ' + renameTarget + " to " + renameTo;
+                    result += "Renamed " + Field + NL  + renameTarget + " to " + renameTo;
+                    break;
+                case DiffType.Merge:
+                    string into = To.ToString();
+                    result += "Merged the " + what + NL
+                           +  "     into: " + into + NL;
+
                     break;
             }
 
@@ -146,6 +155,16 @@ namespace Roblox.Reflection
                 
                 // Write its new name.
                 To.WriteHtml(buffer);
+            }
+            else if (Type == DiffType.Merge)
+            {
+                // Write what we're merging.
+                buffer.OpenClassTag("WhatMerged", stack + 1);
+                Target.WriteHtml(buffer, stack + 2, false, true);
+                buffer.CloseClassTag(stack + 1);
+
+                // Write what it merged into.
+                To.WriteHtml(buffer, true);
             }
             else
             {

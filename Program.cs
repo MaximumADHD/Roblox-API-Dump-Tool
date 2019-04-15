@@ -20,6 +20,11 @@ namespace Roblox
             return root.CreateSubKey(path, RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryOptions.None);
         }
 
+        public static RegistryKey GetMainRegistryKey(params string[] subKeys)
+        {
+            return GetRegistryKey(MainRegistry, subKeys);
+        }
+
         public static string GetRegistryString(RegistryKey key, string name)
         {
             return key.GetValue(name, "") as string;

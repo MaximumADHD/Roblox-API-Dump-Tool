@@ -1,4 +1,4 @@
-/* API Dump CSS (Version 1.5.1) */
+/* API Dump CSS (Version 1.6) */
 
 body
 {
@@ -83,8 +83,15 @@ div.Renamed::before
 	color: #7F7FFF;
 }
 
+div.Merged::before
+{
+	content: "Merged";
+	color: #FF9F4F;
+}
+
 .ChangeTo::before,
 .ChangeFrom::before,
+.MergedInto::before,
 .TagChange.To::before,
 .TagChange.From::before
 {
@@ -101,6 +108,12 @@ div.Renamed::before
 .TagChange.To::after
 {
 	content: "to";
+}
+
+.MergedInto::before
+{
+	content: "into";
+	margin-left: 48px;
 }
 
 div.ChangeFrom::before
@@ -136,6 +149,7 @@ span.WhatChanged
 	font-weight: normal;
 }
 
+span.WhatMerged::before,
 span.WhatChanged::before
 {
 	content: "the ";

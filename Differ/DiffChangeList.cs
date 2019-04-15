@@ -14,7 +14,10 @@ namespace Roblox.Reflection
 
         public override string ToString()
         {
-            string[] elements = this.Select(elem => elem.ToString()).ToArray();
+            string[] elements = this
+                .Select(elem => elem.ToString())
+                .ToArray();
+
             return string.Join(" ", elements);
         }
 
@@ -49,6 +52,11 @@ namespace Roblox.Reflection
                 {
                     var type = change as LuaType;
                     type.WriteHtml(buffer, numTabs);
+                }
+                else if (change is Descriptor)
+                {
+                    var desc = change as Descriptor;
+                    desc.WriteHtml(buffer, numTabs, false, true);
                 }
                 else
                 {

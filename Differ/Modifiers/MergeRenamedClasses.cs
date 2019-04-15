@@ -3,11 +3,11 @@ using System.Linq;
 
 namespace Roblox.Reflection
 {
-    public sealed class MergeRenamedClasses : IDiffMerger
+    public sealed class MergeRenamedClasses : IDiffModifier
     {
-        public IDiffMergerOrder Order => IDiffMergerOrder.PreMemberDiff;
+        public ModifierOrder Order => ModifierOrder.PreMemberDiff;
 
-        public void RunMergeTask(ref List<Diff> diffs)
+        public void RunModifier(ref List<Diff> diffs)
         {
             List<Diff> memberedClassDiffs = diffs
                 .Where(diff =>  diff.Target is ClassDescriptor)
@@ -26,22 +26,22 @@ namespace Roblox.Reflection
             {
                 foreach (Diff newClassDiff in newClassDiffs)
                 {
-                    // Ignore merged diffs.
-                    if (newClassDiff.Merged)
+                    // Ignore disposed diffs.
+                    if (newClassDiff.Disposed)
                         continue;
 
                     // Grab the summary version of the new diff.
-                    ClassDescriptor newClass = newClassDiff.Target as ClassDescriptor;
+                    var newClass = newClassDiff.Target as ClassDescriptor;
                     string newDiff = newClassDiff.WriteDiffTxt(false);
 
                     foreach (Diff oldClassDiff in oldClassDiffs)
                     {
-                        // Ignore merged diffs.
-                        if (oldClassDiff.Merged)
+                        // Ignore disposed diffs.
+                        if (oldClassDiff.Disposed)
                             continue;
 
                         // Grab the summary version of the old diff.
-                        ClassDescriptor oldClass = oldClassDiff.Target as ClassDescriptor;
+                        var oldClass = oldClassDiff.Target as ClassDescriptor;
                         string oldDiff = oldClassDiff.WriteDiffTxt(false);
 
                         // Try to convert the old diff into the new diff generated above.
@@ -97,9 +97,9 @@ namespace Roblox.Reflection
                             oldClass.Name = newName;
                             oldClasses.Add(newName, oldClass);
 
-                            // Merge the original class diffs.
-                            oldClassDiff.Merged = true;
-                            newClassDiff.Merged = true;
+                            // Dispose the original class diffs.
+                            oldClassDiff.Disposed = true;
+                            newClassDiff.Disposed = true;
                         }
                     }
                 }

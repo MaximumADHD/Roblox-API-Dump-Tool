@@ -15,8 +15,8 @@ namespace Roblox.Reflection
         private List<Diff> results = new List<Diff>();
         private string currentFormat;
 
-        private static List<IDiffMerger> preMergers = new List<IDiffMerger>();
-        private static List<IDiffMerger> postMergers = new List<IDiffMerger>(); 
+        private static List<IDiffModifier> preModifiers = new List<IDiffModifier>();
+        private static List<IDiffModifier> postModifiers = new List<IDiffModifier>(); 
 
         private delegate Diff DiffRecorder(Descriptor target, bool detailed = true, Diff parent = null);
         private delegate void DiffResultLineAdder(string line, bool addBreak);
@@ -24,25 +24,25 @@ namespace Roblox.Reflection
 
         static ReflectionDiffer()
         {
-            // Initialize the IDiffMerger singletons
-            Type IDiffMerger = typeof(IDiffMerger);
+            // Initialize the IDiffModifier singletons
+            Type IDiffModifier = typeof(IDiffModifier);
 
             var taskTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type != IDiffMerger)
-                .Where(type => IDiffMerger.IsAssignableFrom(type));
+                .Where(type => type != IDiffModifier)
+                .Where(type => IDiffModifier.IsAssignableFrom(type));
 
             foreach (Type taskType in taskTypes)
             {
-                IDiffMerger merger = Activator.CreateInstance(taskType) as IDiffMerger;
-                List<IDiffMerger> orderList = null;
+                var modifier = Activator.CreateInstance(taskType) as IDiffModifier;
+                List<IDiffModifier> orderList = null;
 
-                if (merger.Order == IDiffMergerOrder.PreMemberDiff)
-                    orderList = preMergers;
-                else if (merger.Order == IDiffMergerOrder.PostMemberDiff)
-                    orderList = postMergers;
+                if (modifier.Order == ModifierOrder.PreMemberDiff)
+                    orderList = preModifiers;
+                else if (modifier.Order == ModifierOrder.PostMemberDiff)
+                    orderList = postModifiers;
 
-                orderList?.Add(merger);
+                orderList?.Add(modifier);
             }
         }
 
@@ -124,7 +124,7 @@ namespace Roblox.Reflection
                 Target = target,
 
                 From = { from },
-                To = { to }
+                To   = {  to  }
             };
 
             results.Add(changed);
@@ -229,9 +229,9 @@ namespace Roblox.Reflection
                 }
             }
 
-            // Run pre-merger tasks.
-            foreach (IDiffMerger preMerge in preMergers)
-                preMerge.RunMergeTask(ref results);
+            // Run pre-modifier tasks.
+            foreach (IDiffModifier preModifier in preModifiers)
+                preModifier.RunModifier(ref results);
 
             // Compare class changes.
             foreach (string className in oldClasses.Keys)
@@ -419,19 +419,21 @@ namespace Roblox.Reflection
                 .Where(diff => !diff.HasParent)
                 .ToList();
 
-            // Run post-merger tasks.
-            foreach (IDiffMerger postMerge in postMergers)
-                postMerge.RunMergeTask(ref diffs);
+            // Run post-modifier tasks.
+            foreach (IDiffModifier postModifier in postModifiers)
+                postModifier.RunModifier(ref diffs);
 
-            // Remove diffs that were discarded during a merge, and sort the results.
-            diffs = diffs.Where(diff => !diff.Merged).ToList();
+            // Remove diffs that were disposed during a modifier task, and sort the results.
+            diffs = diffs.Where(diff => !diff.Disposed).ToList();
             diffs.Sort();
             
             // Setup actions for generating the final result, based on the requested format.
             DiffResultLineAdder addLineToResults;
             DiffResultFinalizer finalizeResults;
 
-            List<string> lines = diffs.Select(diff => diff.ToString()).ToList();
+            List<string> lines = diffs
+                .Select(diff => diff.ToString())
+                .ToList();
 
             if (format == "HTML")
             {
@@ -479,6 +481,7 @@ namespace Roblox.Reflection
 
                     htmlDumper.OpenHtmlTag("h2");
                     htmlDumper.Write("Version " + newApi.Version);
+
                     htmlDumper.CloseHtmlTag("h2");
                     htmlDumper.NextLine(2);
                 }

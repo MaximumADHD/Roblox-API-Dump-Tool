@@ -3,11 +3,11 @@ using System.Linq;
 
 namespace Roblox.Reflection
 {
-    public sealed class MergeSimilarChangeDiffs : IDiffMerger
+    public sealed class MergeSimilarChangeDiffs : IDiffModifier
     {
-        public IDiffMergerOrder Order => IDiffMergerOrder.PostMemberDiff;
+        public ModifierOrder Order => ModifierOrder.PostMemberDiff;
 
-        public void RunMergeTask(ref List<Diff> diffs)
+        public void RunModifier(ref List<Diff> diffs)
         {
             List<Diff> changeDiffs = diffs
                 .Where(diff => diff.Type == DiffType.Change)
@@ -15,7 +15,7 @@ namespace Roblox.Reflection
 
             foreach (Diff diff in changeDiffs)
             {
-                if (!diff.Merged)
+                if (!diff.Disposed)
                 {
                     List<Diff> similarDiffs = changeDiffs
                         .Where(similar => diff != similar)
@@ -32,7 +32,7 @@ namespace Roblox.Reflection
                             similar.From.ForEach(elem => diff.From.Add(elem));
                             similar.To.ForEach(elem => diff.To.Add(elem));
 
-                            similar.Merged = true;
+                            similar.Disposed = true;
                         }
                     }
                 }
