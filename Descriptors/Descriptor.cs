@@ -28,8 +28,6 @@ namespace Roblox.Reflection
             return descType;
         }
 
-
-
         public virtual string GetSchema(bool detailed = false)
         {
             string schema = "{DescriptorType} {Name}";
