@@ -179,22 +179,23 @@ namespace Roblox.Reflection
                 if (From.Count > 1)
                 {
                     // Write the elements that are being merged.
-                    From.WriteHtml(buffer, false, new Descriptor.HtmlConfig()
+                    From.WriteHtml(buffer, false, 0, new Descriptor.HtmlConfig()
                     {
                         TagType = "li",
                         NumTabs = stack + 2,
                     });
                     
                     // Write what they merged into.
-                    buffer.OpenClassTag("MergeListInto", stack + 2);
+                    buffer.OpenClassTag("MergeListInto", stack + 1);
+                    buffer.NextLine();
 
-                    To.WriteHtml(buffer, false, new Descriptor.HtmlConfig()
+                    To.WriteHtml(buffer, false, 1, new Descriptor.HtmlConfig()
                     {
                         TagType = "li",
                         NumTabs = stack + 3,
                     });
 
-                    buffer.CloseClassTag(stack + 2);
+                    buffer.CloseClassTag(stack + 1);
                 }
                 else
                 {

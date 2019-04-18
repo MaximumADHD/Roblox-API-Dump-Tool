@@ -26,7 +26,7 @@ namespace Roblox.Reflection
             return ListElements(" ");
         }
 
-        public void WriteHtml(ReflectionDumper buffer, bool multiline = false, Descriptor.HtmlConfig config = null)
+        public void WriteHtml(ReflectionDumper buffer, bool multiline = false, int extraTabs = 0, Descriptor.HtmlConfig config = null)
         {
             if (config == null)
                 config = new Descriptor.HtmlConfig();
@@ -35,17 +35,19 @@ namespace Roblox.Reflection
 
             if (multiline)
             {
-                buffer.OpenClassTag(Name, 1, "div");
+                buffer.OpenClassTag(Name, extraTabs + 1, "div");
                 buffer.NextLine();
 
-                buffer.OpenClassTag("ChangeList", 2);
+                buffer.OpenClassTag("ChangeList", extraTabs + 2);
                 numTabs = 3;
             }
             else
             {
-                buffer.OpenClassTag(Name, 1);
+                buffer.OpenClassTag(Name, extraTabs + 1);
                 numTabs = 2;
             }
+
+            numTabs += extraTabs;
 
             if (config.NumTabs == 0)
                 config.NumTabs = numTabs;
