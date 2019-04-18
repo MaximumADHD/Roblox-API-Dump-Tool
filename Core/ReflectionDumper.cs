@@ -7,10 +7,20 @@ namespace Roblox.Reflection
     public class ReflectionDumper
     {
         public ReflectionDatabase Database { get; private set; }
-        private StringBuilder buffer = new StringBuilder();
-
+        
         public delegate void SignatureWriter(ReflectionDumper buffer, Descriptor desc, int numTabs = 0);
         public delegate string DumpPostProcesser(string result, string workDir = "");
+
+        private StringBuilder buffer = new StringBuilder();
+
+        private static Descriptor.HtmlConfig htmlConfig = new Descriptor.HtmlConfig
+        {
+            NumTabs = 0,
+            TagType = "div",
+
+            Detailed = true,
+            DiffMode = false,
+        };
 
         public ReflectionDumper(ReflectionDatabase database = null)
         {
@@ -20,8 +30,8 @@ namespace Roblox.Reflection
         public string ExportResults(DumpPostProcesser postProcess = null)
         {
             string result = buffer.ToString();
-
             string post = postProcess?.Invoke(result);
+
             if (post != null)
                 result = post;
 
@@ -100,7 +110,7 @@ namespace Roblox.Reflection
 
         public static SignatureWriter DumpUsingHtml = (buffer, desc, numTabs) =>
         {
-            desc.WriteHtml(buffer, 0);
+            desc.WriteHtml(buffer, htmlConfig);
         };
 
         public string DumpApi(SignatureWriter WriteSignature, DumpPostProcesser postProcess = null)

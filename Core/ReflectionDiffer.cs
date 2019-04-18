@@ -243,8 +243,8 @@ namespace Roblox.Reflection
                     ClassDescriptor newClass = newClasses[className];
                     var classTagDiffs = CompareTags(oldClass, oldClass.Tags, newClass.Tags);
 
-                    Compare(oldClass, "superclass", oldClass.Superclass, newClass.Superclass);
-                    Compare(oldClass, "memory category", oldClass.MemoryCategory, newClass.MemoryCategory);
+                    Compare(oldClass, "superclass", oldClass.Superclass, newClass.Superclass, true);
+                    Compare(oldClass, "memory category", oldClass.MemoryCategory, newClass.MemoryCategory, true);
 
                     // Diff the members
                     var oldMembers = createLookupTable(oldClass.Members);
@@ -278,24 +278,26 @@ namespace Roblox.Reflection
                                 var oldProp = oldMember as PropertyDescriptor;
                                 var newProp = newMember as PropertyDescriptor;
 
-                                // If the read and write permissions are both changed to the same value, try to group them.
+                                // If the read/write permissions are both changed to the same value, group them.
                                 if (oldProp.Security.Merged && newProp.Security.Merged)
                                 {
-                                    string oldSecurity = oldProp.Security.Describe(true);
-                                    string newSecurity = newProp.Security.Describe(true);
+                                    var oldSecurity = oldProp.Security.Value;
+                                    var newSecurity = newProp.Security.Value;
+
                                     Compare(newMember, "security", oldSecurity, newSecurity);
                                 }
                                 else
                                 {
-                                    ReadWriteSecurity oldSecurity = oldProp.Security;
-                                    ReadWriteSecurity newSecurity = newProp.Security;
+                                    var oldSecurity = oldProp.Security;
+                                    var newSecurity = newProp.Security;
 
-                                    string oldRead = oldSecurity.Read.Describe(true);
-                                    string newRead = newSecurity.Read.Describe(true);
+                                    string oldRead = oldSecurity.Read.Value,
+                                           newRead = newSecurity.Read.Value;
+
+                                    string oldWrite = oldSecurity.Write.Value,
+                                           newWrite = newSecurity.Write.Value;
+
                                     Compare(newMember, "read permissions", oldRead, newRead);
-
-                                    string oldWrite = oldSecurity.Write.Describe(true);
-                                    string newWrite = newSecurity.Write.Describe(true);
                                     Compare(newMember, "write permissions", oldWrite, newWrite);
                                 }
                                 

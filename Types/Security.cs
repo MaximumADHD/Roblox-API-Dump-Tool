@@ -16,7 +16,9 @@ namespace Roblox.Reflection
     public class Security
     {
         public SecurityType Type;
+
         public string Prefix;
+        public string Value => Describe(true);
 
         public Security(string security, string prefix = "")
         {
@@ -51,6 +53,7 @@ namespace Roblox.Reflection
         public Security Write;
 
         public bool Merged => (Read.Type == Write.Type);
+        public string Value => Describe(true);
 
         [JsonConstructor]
         public ReadWriteSecurity(string read, string write)

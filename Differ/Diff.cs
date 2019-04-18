@@ -47,6 +47,7 @@ namespace Roblox.Reflection
         public string WriteDiffTxt(bool detailed = false)
         {
             string result = "";
+
             for (int i = 0; i < stack; i++)
                 result += '\t';
 
@@ -68,13 +69,13 @@ namespace Roblox.Reflection
                     string from = From.ToString();
                     string to = To.ToString();
 
-                    string merged = "from " + from + " to " + to;
-                    if (merged.Length < 24)
-                        result += " " + merged;
+                    string grouped = "from " + from + " to " + to;
+                    if (grouped.Length < 18)
+                        result += " " + grouped;
                     else
                         result += ' ' + NL +
-                            "     from: " + from + NL +
-                            "       to: " + to + NL;
+                            "\tfrom: " + from + NL +
+                            "\t  to: " + to + NL;
 
                     break;
                 case DiffType.Remove:
@@ -87,9 +88,26 @@ namespace Roblox.Reflection
                     result += "Renamed " + Field + NL  + renameTarget + " to " + renameTo;
                     break;
                 case DiffType.Merge:
-                    string into = To.ToString();
-                    result += "Merged the " + what + NL
-                           +  "     into: " + into + NL;
+                    result += "Merged";
+
+                    if (From.Count > 1)
+                    {
+                        string prefix = "\t• ";
+                        result += ':' + NL;
+
+                        string listed = From.ListElements(NL, prefix);
+                        string into = prefix + what;
+
+                        result += listed + NL
+                               + "  Into: " + NL
+                               + prefix + what + NL;
+                    }
+                    else
+                    {
+                        string merged = From.ToString();
+                        result += ' ' + merged + NL
+                               + "\tinto: " + what + NL;
+                    }
 
                     break;
             }
@@ -140,7 +158,7 @@ namespace Roblox.Reflection
                 buffer.WriteElement("WhatChanged", Field, stack + 1);
 
                 // Write what was changed.
-                Target.WriteHtml(buffer, stack + 1, false, true);
+                Target.WriteHtml(buffer, stack + 1, false);
 
                 // Changed From, Changed To.
                 From.WriteHtml(buffer, multiline);
@@ -158,13 +176,34 @@ namespace Roblox.Reflection
             }
             else if (Type == DiffType.Merge)
             {
-                // Write what we're merging.
-                buffer.OpenClassTag("WhatMerged", stack + 1);
-                Target.WriteHtml(buffer, stack + 2, false, true);
-                buffer.CloseClassTag(stack + 1);
+                if (From.Count > 1)
+                {
+                    // Write the elements that are being merged.
+                    From.WriteHtml(buffer, false, new Descriptor.HtmlConfig()
+                    {
+                        TagType = "li",
+                        NumTabs = stack + 2,
+                    });
+                    
+                    // Write what they merged into.
+                    buffer.OpenClassTag("MergeListInto", stack + 2);
 
-                // Write what it merged into.
-                To.WriteHtml(buffer, true);
+                    To.WriteHtml(buffer, false, new Descriptor.HtmlConfig()
+                    {
+                        TagType = "li",
+                        NumTabs = stack + 3,
+                    });
+
+                    buffer.CloseClassTag(stack + 2);
+                }
+                else
+                {
+                    // Write what we're merging.
+                    Target.WriteHtml(buffer, stack + 1);
+
+                    // Write what it merged into.
+                    To.WriteHtml(buffer, true);
+                }
             }
             else
             {
@@ -203,7 +242,7 @@ namespace Roblox.Reflection
                 buffer.OpenClassTag("Target", stack + 1);
                 buffer.NextLine();
 
-                Target.WriteHtml(buffer, stack + 2, detailed, true);
+                Target.WriteHtml(buffer, stack + 2, detailed);
                 buffer.CloseClassTag(stack + 1);
             }
 
@@ -229,9 +268,9 @@ namespace Roblox.Reflection
                 return sortByType;
 
             // Try sorting by the field priority.
-            int sortByField = 0;
             var typePriority = ReflectionDatabase.TypePriority;
-
+            int sortByField = 0;
+            
             if (typePriority.Contains(Field) && typePriority.Contains(diff.Field))
                 sortByField = typePriority.IndexOf(Field) - typePriority.IndexOf(diff.Field);
             else

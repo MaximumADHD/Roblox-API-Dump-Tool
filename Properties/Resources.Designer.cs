@@ -61,49 +61,53 @@ namespace Roblox.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to body
+        ///   Looks up a localized string similar to /* API Dump CSS (Version 1.6) */
+        ///
+        ///body
         ///{
-        ///	background-color: black;
+        ///	background-color: #151515;
         ///	color: white;
-        ///	font-family: Consolas;
+        ///	font-family: Courier New;
         ///	white-space: nowrap;
+        ///	padding: 10px;
         ///}
         ///
-        ///div::before
+        ///::before
         ///{
         ///	font-weight: bold;
         ///}
         ///
-        ///div.Class::before
+        ///.Class::before,
+        ///.Enum::before,
+        ///.EnumItem::before
+        ///{
+        ///	color: #FF6400;	
+        ///}
+        ///
+        ///.Class::before
         ///{
         ///	content: &quot;Class&quot;;
-        ///	color: #FF6400;
         ///}
         ///
-        ///div.Enum::before
+        ///.Enum::before
         ///{
         ///	content: &quot;Enum&quot;;
-        ///	color: #FF6400;
         ///}
         ///
-        ///div.Property::before
+        ///.EnumItem::before
+        ///{
+        ///	content: &quot;EnumItem&quot;;
+        ///}
+        ///
+        ///.Property::before
         ///{
         ///	content: &quot;Property&quot;;
         ///	color: #00FFFF;
-        ///	margin-left: 40px;
         ///}
         ///
-        ///div.Function::before
+        ///.Function::before
         ///{
-        ///	content: &quot;Function&quot;;
-        ///	color: #00FF00;
-        ///	margin-left: 40px;
-        ///}
-        ///
-        ///div.Event::before
-        ///{
-        ///	content: &quot;Event&quot;;
-        ///	color: #FF [rest of string was truncated]&quot;;.
+        ///	cont [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ApiDumpStyler {
             get {

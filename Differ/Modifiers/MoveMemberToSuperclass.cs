@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Roblox.Reflection
@@ -36,6 +35,8 @@ namespace Roblox.Reflection
 
         public void RunModifier(ref List<Diff> diffs)
         {
+            var merging = new Dictionary<MemberDescriptor, List<MemberDescriptor>>();
+
             var added = collectMemberDiffs(diffs, DiffType.Add);
             var removed = collectMemberDiffs(diffs, DiffType.Remove);
 
@@ -67,21 +68,56 @@ namespace Roblox.Reflection
                         // Now test the ancestry of the two classes.
                         if (otherClass.IsAncestorOf(targetClass))
                         {
-                            DiffChangeList mergeInto = new DiffChangeList("MergedInto");
-                            mergeInto.Add(otherMember);
-
-                            Diff moveDiff = new Diff()
+                            if (!merging.ContainsKey(otherMember))
                             {
-                                Type = DiffType.Merge,
-                                Target = targetMember,
-                                To = mergeInto,
-                            };
+                                var mergers = new List<MemberDescriptor>();
+                                merging.Add(otherMember, mergers);
+                            }
 
-                            diffs.Add(moveDiff);
+                            merging[otherMember].Add(targetMember);
                             targetDiff.Disposed = true;
                         }
                     }
                 }
+            }
+
+            // Process the diffs and try grouping any 
+            // that use the same member descriptor.
+
+            foreach (MemberDescriptor member in merging.Keys)
+            {
+                List<MemberDescriptor> members = merging[member];
+
+                Diff mergeDiff = new Diff();
+                mergeDiff.Type = DiffType.Merge;
+
+                
+                
+                if (members.Count > 1)
+                {
+                    var mergeGroup = new DiffChangeList();
+                    mergeGroup.AddRange(members);
+
+                    var mergeInto = new DiffChangeList();
+                    mergeInto.Add(member);
+
+                    mergeDiff.From = mergeGroup;
+                    mergeDiff.To = mergeInto;
+
+                    mergeDiff.Target = member;
+                }
+                else
+                {
+                    var targetMember = members.First();
+
+                    var mergeInto = new DiffChangeList();
+                    mergeInto.Add(member);
+
+                    mergeDiff.Target = targetMember;
+                    mergeDiff.To = mergeInto;
+                }
+
+                diffs.Add(mergeDiff);
             }
         }
     }

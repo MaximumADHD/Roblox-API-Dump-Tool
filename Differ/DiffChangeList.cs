@@ -7,22 +7,30 @@ namespace Roblox.Reflection
     {
         public string Name { get; private set; }
 
-        public DiffChangeList(string name)
+        public DiffChangeList(string name = "ChangeList")
         {
             Name = name;
         }
 
-        public override string ToString()
+        public string ListElements(string separator, string prefix = "")
         {
             string[] elements = this
-                .Select(elem => elem.ToString())
+                .Select(elem => prefix + elem.ToString())
                 .ToArray();
 
-            return string.Join(" ", elements);
+            return string.Join(separator, elements);
         }
 
-        public void WriteHtml(ReflectionDumper buffer, bool multiline = false)
+        public override string ToString()
         {
+            return ListElements(" ");
+        }
+
+        public void WriteHtml(ReflectionDumper buffer, bool multiline = false, Descriptor.HtmlConfig config = null)
+        {
+            if (config == null)
+                config = new Descriptor.HtmlConfig();
+
             int numTabs;
 
             if (multiline)
@@ -39,10 +47,15 @@ namespace Roblox.Reflection
                 numTabs = 2;
             }
 
+            if (config.NumTabs == 0)
+                config.NumTabs = numTabs;
+
             buffer.NextLine();
 
             foreach (object change in this)
             {
+                int stack = numTabs;
+
                 if (change is Parameters)
                 {
                     var parameters = change as Parameters;
@@ -56,7 +69,7 @@ namespace Roblox.Reflection
                 else if (change is Descriptor)
                 {
                     var desc = change as Descriptor;
-                    desc.WriteHtml(buffer, numTabs, false, true);
+                    desc.WriteHtml(buffer, config);
                 }
                 else
                 {

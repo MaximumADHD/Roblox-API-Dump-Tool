@@ -18,6 +18,16 @@ namespace Roblox.Reflection
 
         public override string ToString() => Summary;
 
+        public class HtmlConfig
+        {
+            public int NumTabs = 0;
+
+            public bool DiffMode = true; 
+            public bool Detailed = false;
+
+            public string TagType = "span";
+        }
+
         public string GetDescriptorType()
         {
             string descType = GetType().Name;
@@ -84,8 +94,17 @@ namespace Roblox.Reflection
             return desc;
         }
         
-        public void WriteHtml(ReflectionDumper buffer, int numTabs = 0, bool detailed = true, bool diffMode = false)
+        public void WriteHtml(ReflectionDumper buffer, HtmlConfig config = null)
         {
+            if (config == null)
+                config = new HtmlConfig();
+
+            int numTabs = config.NumTabs;
+            string tagType = config.TagType;
+
+            bool detailed = config.Detailed;
+            bool diffMode = config.DiffMode;
+
             var tokens = GetTokens(detailed);
             tokens.Remove("DescriptorType");
 
@@ -99,8 +118,7 @@ namespace Roblox.Reflection
 
             if (!diffMode && descType != "Class" && descType != "Enum")
                 tagClass += " child";
-
-            string tagType = diffMode ? "span" : "div";
+            
             buffer.OpenClassTag(tagClass, numTabs, tagType);
             buffer.NextLine();
 
@@ -131,13 +149,13 @@ namespace Roblox.Reflection
                         {
                             if (info.FieldType == typeof(Parameters) && token == "Parameters")
                             {
-                                Parameters parameters = info.GetValue(this) as Parameters;
+                                var parameters = info.GetValue(this) as Parameters;
                                 parameters.WriteHtml(buffer, numTabs + 1);
                                 break;
                             }
                             else if (info.FieldType == typeof(LuaType) && token.EndsWith("Type"))
                             {
-                                LuaType luaType = info.GetValue(this) as LuaType;
+                                var luaType = info.GetValue(this) as LuaType;
                                 luaType.WriteHtml(buffer, numTabs + 1);
                                 break;
                             }
@@ -165,6 +183,23 @@ namespace Roblox.Reflection
             }
 
             buffer.CloseClassTag(numTabs, tagType);
+        }
+
+        public void WriteHtml(ReflectionDumper buffer, int numTabs)
+        {
+            var config = new HtmlConfig();
+            config.NumTabs = numTabs;
+
+            WriteHtml(buffer, config);
+        }
+
+        public void WriteHtml(ReflectionDumper buffer, int numTabs, bool detailed)
+        {
+            WriteHtml(buffer, new HtmlConfig()
+            {
+                NumTabs = numTabs,
+                Detailed = detailed
+            });
         }
 
         public virtual int CompareTo(object other)

@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using Microsoft.Win32;
 using Roblox.Reflection;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Roblox
 {
@@ -14,6 +18,9 @@ namespace Roblox
     {
         public static RegistryKey MainRegistry => GetRegistryKey(Registry.CurrentUser, "SOFTWARE", "Roblox API Dump Tool"); 
         
+        private const string clientTracker = "CloneTrooper1019/Roblox-Client-Tracker";
+        private const string apiHistoryUrl = "https://clonetrooper1019.github.io/Roblox-API-History.html";
+
         public static RegistryKey GetRegistryKey(RegistryKey root, params string[] subKeys)
         {
             string path = string.Join("\\", subKeys);
@@ -92,6 +99,7 @@ namespace Roblox
                 format = argMap["-format"];
 
             string bin = Directory.GetCurrentDirectory();
+            bool isDiffLog = argMap.ContainsKey("-difflog");
 
             if (argMap.ContainsKey("-export"))
             {
@@ -114,8 +122,8 @@ namespace Roblox
                 }
 
                 ReflectionDatabase api = new ReflectionDatabase(apiFilePath);
-
                 ReflectionDumper dumper = new ReflectionDumper(api);
+
                 string result = "";
 
                 if (format.ToLower() != "html")
@@ -145,34 +153,58 @@ namespace Roblox
 
                 Environment.Exit(0);
             }
-            else if (argMap.ContainsKey("-compare"))
+            else if (argMap.ContainsKey("-compare") || isDiffLog)
             {
-                if (!argMap.ContainsKey("-old") || !argMap.ContainsKey("-new"))
-                    Environment.Exit(1);
+                int version = -1;
 
+                if (isDiffLog)
+                {
+                    string diffLog = argMap["-difflog"];
+                    
+                    if (int.TryParse(diffLog, out version))
+                    {
+                        argMap["-new"] = version.ToString();
+                        argMap["-old"] = (version - 1).ToString();
+                    }
+                    else
+                    {
+                        Environment.Exit(1);
+                    }
+                }
+                else if (!argMap.ContainsKey("-old") || !argMap.ContainsKey("-new"))
+                {
+                    Environment.Exit(1);
+                }
+
+                int oldVersion = -1;
                 string oldFile = "";
                 string oldArg = argMap["-old"];
 
-                if (oldArg == "roblox" || oldArg.StartsWith("gametest") && oldArg.EndsWith(".robloxlabs"))
+                if (int.TryParse(oldArg, out oldVersion))
+                    oldFile = await ApiDumpTool.GetApiDumpFilePath("roblox", oldVersion);
+                else if (oldArg == "roblox" || oldArg.StartsWith("gametest") && oldArg.EndsWith(".robloxlabs"))
                     oldFile = await ApiDumpTool.GetApiDumpFilePath(oldArg);
                 else
                     oldFile = oldArg;
 
+                int newVersion = -1;
                 string newFile = "";
                 string newArg = argMap["-new"];
 
-                if (newArg == "roblox" || newArg.StartsWith("gametest") && newArg.EndsWith(".robloxlabs"))
+                if (int.TryParse(newArg, out newVersion))
+                    newFile = await ApiDumpTool.GetApiDumpFilePath("roblox", newVersion);
+                else if (newArg == "roblox" || newArg.StartsWith("gametest") && newArg.EndsWith(".robloxlabs"))
                     newFile = await ApiDumpTool.GetApiDumpFilePath(newArg);
                 else
                     newFile = newArg;
 
-                ReflectionDatabase oldApi = new ReflectionDatabase(oldFile);
-                ReflectionDatabase newApi = new ReflectionDatabase(newFile);
+                var oldApi = new ReflectionDatabase(oldFile);
+                var newApi = new ReflectionDatabase(newFile);
 
                 ReflectionDiffer differ = new ReflectionDiffer();
                 differ.PostProcessHtml = false;
 
-                if (format.ToLower() == "html")
+                if (format.ToLower() == "html" && !isDiffLog)
                     format = "HTML";
                 else
                     format = "TXT";
@@ -180,7 +212,9 @@ namespace Roblox
                 string result = await differ.CompareDatabases(oldApi, newApi, format);
                 string exportPath = "";
 
-                if (argMap.ContainsKey("-out"))
+                if (isDiffLog)
+                    exportPath = Path.Combine(bin, version + ".md");
+                else if (argMap.ContainsKey("-out"))
                     exportPath = argMap["-out"];
                 else
                     exportPath = Path.Combine(bin, "custom-comp." + format.ToLower());
@@ -192,9 +226,55 @@ namespace Roblox
                     result = ApiDumpTool.PostProcessHtml(result, dir);
                 }
 
+                if (isDiffLog)
+                {
+                    string commitUrl = "*(NOT FOUND!)*";
+                    
+                    var userAgent = new WebHeaderCollection();
+                    userAgent.Add("User-Agent", "Roblox API Dump Tool");
+
+                    using (WebClient http = new WebClient() { Headers = userAgent })
+                    {
+                        string commitsUrl = $"https://api.github.com/repos/{clientTracker}/commits?sha=roblox";
+                        string commitsJson = await http.DownloadStringTaskAsync(commitsUrl);
+
+                        using (StringReader reader = new StringReader(commitsJson))
+                        {
+                            JsonTextReader jsonReader = new JsonTextReader(reader);
+                            JArray data = JArray.Load(jsonReader);
+                            string prefix = "0." + version;
+                            
+                            foreach (JObject info in data)
+                            {
+                                var commit = info.Value<JObject>("commit");
+                                string message = commit.Value<string>("message");
+
+                                if (message.StartsWith(prefix))
+                                {
+                                    string sha = info.Value<string>("sha");
+                                    commitUrl = $"https://github.com/{clientTracker}/commit/{sha}";
+
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    result = "## Client Difference Log\n\n"
+                           + $"{commitUrl}\n\n"
+
+                           + "## API Changes\n\n"
+
+                           + "```plain\n"
+                           + $"{result}\n"
+                           + "```\n\n"
+
+                           + $"(Click [here]({apiHistoryUrl}#{version}) for a syntax highlighted version!)";
+                }
+
                 File.WriteAllText(exportPath, result);
 
-                if (argMap.ContainsKey("-start"))
+                if (argMap.ContainsKey("-start") || isDiffLog)
                     Process.Start(exportPath);
 
                 Environment.Exit(0);
@@ -204,6 +284,8 @@ namespace Roblox
         [STAThread]
         static void Main(string[] args)
         {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             if (args.Length > 0)
             {
                 Task processArgsTask = Task.Run(() => processArgs(args));

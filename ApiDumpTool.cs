@@ -17,7 +17,7 @@ namespace Roblox
         public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
         
         private const string VERSION_API_KEY = "76e5a40c-3ae1-4028-9f10-7c62520bd94f";
-        private const string API_DUMP_CSS_FILE = "api-dump-v1.6.css";
+        private const string API_DUMP_CSS_FILE = "api-dump-v1.7.css";
 
         private delegate void StatusDelegate(string msg);
         private delegate string ItemDelegate(ComboBox comboBox);
@@ -175,6 +175,22 @@ namespace Roblox
             }
 
             return file;
+        }
+
+        public static async Task<string> GetApiDumpFilePath(string branch, int versionId, Action<string> setStatus = null)
+        {
+            setStatus?.Invoke("Fetching deploy logs for " + branch);
+
+            StudioDeployLogs logs = await StudioDeployLogs.GetDeployLogs(branch);
+            var lookup = logs.LookupFromVersion;
+
+            if (!lookup.ContainsKey(versionId))
+                throw new Exception("Unknown version id: " + versionId);
+
+            DeployLog log = lookup[versionId];
+            string versionGuid = log.VersionGuid;
+
+            return await GetApiDumpFilePath(branch, versionGuid, setStatus);
         }
 
         public static async Task<string> GetApiDumpFilePath(string branch, Action<string> setStatus = null, bool fetchPrevious = false)
