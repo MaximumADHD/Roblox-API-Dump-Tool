@@ -86,7 +86,18 @@ div.Renamed::before
 div.Merged::before
 {
 	content: "Merged";
-	color: #FF9F4F;
+}
+
+span.MergeListInto::before
+{
+	content: "Into";
+	margin-left: 19px;
+}
+
+div.Merged::before,
+span.MergeListInto::before
+{
+	color: #FF7F3F;
 }
 
 .ChangeTo::before,
@@ -149,7 +160,6 @@ span.WhatChanged
 	font-weight: normal;
 }
 
-span.WhatMerged::before,
 span.WhatChanged::before
 {
 	content: "the ";
@@ -328,6 +338,11 @@ span.ClassName::before,
 span.ParamDefault::before
 {
 	content: "" !important;
+}
+
+span.ChangeList li
+{
+	margin-left: 40px;
 }
 
 .deprecated *,
