@@ -90,8 +90,6 @@ namespace Roblox.Reflection
 
                 Diff mergeDiff = new Diff();
                 mergeDiff.Type = DiffType.Merge;
-
-                
                 
                 if (members.Count > 1)
                 {
