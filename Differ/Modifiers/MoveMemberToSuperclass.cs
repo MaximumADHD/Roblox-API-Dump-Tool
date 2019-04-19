@@ -93,13 +93,13 @@ namespace Roblox.Reflection
                 
                 if (members.Count > 1)
                 {
-                    var mergeGroup = new DiffChangeList();
-                    mergeGroup.AddRange(members);
+                    var mergeFrom = new DiffChangeList();
+                    mergeFrom.AddRange(members);
 
                     var mergeInto = new DiffChangeList();
                     mergeInto.Add(member);
 
-                    mergeDiff.From = mergeGroup;
+                    mergeDiff.From = mergeFrom;
                     mergeDiff.To = mergeInto;
 
                     mergeDiff.Target = member;
@@ -107,12 +107,7 @@ namespace Roblox.Reflection
                 else
                 {
                     var targetMember = members.First();
-
-                    var mergeInto = new DiffChangeList();
-                    mergeInto.Add(member);
-
                     mergeDiff.Target = targetMember;
-                    mergeDiff.To = mergeInto;
                 }
 
                 diffs.Add(mergeDiff);
