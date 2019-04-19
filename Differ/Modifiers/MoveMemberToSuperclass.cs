@@ -91,17 +91,16 @@ namespace Roblox.Reflection
                 Diff mergeDiff = new Diff();
                 mergeDiff.Type = DiffType.Merge;
                 
+                var mergeInto = new DiffChangeList();
+                mergeInto.Add(member);
+                mergeDiff.To = mergeInto;
+                
                 if (members.Count > 1)
                 {
                     var mergeFrom = new DiffChangeList();
                     mergeFrom.AddRange(members);
-
-                    var mergeInto = new DiffChangeList();
-                    mergeInto.Add(member);
-
+                    
                     mergeDiff.From = mergeFrom;
-                    mergeDiff.To = mergeInto;
-
                     mergeDiff.Target = member;
                 }
                 else
