@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -23,6 +25,7 @@ namespace Roblox
         private delegate string ItemDelegate(ComboBox comboBox);
 
         private static WebClient http = new WebClient();
+        private static TaskCompletionSource<Bitmap> renderFinished;
 
         public ApiDumpTool()
         {
@@ -62,11 +65,25 @@ namespace Roblox
             comboBox.SelectedIndex = Math.Max(0, comboBox.Items.IndexOf(value));
         }
 
+        private void updateEnabledStates()
+        {
+            try
+            {
+                string format = getApiDumpFormat();
+                compareVersions.Enabled = (format != "JSON");
+                viewApiDump.Enabled = (format != "PNG");
+            }
+            catch
+            {
+                // ¯\_(ツ)_/¯
+            }
+        }
+
         public static async Task<string> GetLiveVersion(string branch, string currentType = "ClientVersionUpload", string binaryType = "WindowsStudio")
         {
-            string versionUrl = "https://versioncompatibility.api."
-                                + branch + ".com/GetCurrent" + currentType + "?binaryType=" 
-                                + binaryType + "&apiKey=" + VERSION_API_KEY;
+            string versionUrl = $"https://versioncompatibility.api.{branch}.com/"  +
+                                $"GetCurrent{currentType}?binaryType={binaryType}" +
+                                $"&apiKey={VERSION_API_KEY}";
 
             string version = await http.DownloadStringTaskAsync(versionUrl);
             version = version.Replace('"', ' ').Trim();
@@ -76,7 +93,7 @@ namespace Roblox
 
         public static async Task<string> GetDeployedVersion(string branch, string versionType = "versionQTStudio")
         {
-            string versionUrl = "https://s3.amazonaws.com/setup." + branch + ".com/" + versionType;
+            string versionUrl = $"https://s3.amazonaws.com/setup.{branch}.com/{versionType}";
             return await http.DownloadStringTaskAsync(versionUrl);
         }
 
@@ -120,12 +137,98 @@ namespace Roblox
             setStatus("Ready!");
         }
 
-        private static void writeAndViewFile(string path, string contents)
+        private static bool writeFile(string path, string contents)
         {
             if (!File.Exists(path) || File.ReadAllText(path, Encoding.UTF8) != contents)
+            {
                 File.WriteAllText(path, contents, Encoding.UTF8);
+                return true;
+            }
 
+            return false;
+        }
+
+        private static void writeAndViewFile(string path, string contents)
+        {
+            writeFile(path, contents);
             Process.Start(path);
+        }
+
+        private static Bitmap renderApiDumpImpl(WebBrowser browser)
+        {
+            var body = browser.Document.Body;
+            body.Style = "zoom:150%";
+
+            const int extraWidth = 21;
+            Rectangle size = body.ScrollRectangle;
+
+            int width = size.Width + extraWidth;
+            browser.Width = width + 8;
+
+            int height = size.Height;
+            browser.Height = height + 24;
+
+            Bitmap apiRender = new Bitmap(width, height);
+            browser.DrawToBitmap(apiRender, size);
+
+            // Fill in some extra space on the right that we missed.
+            using (Graphics graphics = Graphics.FromImage(apiRender))
+            {
+                Color backColor = apiRender.GetPixel(0, 0);
+
+                using (Brush brush = new SolidBrush(backColor))
+                {
+                    Rectangle fillArea = new Rectangle
+                    (
+                        width - extraWidth, 0,
+                        extraWidth, height
+                    );
+
+                    graphics.FillRectangle(brush, fillArea);
+                }
+            }
+            
+            // Apply some random noise and transparency to the edges.
+            // Doing this so websites like Twitter can't force the image
+            // to use lossy compression. Its a nice little hack :)
+
+            Random rng = new Random();
+
+            var addNoise = new Action<int, int>((x, y) =>
+            {
+                const int alpha = (208 << 24);
+
+                int lum = 30 + (int)(rng.NextDouble() * 60);
+                int argb = alpha | (lum << 16) | (lum << 8) | lum;
+
+                Color pixel = Color.FromArgb(argb);
+                apiRender.SetPixel(x, y, pixel);
+            });
+
+            for (int x = 0; x < width; x++)
+            {
+                addNoise(x, 0);
+                addNoise(x, height - 1);
+            }
+
+            for (int y = 0; y < height; y++)
+            {
+                addNoise(0, y);
+                addNoise(width - 1, y);
+            }
+
+            return apiRender;
+        }
+
+        private static void onDocumentComplete(object sender, WebBrowserDocumentCompletedEventArgs e)
+        {
+            var browser = sender as WebBrowser;
+
+            Bitmap image = renderApiDumpImpl(browser);
+            renderFinished.SetResult(image);
+
+            browser.Dispose();
+            Application.ExitThread();
         }
 
         public static string GetWorkDirectory()
@@ -155,9 +258,37 @@ namespace Roblox
                  + result.Trim();
         }
 
+        public static async Task<Bitmap> RenderApiDump(string htmlFilePath)
+        {
+            var docReady = new WebBrowserDocumentCompletedEventHandler(onDocumentComplete);
+            string fileUrl = "file://" + htmlFilePath.Replace('\\', '/');
+
+            Thread renderThread = new Thread(() =>
+            {
+                var renderer = new WebBrowser()
+                {
+                    Url = new Uri(fileUrl),
+                    ScrollBarsEnabled = false,
+                };
+
+                renderer.DocumentCompleted += docReady;
+                Application.Run();
+            });
+
+            renderFinished = new TaskCompletionSource<Bitmap>();
+
+            renderThread.SetApartmentState(ApartmentState.STA);
+            renderThread.Start();
+
+            await renderFinished.Task;
+            var apiRender = renderFinished.Task.Result;
+
+            return apiRender;
+        }
+
         public static async Task<string> GetApiDumpFilePath(string branch, string versionGuid, Action<string> setStatus = null)
         {
-            string setupUrl = "https://s3.amazonaws.com/setup." + branch + ".com/";
+            string apiUrl = $"https://s3.amazonaws.com/setup.{branch}.com/{versionGuid}-API-Dump.json";
 
             string coreBin = GetWorkDirectory();
             string file = Path.Combine(coreBin, versionGuid + ".json");
@@ -166,7 +297,7 @@ namespace Roblox
             {
                 setStatus?.Invoke("Grabbing API Dump for " + branch);
 
-                string apiDump = await http.DownloadStringTaskAsync(setupUrl + versionGuid + "-API-Dump.json");
+                string apiDump = await http.DownloadStringTaskAsync(apiUrl);
                 File.WriteAllText(file, apiDump);
             }
             else
@@ -227,7 +358,7 @@ namespace Roblox
                 compareVersions.Text = "Compare to Production";
 
             Program.MainRegistry.SetValue("LastSelectedBranch", branch);
-            viewApiDump.Enabled = true;
+            updateEnabledStates();
         }
 
         private async void viewApiDumpClassic_Click(object sender, EventArgs e)
@@ -250,7 +381,7 @@ namespace Roblox
 
                 string result;
 
-                if (format == "HTML")
+                if (format == "HTML" || format == "PNG")
                     result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml, PostProcessHtml);
                 else
                     result = dumper.DumpApi(ReflectionDumper.DumpUsingTxt);
@@ -286,19 +417,34 @@ namespace Roblox
                 newApi.Branch = newBranch;
                 
                 setStatus("Comparing APIs...");
-                string format = getApiDumpFormat();
 
-                ReflectionDiffer differ = new ReflectionDiffer();
-                string result = await differ.CompareDatabases(oldApi, newApi, format);
+                string format = getApiDumpFormat();
+                string result = await ReflectionDiffer.CompareDatabases(oldApi, newApi, format);
 
                 if (result.Length > 0)
                 {
                     FileInfo info = new FileInfo(newApiFilePath);
+                    string dirName = info.DirectoryName;
 
-                    string directory = info.DirectoryName;
-                    string resultPath = Path.Combine(directory, newBranch + "-diff." + format.ToLower());
+                    string fileBase = Path.Combine(dirName, $"{newBranch}-diff.");
+                    string filePath = fileBase + format.ToLower();
 
-                    writeAndViewFile(resultPath, result);
+                    if (format == "PNG")
+                    {
+                        string htmlPath = $"{fileBase}.html";
+
+                        writeFile(htmlPath, result);
+                        setStatus("Rendering Image...");
+                        
+                        Bitmap apiRender = await RenderApiDump(htmlPath);
+                        apiRender.Save(filePath);
+
+                        Process.Start(filePath);
+                    }
+                    else
+                    {
+                        writeAndViewFile(filePath, result);
+                    }
                 }
                 else
                 {
@@ -380,7 +526,8 @@ namespace Roblox
         {
             string format = getApiDumpFormat();
             Program.MainRegistry.SetValue("PreferredFormat", format);
-            compareVersions.Enabled = (format != "JSON");
+
+            updateEnabledStates();
         }
     }
 }

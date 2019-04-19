@@ -5,15 +5,13 @@ using System.Threading.Tasks;
 
 namespace Roblox.Reflection
 {
-    public class ReflectionDiffer
+    public static class ReflectionDiffer
     {
-        public bool PostProcessHtml = true;
-
         private const string NL = "\r\n";
         private const string HTML_BREAK = NL + "<br/>" + NL;
 
-        private List<Diff> results = new List<Diff>();
-        private string currentFormat;
+        private static List<Diff> results = new List<Diff>();
+        private static string currentFormat;
 
         private static List<IDiffModifier> preModifiers = new List<IDiffModifier>();
         private static List<IDiffModifier> postModifiers = new List<IDiffModifier>(); 
@@ -51,19 +49,19 @@ namespace Roblox.Reflection
             return entries.ToDictionary(entry => entry.Name);
         }
 
-        private void flagEntireClass(ClassDescriptor classDesc, DiffRecorder record, bool detailed)
+        private static void flagEntireClass(ClassDescriptor classDesc, DiffRecorder record, bool detailed)
         {
             Diff classDiff = record(classDesc, detailed);
             classDesc.Members.ForEach(memberDesc => record(memberDesc, detailed, classDiff));
         }
 
-        private void flagEntireEnum(EnumDescriptor enumDesc, DiffRecorder record, bool detailed)
+        private static void flagEntireEnum(EnumDescriptor enumDesc, DiffRecorder record, bool detailed)
         {
             Diff enumDiff = record(enumDesc, detailed);
             enumDesc.Items.ForEach(itemDesc => record(itemDesc, detailed, enumDiff));
         }
 
-        private Diff Added(string field, Descriptor target, bool detailed = true, Diff parent = null)
+        private static Diff Added(string field, Descriptor target, bool detailed = true, Diff parent = null)
         {
             Diff added = new Diff()
             {
@@ -82,13 +80,13 @@ namespace Roblox.Reflection
             return added;
         }
 
-        private Diff Added(Descriptor target, bool detailed = true, Diff parent = null)
+        private static Diff Added(Descriptor target, bool detailed = true, Diff parent = null)
         {
             string descType = target.GetDescriptorType();
             return Added(descType, target, detailed, parent);
         }
 
-        private Diff Removed(string field, Descriptor target, bool detailed = false, Diff parent = null)
+        private static Diff Removed(string field, Descriptor target, bool detailed = false, Diff parent = null)
         {
             Diff removed = new Diff()
             {
@@ -107,13 +105,13 @@ namespace Roblox.Reflection
             return removed;
         }
 
-        private Diff Removed(Descriptor target, bool detailed = true, Diff parent = null)
+        private static Diff Removed(Descriptor target, bool detailed = true, Diff parent = null)
         {
             string descType = target.GetDescriptorType();
             return Removed(descType, target, detailed, parent);
         }
 
-        private Diff Changed(string field, Descriptor target, object from, object to)
+        private static Diff Changed(string field, Descriptor target, object from, object to)
         {
             Diff changed = new Diff()
             {
@@ -131,7 +129,7 @@ namespace Roblox.Reflection
             return changed;
         }
 
-        private void Compare(Descriptor target, string context, object oldVal, object newVal)
+        private static void Compare(Descriptor target, string context, object oldVal, object newVal)
         {
             if (oldVal.ToString() != newVal.ToString())
             {
@@ -139,7 +137,7 @@ namespace Roblox.Reflection
             }
         }
 
-        private void Compare(Descriptor target, string context, string oldVal, string newVal, bool inQuotes = false)
+        private static void Compare(Descriptor target, string context, string oldVal, string newVal, bool inQuotes = false)
         {
             if (oldVal != newVal)
             {
@@ -153,7 +151,7 @@ namespace Roblox.Reflection
             }
         }
 
-        private Dictionary<string, Diff> CompareTags(Descriptor target, Tags oldTags, Tags newTags)
+        private static Dictionary<string, Diff> CompareTags(Descriptor target, Tags oldTags, Tags newTags)
         {
             var tagChanges = new Dictionary<string, Diff>();
 
@@ -186,7 +184,7 @@ namespace Roblox.Reflection
             return tagChanges;
         }
 
-        private void MergeTagDiffs(Dictionary<string, Diff> parentTags, Dictionary<string, Diff> childTags)
+        private static void MergeTagDiffs(Dictionary<string, Diff> parentTags, Dictionary<string, Diff> childTags)
         {
             foreach (string tag in parentTags.Keys)
             {
@@ -199,27 +197,34 @@ namespace Roblox.Reflection
             }
         }
 
-        public async Task<string> CompareDatabases(ReflectionDatabase oldApi, ReflectionDatabase newApi, string format = "TXT")
+        public static async Task<string> CompareDatabases(ReflectionDatabase oldApi, ReflectionDatabase newApi, string format = "TXT", bool postProcess = true)
         {
-            results.Clear();
             currentFormat = format.ToLower();
 
-            // Diff Classes
+            // For the purposes of the differ, treat png like html.
+            // Its assumed that the result will be processed afterwards.
+            if (currentFormat == "png")
+                currentFormat = "html";
+
+            // Clean up old results.
+            if (results.Count > 0)
+                results.Clear();
+
+            // Grab the class lists.
             var oldClasses = oldApi.Classes;
             var newClasses = newApi.Classes;
 
-            // Record added classes
+            // Record classes that were added.
             foreach (string className in newClasses.Keys)
             {
                 if (!oldClasses.ContainsKey(className))
                 {
-                    // Add New Class
                     ClassDescriptor classDesc = newClasses[className];
                     flagEntireClass(classDesc, Added, true);
                 }
             }
 
-            // Record removed classes
+            // Record classes that were removed.
             foreach (string className in oldClasses.Keys)
             {
                 if (!newClasses.ContainsKey(className))
@@ -229,7 +234,7 @@ namespace Roblox.Reflection
                 }
             }
 
-            // Run pre-modifier tasks.
+            // Run pre-member-diff modifier tasks.
             foreach (IDiffModifier preModifier in preModifiers)
                 preModifier.RunModifier(ref results);
 
@@ -241,15 +246,17 @@ namespace Roblox.Reflection
                 if (newClasses.ContainsKey(className))
                 {
                     ClassDescriptor newClass = newClasses[className];
-                    var classTagDiffs = CompareTags(oldClass, oldClass.Tags, newClass.Tags);
-
-                    Compare(oldClass, "superclass", oldClass.Superclass, newClass.Superclass, true);
-                    Compare(oldClass, "memory category", oldClass.MemoryCategory, newClass.MemoryCategory, true);
-
-                    // Diff the members
+                    
+                    // Capture the members of these classes.
                     var oldMembers = createLookupTable(oldClass.Members);
                     var newMembers = createLookupTable(newClass.Members);
 
+                    // Compare the classes directly.
+                    var classTagDiffs = CompareTags(oldClass, oldClass.Tags, newClass.Tags);
+                    Compare(oldClass, "superclass", oldClass.Superclass, newClass.Superclass, true);
+                    Compare(oldClass, "memory category", oldClass.MemoryCategory, newClass.MemoryCategory, true);
+
+                    // Record members that were added.
                     foreach (string memberName in newMembers.Keys)
                     {
                         if (!oldMembers.ContainsKey(memberName))
@@ -260,6 +267,7 @@ namespace Roblox.Reflection
                         }
                     }
 
+                    // Record members that were changed or removed.
                     foreach (string memberName in oldMembers.Keys)
                     {
                         MemberDescriptor oldMember = oldMembers[memberName];
@@ -272,15 +280,18 @@ namespace Roblox.Reflection
                             var memberTagDiffs = CompareTags(newMember, oldMember.Tags, newMember.Tags);
                             MergeTagDiffs(classTagDiffs, memberTagDiffs);
 
-                            // Diff specific member types
+                            // Compare the fields specific to these member types
+                            // TODO: I'd like to move these routines into their respective 
+                            //       members, but I'm not sure how to do so in a clean manner.
                             if (newMember is PropertyDescriptor)
                             {
                                 var oldProp = oldMember as PropertyDescriptor;
                                 var newProp = newMember as PropertyDescriptor;
 
-                                // If the read/write permissions are both changed to the same value, group them.
+                                // If the read/write permissions are both changed to the same value...
                                 if (oldProp.Security.Merged && newProp.Security.Merged)
                                 {
+                                    // Just compare them as a security change alone.
                                     var oldSecurity = oldProp.Security.Value;
                                     var newSecurity = newProp.Security.Value;
 
@@ -288,6 +299,7 @@ namespace Roblox.Reflection
                                 }
                                 else
                                 {
+                                    // Compare the read/write permissions individually.
                                     var oldSecurity = oldProp.Security;
                                     var newSecurity = newProp.Security;
 
@@ -311,8 +323,8 @@ namespace Roblox.Reflection
                                 var newFunc = newMember as FunctionDescriptor;
 
                                 Compare(newMember, "security", oldFunc.Security, newFunc.Security);
+                                Compare(newMember, "parameters", oldFunc.Parameters, newFunc.Parameters);
                                 Compare(newMember, "return-type", oldFunc.ReturnType, newFunc.ReturnType);
-                                Compare(newMember, "parameters",  oldFunc.Parameters, newFunc.Parameters);
                             }
                             else if (newMember is CallbackDescriptor)
                             {
@@ -320,8 +332,8 @@ namespace Roblox.Reflection
                                 var newCall = newMember as CallbackDescriptor;
 
                                 Compare(newMember, "security", oldCall.Security, newCall.Security);
-                                Compare(newMember, "expected return-type", oldCall.ReturnType, newCall.ReturnType);
                                 Compare(newMember, "parameters", oldCall.Parameters, newCall.Parameters);
+                                Compare(newMember, "expected return-type", oldCall.ReturnType, newCall.ReturnType);
                             }
                             else if (newMember is EventDescriptor)
                             {
@@ -334,27 +346,28 @@ namespace Roblox.Reflection
                         }
                         else
                         {
-                            // Remove Old Member
+                            // Remove old member.
                             Removed(oldMember, false);
                         }
                     }
                 }
             }
 
-            // Diff Enums
+            // Grab the enum lists.
             var oldEnums = oldApi.Enums;
             var newEnums = newApi.Enums;
 
+            // Record enums that were added.
             foreach (string enumName in newEnums.Keys)
             {
                 if (!oldEnums.ContainsKey(enumName))
                 {
-                    // Add New Enum
                     EnumDescriptor newEnum = newEnums[enumName];
                     flagEntireEnum(newEnum, Added, true);
                 }
             }
 
+            // Record enums that were changed or removed.
             foreach (string enumName in oldEnums.Keys)
             {
                 EnumDescriptor oldEnum = oldEnums[enumName];
@@ -364,15 +377,15 @@ namespace Roblox.Reflection
                     EnumDescriptor newEnum = newEnums[enumName];
                     var enumTagDiffs = CompareTags(newEnum, oldEnum.Tags, newEnum.Tags);
 
-                    // Diff Items
+                    // Grab the enum-item lists.
                     var oldItems = createLookupTable(oldEnum.Items);
                     var newItems = createLookupTable(newEnum.Items);
 
+                    // Record enum-items that were added.
                     foreach (var itemName in newItems.Keys)
                     {
                         if (!oldItems.ContainsKey(itemName))
                         {
-                            // Add New EnumItem
                             EnumItemDescriptor item = newItems[itemName];
 
                             if (item.HasTag("Deprecated"))
@@ -400,19 +413,19 @@ namespace Roblox.Reflection
                         }
                         else
                         {
-                            // Remove Old EnumItem
+                            // Remove old enum-item.
                             Removed(oldItem, false);
                         }
                     }
                 }
                 else
                 {
-                    // Remove Old Enum
+                    // Remove old enum.
                     flagEntireEnum(oldEnum, Removed, false);
                 }
             }
 
-            // Peace out early if no diffs were recorded.
+            // Exit early if no diffs were recorded.
             if (results.Count == 0)
                 return "";
 
@@ -421,12 +434,14 @@ namespace Roblox.Reflection
                 .Where(diff => !diff.HasParent)
                 .ToList();
 
-            // Run post-modifier tasks.
+            // Run post-member-diff modifier tasks.
             foreach (IDiffModifier postModifier in postModifiers)
                 postModifier.RunModifier(ref diffs);
 
-            // Remove diffs that were disposed during a modifier task, and sort the results.
+            // Remove diffs that were disposed during the modifier tasks,
             diffs = diffs.Where(diff => !diff.Disposed).ToList();
+
+            // and sort the results.
             diffs.Sort();
             
             // Setup actions for generating the final result, based on the requested format.
@@ -437,10 +452,10 @@ namespace Roblox.Reflection
                 .Select(diff => diff.ToString())
                 .ToList();
 
-            if (format == "HTML")
+            if (currentFormat == "html")
             {
-                ReflectionDumper htmlDumper = new ReflectionDumper();
-                Dictionary<string, Diff> diffLookup = diffs.ToDictionary(diff => diff.ToString());
+                var htmlDumper = new ReflectionDumper();
+                var diffLookup = diffs.ToDictionary(diff => diff.ToString());
 
                 addLineToResults = new DiffResultLineAdder((line, addBreak) =>
                 {
@@ -470,7 +485,7 @@ namespace Roblox.Reflection
 
                     string result = htmlDumper.ExportResults();
 
-                    if (PostProcessHtml)
+                    if (postProcess)
                         result = ApiDumpTool.PostProcessHtml(result);
 
                     return result;
@@ -490,7 +505,7 @@ namespace Roblox.Reflection
             }
             else
             {
-                List<string> final = new List<string>();
+                var final = new List<string>();
 
                 addLineToResults = new DiffResultLineAdder((line, addBreak) =>
                 {

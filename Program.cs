@@ -201,15 +201,12 @@ namespace Roblox
                 var oldApi = new ReflectionDatabase(oldFile);
                 var newApi = new ReflectionDatabase(newFile);
 
-                ReflectionDiffer differ = new ReflectionDiffer();
-                differ.PostProcessHtml = false;
-
                 if (format.ToLower() == "html" && !isDiffLog)
                     format = "HTML";
                 else
                     format = "TXT";
 
-                string result = await differ.CompareDatabases(oldApi, newApi, format);
+                string result = await ReflectionDiffer.CompareDatabases(oldApi, newApi, format, false);
                 string exportPath = "";
 
                 if (isDiffLog)
@@ -228,7 +225,7 @@ namespace Roblox
 
                 if (isDiffLog)
                 {
-                    string commitUrl = "*(NOT FOUND!)*";
+                    string commitUrl = "";
                     
                     var userAgent = new WebHeaderCollection();
                     userAgent.Add("User-Agent", "Roblox API Dump Tool");
@@ -284,14 +281,34 @@ namespace Roblox
         [STAThread]
         static void Main(string[] args)
         {
+            // Set the security protocol to be used for HTTPS.
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
+            // Set the browser emulation mode for
+            // rendering generated html as an image.
+            var browserEmulation = GetRegistryKey
+            (
+                Registry.CurrentUser,
+                "Software", "Microsoft",
+                "Internet Explorer",
+                "Main", "FeatureControl",
+                "FEATURE_BROWSER_EMULATION"
+            );
+
+            Process exe = Process.GetCurrentProcess();
+            ProcessModule main = exe.MainModule;
+
+            string exeName = Path.GetFileName(main.FileName);
+            browserEmulation.SetValue(exeName, 11000);
+
+            // Check the launch arguments.
             if (args.Length > 0)
             {
                 Task processArgsTask = Task.Run(() => processArgs(args));
                 processArgsTask.Wait();
             }
 
+            // Start the application window.
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new ApiDumpTool());

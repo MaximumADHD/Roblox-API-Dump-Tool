@@ -137,6 +137,7 @@
             this.apiDumpFormat.Items.AddRange(new object[] {
             "TXT",
             "HTML",
+            "PNG",
             "JSON"});
             this.apiDumpFormat.Location = new System.Drawing.Point(232, 86);
             this.apiDumpFormat.Name = "apiDumpFormat";
