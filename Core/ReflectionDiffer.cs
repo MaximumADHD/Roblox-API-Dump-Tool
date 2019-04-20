@@ -480,7 +480,7 @@ namespace Roblox.Reflection
 
                 finalizeResults = new DiffResultFinalizer(() =>
                 {
-                    if (newApi.Branch != null)
+                    if (newApi.Branch == "roblox")
                         htmlDumper.NextLine();
 
                     string result = htmlDumper.ExportResults();
@@ -491,10 +491,13 @@ namespace Roblox.Reflection
                     return result;
                 });
 
-                if (newApi.Branch != null)
+                if (newApi.Branch == "roblox")
                 {
                     if (newApi.Version == null)
-                        newApi.Version = await ApiDumpTool.GetLiveVersion(newApi.Branch);
+                    {
+                        var versionInfo = await ClientVersionInfo.Get();
+                        newApi.Version = versionInfo.Version;
+                    }
 
                     htmlDumper.OpenHtmlTag("h2");
                     htmlDumper.Write("Version " + newApi.Version);

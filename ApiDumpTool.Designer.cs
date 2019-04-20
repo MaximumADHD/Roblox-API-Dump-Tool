@@ -35,7 +35,6 @@
             this.appLogo = new System.Windows.Forms.PictureBox();
             this.branchLbl = new System.Windows.Forms.Label();
             this.apiDumpFormat = new System.Windows.Forms.ComboBox();
-            this.useLatestDeployed = new System.Windows.Forms.CheckBox();
             this.formatLbl = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.appLogo)).BeginInit();
             this.SuspendLayout();
@@ -81,7 +80,7 @@
             this.status.AutoSize = true;
             this.status.Enabled = false;
             this.status.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.status.Location = new System.Drawing.Point(0, 199);
+            this.status.Location = new System.Drawing.Point(0, 181);
             this.status.Margin = new System.Windows.Forms.Padding(0);
             this.status.Name = "status";
             this.status.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
@@ -145,17 +144,6 @@
             this.apiDumpFormat.TabIndex = 8;
             this.apiDumpFormat.SelectedIndexChanged += new System.EventHandler(this.apiDumpFormat_SelectedIndexChanged);
             // 
-            // useLatestDeployed
-            // 
-            this.useLatestDeployed.AutoSize = true;
-            this.useLatestDeployed.Location = new System.Drawing.Point(10, 179);
-            this.useLatestDeployed.Name = "useLatestDeployed";
-            this.useLatestDeployed.Size = new System.Drawing.Size(163, 17);
-            this.useLatestDeployed.TabIndex = 9;
-            this.useLatestDeployed.Text = "Use Latest Deployed Version";
-            this.useLatestDeployed.UseVisualStyleBackColor = true;
-            this.useLatestDeployed.CheckedChanged += new System.EventHandler(this.useLatestDeployed_CheckedChanged);
-            // 
             // formatLbl
             // 
             this.formatLbl.AutoSize = true;
@@ -166,14 +154,13 @@
             this.formatLbl.TabIndex = 10;
             this.formatLbl.Text = "Format:";
             // 
-            // Main
+            // ApiDumpTool
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(298, 223);
+            this.ClientSize = new System.Drawing.Size(298, 205);
             this.Controls.Add(this.formatLbl);
-            this.Controls.Add(this.useLatestDeployed);
             this.Controls.Add(this.apiDumpFormat);
             this.Controls.Add(this.branchLbl);
             this.Controls.Add(this.appLogo);
@@ -185,7 +172,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = global::Roblox.Properties.Resources.AppIcon;
             this.MaximizeBox = false;
-            this.Name = "Main";
+            this.Name = "ApiDumpTool";
             this.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Roblox API Dump Tool";
@@ -205,7 +192,6 @@
         private System.Windows.Forms.PictureBox appLogo;
         private System.Windows.Forms.Label branchLbl;
         private System.Windows.Forms.ComboBox apiDumpFormat;
-        private System.Windows.Forms.CheckBox useLatestDeployed;
         private System.Windows.Forms.Label formatLbl;
     }
 }

@@ -17,8 +17,6 @@ namespace Roblox
     public partial class ApiDumpTool : Form
     {
         public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
-        
-        private const string VERSION_API_KEY = "76e5a40c-3ae1-4028-9f10-7c62520bd94f";
         private const string API_DUMP_CSS_FILE = "api-dump-v1.7.css";
 
         private delegate void StatusDelegate(string msg);
@@ -79,18 +77,6 @@ namespace Roblox
             }
         }
 
-        public static async Task<string> GetLiveVersion(string branch, string currentType = "ClientVersionUpload", string binaryType = "WindowsStudio")
-        {
-            string versionUrl = $"https://versioncompatibility.api.{branch}.com/"  +
-                                $"GetCurrent{currentType}?binaryType={binaryType}" +
-                                $"&apiKey={VERSION_API_KEY}";
-
-            string version = await http.DownloadStringTaskAsync(versionUrl);
-            version = version.Replace('"', ' ').Trim();
-
-            return version;
-        }
-
         public static async Task<string> GetDeployedVersion(string branch, string versionType = "versionQTStudio")
         {
             string versionUrl = $"https://s3.amazonaws.com/setup.{branch}.com/{versionType}";
@@ -99,14 +85,19 @@ namespace Roblox
 
         public static async Task<string> GetVersion(string branch)
         {
-            bool useDeployed = Program.GetRegistryBool("UseDeployedVersion");
             string result;
 
-            if (useDeployed)
-                result = await GetDeployedVersion(branch);
+            if (branch == "roblox")
+            {
+                var versionInfo = await ClientVersionInfo.Get();
+                result = versionInfo.Guid;
+            }
             else
-                result = await GetLiveVersion(branch);
-
+            {
+                string versionUrl = $"https://s3.amazonaws.com/setup.{branch}.com/versionQTStudio";
+                result = await http.DownloadStringTaskAsync(versionUrl);
+            }
+            
             return result;
         }
 
@@ -407,13 +398,11 @@ namespace Roblox
                 setStatus("Reading the " + (fetchPrevious ? "Previous" : "Production") + " API...");
 
                 ReflectionDatabase oldApi = new ReflectionDatabase(oldApiFilePath);
-                oldApi.Version = await GetLiveVersion("roblox", "ClientVersion");
                 oldApi.Branch = fetchPrevious ? "roblox-prev" : "roblox";
 
                 setStatus("Reading the " + (fetchPrevious ? "Production" : "New") + " API...");
 
                 ReflectionDatabase newApi = new ReflectionDatabase(newApiFilePath);
-                newApi.Version = await GetLiveVersion(newBranch, "ClientVersion");
                 newApi.Branch = newBranch;
                 
                 setStatus("Comparing APIs...");
@@ -492,7 +481,7 @@ namespace Roblox
                 // Fetch the version guids for roblox, and gametest1-gametest5
                 foreach (string branchName in branches)
                 {
-                    string versionGuid = await GetLiveVersion(branchName);
+                    string versionGuid = await GetVersion(branchName);
                     VersionRegistry.SetValue(branchName, versionGuid);
                 }
 
@@ -512,14 +501,6 @@ namespace Roblox
 
             loadSelectedIndex(branch, "LastSelectedBranch");
             loadSelectedIndex(apiDumpFormat, "PreferredFormat");
-
-            useLatestDeployed.Checked = Program.GetRegistryBool("UseDeployedVersion");
-        }
-
-        private void useLatestDeployed_CheckedChanged(object sender, EventArgs e)
-        {
-            bool useLatest = useLatestDeployed.Checked;
-            Program.MainRegistry.SetValue("UseDeployedVersion", useLatest);
         }
 
         private void apiDumpFormat_SelectedIndexChanged(object sender, EventArgs e)
