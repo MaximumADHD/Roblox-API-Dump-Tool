@@ -406,6 +406,12 @@ namespace Roblox.Reflection
                         {
                             EnumItemDescriptor newItem = newItems[itemName];
                             Compare(newItem, "value", oldItem.Value, newItem.Value);
+                            
+                            if (oldItem.HasTag("Deprecated") && !newItem.HasTag("Deprecated"))
+                            {
+                                oldItem.AddTag("Preliminary");
+                                oldItem.DropTag("Deprecated");
+                            }
 
                             // Check if any tags that were added to this item were also added to its parent enum.
                             var itemTagDiffs = CompareTags(newItem, oldItem.Tags, newItem.Tags);
