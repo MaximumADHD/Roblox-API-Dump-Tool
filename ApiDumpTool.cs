@@ -187,9 +187,9 @@ namespace Roblox
 
             var addNoise = new Action<int, int>((x, y) =>
             {
-                const int alpha = (208 << 24);
+                const int alpha = (224 << 24);
 
-                int lum = 30 + (int)(rng.NextDouble() * 60);
+                int lum = 10 + (int)(rng.NextDouble() * 30);
                 int argb = alpha | (lum << 16) | (lum << 8) | lum;
 
                 Color pixel = Color.FromArgb(argb);
@@ -367,8 +367,8 @@ namespace Roblox
                     return;
                 }
 
-                ReflectionDatabase api = new ReflectionDatabase(apiFilePath);
-                ReflectionDumper dumper = new ReflectionDumper(api);
+                var api = new ReflectionDatabase(apiFilePath);
+                var dumper = new ReflectionDumper(api);
 
                 string result;
 

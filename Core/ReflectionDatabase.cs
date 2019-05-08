@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.IO;
 
 using Newtonsoft.Json;
@@ -81,6 +82,29 @@ namespace Roblox.Reflection
                                 membersDeprecated++;
 
                             classDesc.Members.Add(memberDesc);
+                        }
+                    }
+
+                    // Drop deprecated members that have a direct PascalCase variant.
+                    var memberLookup = classDesc.Members.ToDictionary(member => member.Name);
+
+                    foreach (string memberName in memberLookup.Keys)
+                    {
+                        char firstChar = memberName[0];
+
+                        if (char.IsLower(firstChar))
+                        {
+                            string pascalCase = char.ToUpper(firstChar) + memberName.Substring(1);
+
+                            if (memberLookup.ContainsKey(pascalCase))
+                            {
+                                MemberDescriptor oldMember = memberLookup[memberName];
+
+                                if (oldMember.HasTag("Deprecated"))
+                                    membersDeprecated--;
+
+                                classDesc.Members.Remove(oldMember);
+                            }
                         }
                     }
 
