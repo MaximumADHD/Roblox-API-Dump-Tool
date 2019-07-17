@@ -30,12 +30,15 @@ namespace Roblox.Reflection
 
         public override string ToString()
         {
-            return (Branch ?? "unknown") + " - " + (Version ?? "0.0.0.0");
+            return $"{Branch} - {Version}";
         }
 
-        public ReflectionDatabase(string filePath)
+        public ReflectionDatabase(string filePath, string branch = "unknown", string version = "0.0.0.0")
         {
             string jsonApiDump = File.ReadAllText(filePath);
+
+            Branch = branch;
+            Version = version;
 
             using (StringReader jsonText = new StringReader(jsonApiDump))
             {

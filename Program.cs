@@ -104,7 +104,15 @@ namespace Roblox
             if (argMap.ContainsKey("-export"))
             {
                 string branch = argMap["-export"];
-                string apiFilePath = await ApiDumpTool.GetApiDumpFilePath(branch);
+                int exportVersion = -1;
+                string apiFilePath;
+                
+                if (int.TryParse(branch, out exportVersion))
+                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath("roblox", exportVersion);
+                else if (branch == "roblox" || branch.StartsWith("gametest") && branch.EndsWith(".robloxlabs"))
+                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(branch);
+                else
+                    apiFilePath = branch;
 
                 string exportBin = Path.Combine(bin, "ExportAPI");
                 if (argMap.ContainsKey("-outdir"))
@@ -273,6 +281,64 @@ namespace Roblox
 
                 if (argMap.ContainsKey("-start") || isDiffLog)
                     Process.Start(exportPath);
+
+                Environment.Exit(0);
+            }
+            else if (argMap.ContainsKey("-updatePages"))
+            {
+                string dir = argMap["-updatePages"];
+
+                if (!Directory.Exists(dir))
+                    Environment.Exit(1);
+
+                var versionInfo = await ClientVersionInfo.Get("WindowsStudio", "roblox");
+                StudioDeployLogs logs = await StudioDeployLogs.GetDeployLogs("roblox");
+
+                DeployLog currentLog = logs.LookupFromGuid[versionInfo.Guid];
+                DeployLog prevLog = logs.LookupFromVersion[currentLog.Version - 1];
+
+                string currentPath = await ApiDumpTool.GetApiDumpFilePath("roblox", currentLog.VersionGuid);
+                string prevPath = await ApiDumpTool.GetApiDumpFilePath("roblox", prevLog.VersionGuid);
+
+                ReflectionDatabase currentData = new ReflectionDatabase(currentPath, "roblox", currentLog.ToString());
+                ReflectionDatabase prevData = new ReflectionDatabase(prevPath, "roblox", prevLog.ToString());
+
+                var postProcess = new ReflectionDumper.DumpPostProcesser((dump, workDir) =>
+                {
+                    var head = "<head>\n"
+                        + $"\t<link rel=\"stylesheet\" href=\"api-dump.css\">\n"
+                        + "</head>\n\n";
+
+                    return head + dump.Trim();
+                });
+
+                // Write Roblox-API-Dump.html
+                ReflectionDumper dumper = new ReflectionDumper(currentData);
+                string currentApi = dumper.DumpApi(ReflectionDumper.DumpUsingHtml, postProcess);
+
+                string dumpPath = Path.Combine(dir, "Roblox-API-Dump.html");
+                File.WriteAllText(dumpPath, currentApi);
+
+                // Append to Roblox-API-History.html
+                string comparison = await ReflectionDiffer.CompareDatabases(prevData, currentData, "HTML", false);
+                string historyPath = Path.Combine(dir, "Roblox-API-History.html");
+
+                if (!File.Exists(historyPath))
+                    Environment.Exit(1);
+
+                string history = File.ReadAllText(historyPath);
+                string appendMarker = $"<hr id=\"{currentLog.Version}\"/>";
+
+                if (!history.Contains(appendMarker))
+                {
+                    string prevMarker = $"<hr id=\"{prevLog.Version}\"/>";
+                    int index = history.IndexOf(prevMarker);
+
+                    string insert = $"{appendMarker}\n{comparison}";
+                    history = history.Insert(index, insert);
+
+                    File.WriteAllText(historyPath, history);
+                }
 
                 Environment.Exit(0);
             }
