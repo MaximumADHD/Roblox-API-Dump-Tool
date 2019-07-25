@@ -499,11 +499,8 @@ namespace Roblox.Reflection
 
                 if (newApi.Branch == "roblox")
                 {
-                    if (newApi.Version == null)
-                    {
-                        var versionInfo = await ClientVersionInfo.Get();
-                        newApi.Version = versionInfo.Version;
-                    }
+                    var versionInfo = await ClientVersionInfo.Get();
+                    newApi.Version = versionInfo.Version;
 
                     htmlDumper.OpenHtmlTag("h2");
                     htmlDumper.Write("Version " + newApi.Version);
