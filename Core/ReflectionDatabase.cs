@@ -84,6 +84,12 @@ namespace Roblox.Reflection
                             else if (memberDesc.HasTag("Deprecated"))
                                 membersDeprecated++;
 
+                            if (memberDesc is PropertyDescriptor && memberDesc.HasTag("NotScriptable"))
+                            {
+                                var propDesc = memberDesc as PropertyDescriptor;
+                                propDesc.Security = SecurityType.NotAccessibleSecurity;
+                            }
+
                             classDesc.Members.Add(memberDesc);
                         }
                     }

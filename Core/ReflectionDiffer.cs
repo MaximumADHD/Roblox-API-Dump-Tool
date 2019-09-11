@@ -288,12 +288,14 @@ namespace Roblox.Reflection
                                 var oldProp = oldMember as PropertyDescriptor;
                                 var newProp = newMember as PropertyDescriptor;
 
-                                // If the read/write permissions are both changed to the same value...
-                                if (oldProp.Security.Merged && newProp.Security.Merged)
+                                var oldMerged = oldProp.Security.Merged;
+                                var newMerged = newProp.Security.Merged;
+
+                                if (oldMerged || newMerged)
                                 {
                                     // Just compare them as a security change alone.
-                                    var oldSecurity = oldProp.Security.Value;
-                                    var newSecurity = newProp.Security.Value;
+                                    var oldSecurity = oldProp.Security.Describe(oldMerged && newMerged);
+                                    var newSecurity = newProp.Security.Describe(oldMerged && newMerged);
 
                                     Compare(newMember, "security", oldSecurity, newSecurity);
                                 }

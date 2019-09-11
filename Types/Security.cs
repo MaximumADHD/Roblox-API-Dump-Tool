@@ -20,6 +20,12 @@ namespace Roblox.Reflection
         public string Prefix;
         public string Value => Describe(true);
 
+        public Security(SecurityType security, string prefix = "")
+        {
+            Type = security;
+            Prefix = prefix;
+        }
+
         public Security(string security, string prefix = "")
         {
             Enum.TryParse(security, out Type);
@@ -31,12 +37,17 @@ namespace Roblox.Reflection
             return new Security(security);
         }
 
+        public static implicit operator Security(SecurityType security)
+        {
+            return new Security(security);
+        }
+
         public string Describe(bool displayNone)
         {
             string result = "";
 
             if (displayNone || Type != SecurityType.None)
-                result += '{' + Prefix + Program.GetEnumName(Type) + '}';
+                result += $"{{{Prefix}{Program.GetEnumName(Type)}}}";
 
             return result;
         }
@@ -60,6 +71,26 @@ namespace Roblox.Reflection
         {
             Read = new Security(read);
             Write = new Security(write, "✏️");
+        }
+
+        public ReadWriteSecurity(string security) : this(security, security)
+        {
+        }
+
+        public ReadWriteSecurity(SecurityType read, SecurityType? write = null)
+        {
+            Read = new Security(read);
+            Write = new Security(write ?? read, "✏️");
+        }
+
+        public static implicit operator ReadWriteSecurity(string security)
+        {
+            return new ReadWriteSecurity(security);
+        }
+
+        public static implicit operator ReadWriteSecurity(SecurityType security)
+        {
+            return new ReadWriteSecurity(security);
         }
 
         public string Describe(bool displayNone)
