@@ -277,11 +277,29 @@ namespace Roblox.Reflection
             else
                 sortByField = Field.CompareTo(diff.Field);
 
+            if (Type == DiffType.Change && Field == diff.Field)
+            {
+                string myType = Target.GetDescriptorType();
+                string diffType = diff.Target.GetDescriptorType();
+
+                int myPriority = typePriority.IndexOf(myType);
+                int diffPriority = typePriority.IndexOf(diffType);
+
+                if (myPriority >= 0)
+                    myType = myPriority.ToString();
+
+                if (diffPriority >= 0)
+                    diffType = diffPriority.ToString();
+
+                sortByField = myType.CompareTo(diffType);
+            }
+            
             if (sortByField != 0)
                 return sortByField;
 
             // Try sorting by the targets.
             int sortByTarget = Target.CompareTo(diff.Target);
+
             if (sortByTarget != 0)
                 return sortByTarget;
 

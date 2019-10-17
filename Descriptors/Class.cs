@@ -11,7 +11,9 @@ namespace Roblox.Reflection
         
         public string Superclass;
         public string MemoryCategory;
+        
         public ReflectionDatabase Database;
+        public Security Security = SecurityType.None;
 
         [JsonIgnore]
         public List<MemberDescriptor> Members = new List<MemberDescriptor>();
@@ -71,7 +73,7 @@ namespace Roblox.Reflection
             string schema = base.GetSchema();
 
             if (detailed)
-                schema += " : {Superclass} {Tags}";
+                schema += " : {Superclass} {Security} {Tags}";
 
             return schema;
         }
@@ -81,7 +83,10 @@ namespace Roblox.Reflection
             var tokens = base.GetTokens(detailed);
 
             if (detailed)
+            {
                 tokens.Add("Superclass", Superclass);
+                tokens.Add("Security", Security);
+            }
 
             return tokens;
         }
