@@ -291,10 +291,21 @@ namespace Roblox
                 if (!Directory.Exists(dir))
                     Environment.Exit(1);
 
-                var versionInfo = await ClientVersionInfo.Get("WindowsStudio", "roblox");
                 StudioDeployLogs logs = await StudioDeployLogs.GetDeployLogs("roblox");
+                DeployLog currentLog;
 
-                DeployLog currentLog = logs.LookupFromGuid[versionInfo.Guid];
+                if (argMap.ContainsKey("-version"))
+                {
+                    string versionStr = argMap["-version"];
+                    int version = int.Parse(versionStr);
+                    currentLog = logs.LookupFromVersion[version];
+                }
+                else
+                {
+                    var versionInfo = await ClientVersionInfo.Get("WindowsStudio", "roblox");
+                    currentLog = logs.LookupFromGuid[versionInfo.Guid];
+                }
+
                 DeployLog prevLog = logs.LookupFromVersion[currentLog.Version - 1];
 
                 string currentPath = await ApiDumpTool.GetApiDumpFilePath("roblox", currentLog.VersionGuid);
