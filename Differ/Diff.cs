@@ -265,6 +265,7 @@ namespace Roblox.Reflection
 
             // Try sorting by the type of diff.
             int sortByType = Type - diff.Type;
+
             if (sortByType != 0)
                 return sortByType;
 

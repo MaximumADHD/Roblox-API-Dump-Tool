@@ -93,12 +93,15 @@ namespace Roblox.Reflection
                                 var propDesc = memberDesc as PropertyDescriptor;
                                 var security = propDesc.Security;
 
+                                if (memberDesc.HasTag("ReadOnly"))
+                                    propDesc.Serialization.CanSave = false;
+                                
                                 if (memberDesc.HasTag("NotScriptable"))
                                 {
                                     propDesc.Security = SecurityType.NotAccessibleSecurity;
                                     security = propDesc.Security;
                                 }
-                                
+
                                 int read = (int)security.Read.Type;
                                 int write = (int)security.Write.Type;
 

@@ -7,11 +7,11 @@
 
         private static string[] flagLabels = new string[4]
         {
-            "<🕒> Runtime-only",
+            "<🕒> RuntimeOnly",
 
-            "<💾> Save-only", "<📁> Load-only",
+            "<💾> SaveOnly", "<📁> LoadOnly",
 
-            "<💾|📁> Saves & Loads"
+            "<💾|📁> Saves|Loads"
         };
 
         public override string ToString()
