@@ -63,6 +63,9 @@ namespace Roblox.Reflection
 
                         // Override targetClass with its corresponding entry in the classLookup.
                         // This is necessary to have a snapshot of the newer class hierarchy.
+                        if (!classLookup.ContainsKey(targetClass.Name))
+                            continue;
+
                         targetClass = classLookup[targetClass.Name];
 
                         // Now test the ancestry of the two classes.

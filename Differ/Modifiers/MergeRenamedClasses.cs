@@ -64,8 +64,8 @@ namespace Roblox.Reflection
                             .Intersect(newLines)
                             .ToList();
 
-                        // If the signatures match, then this is likely a renamed class.
-                        if (intersects.Count == newLines.Count)
+                        // If the signatures match, then this is probably a renamed class?
+                        if (intersects.Count >= ((oldLines.Count + newLines.Count) / 2))
                         {
                             // HACK: To allow the members to be compared nicely, I need to change the name 
                             // of the old class to the name of the new class. However, I still want to 
