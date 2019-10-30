@@ -13,7 +13,6 @@ namespace Roblox.Reflection
         public string MemoryCategory;
         
         public ReflectionDatabase Database;
-        public Security Security = SecurityType.None;
 
         [JsonIgnore]
         public List<MemberDescriptor> Members = new List<MemberDescriptor>();
@@ -83,10 +82,7 @@ namespace Roblox.Reflection
             var tokens = base.GetTokens(detailed);
 
             if (detailed)
-            {
                 tokens.Add("Superclass", Superclass);
-                tokens.Add("Security", Security);
-            }
 
             return tokens;
         }

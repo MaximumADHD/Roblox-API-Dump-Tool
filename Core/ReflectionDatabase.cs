@@ -58,8 +58,6 @@ namespace Roblox.Reflection
                     bool classDeprecated = classDesc.HasTag("Deprecated");
                     int membersDeprecated = 0;
 
-                    int minSecurity = (int)SecurityType.NotAccessibleSecurity;
-
                     // Initialize members.
                     foreach (JObject memberObj in classObj.GetValue("Members"))
                     {
@@ -86,37 +84,6 @@ namespace Roblox.Reflection
                             else if (memberDesc.HasTag("Deprecated"))
                                 membersDeprecated++;
 
-                            int securityValue = minSecurity;
-
-                            if (memberDesc is PropertyDescriptor)
-                            {
-                                var propDesc = memberDesc as PropertyDescriptor;
-                                var security = propDesc.Security;
-
-                                if (memberDesc.HasTag("ReadOnly"))
-                                    propDesc.Serialization.CanSave = false;
-                                
-                                if (memberDesc.HasTag("NotScriptable"))
-                                {
-                                    propDesc.Security = SecurityType.NotAccessibleSecurity;
-                                    security = propDesc.Security;
-                                }
-
-                                int read = (int)security.Read.Type;
-                                int write = (int)security.Write.Type;
-
-                                securityValue = Math.Min(securityValue, Math.Min(read, write));
-                            }
-                            else
-                            {
-                                var type = memberDesc.GetType();
-                                var securityField = type.GetField("Security");
-
-                                Security security = (Security)securityField.GetValue(memberDesc);
-                                securityValue = Math.Min(securityValue, (int)security.Type);
-                            }
-
-                            minSecurity = Math.Min(securityValue, minSecurity);
                             classDesc.Members.Add(memberDesc);
                         }
                     }
@@ -146,43 +113,6 @@ namespace Roblox.Reflection
 
                     if (membersDeprecated == classDesc.Members.Count && membersDeprecated > 0)
                         classDesc.AddTag("Deprecated");
-
-                    if (classDesc.Members.Count == 0)
-                        minSecurity = 0;
-
-                    var securityType = (SecurityType)minSecurity;
-                    classDesc.Security = securityType;
-
-                    if (securityType != SecurityType.None)
-                    {
-                        foreach (MemberDescriptor memberDesc in classDesc.Members)
-                        {
-                            if (memberDesc is PropertyDescriptor)
-                            {
-                                var propDesc = memberDesc as PropertyDescriptor;
-                                var security = propDesc.Security;
-
-                                var read = security.Read.Type;
-                                security.Read = (read == securityType ? SecurityType.None : read);
-
-                                var write = security.Write.Type;
-                                security.Write = (write == securityType ? SecurityType.None : write);
-                            }
-                            else
-                            {
-                                var type = memberDesc.GetType();
-                                var securityField = type.GetField("Security");
-
-                                Security security = (Security)securityField.GetValue(memberDesc);
-
-                                if (security.Type == securityType)
-                                {
-                                    Security none = SecurityType.None;
-                                    securityField.SetValue(memberDesc, none);
-                                }
-                            }
-                        }
-                    }
 
                     Classes.Add(classDesc.Name, classDesc);
                 }

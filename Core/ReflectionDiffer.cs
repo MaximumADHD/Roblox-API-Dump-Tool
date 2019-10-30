@@ -253,7 +253,6 @@ namespace Roblox.Reflection
 
                     // Compare the classes directly.
                     var classTagDiffs = CompareTags(oldClass, oldClass.Tags, newClass.Tags);
-                    Compare(oldClass, "security", oldClass.Security, newClass.Security);
                     Compare(oldClass, "superclass", oldClass.Superclass, newClass.Superclass, true);
                     Compare(oldClass, "memory category", oldClass.MemoryCategory, newClass.MemoryCategory, true);
 
