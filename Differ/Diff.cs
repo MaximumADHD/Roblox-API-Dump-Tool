@@ -6,9 +6,10 @@ namespace Roblox.Reflection
     public enum DiffType
     {
         Add    = 1,
-        Merge  = 3,
+        Move   = 3,
+        Merge  = 4,
         Change = 2,
-        Remove = 4,
+        Remove = 5,
         Rename = 0,
     }
 
@@ -41,6 +42,15 @@ namespace Roblox.Reflection
             {
                 child.stack++;
                 children.Add(child);
+            }
+        }
+
+        public void RemoveChild(Diff child)
+        {
+            if (children.Contains(child))
+            {
+                child.stack = 0;
+                children.Remove(child);
             }
         }
 
@@ -90,24 +100,27 @@ namespace Roblox.Reflection
                 case DiffType.Merge:
                     result += "Merged";
 
-                    if (From.Count > 1)
-                    {
-                        string prefix = "\t• ";
-                        result += ':' + NL;
+                    string prefix = "\t• ";
+                    result += ':' + NL;
 
-                        string listed = From.ListElements(NL, prefix);
-                        string into = prefix + what;
+                    string listed = From.ListElements(NL, prefix);
+                    string into = prefix + what;
 
-                        result += listed + NL
-                               + "  Into: " + NL
-                               + prefix + what + NL;
-                    }
-                    else
-                    {
-                        string merged = From.ToString();
-                        result += ' ' + merged + NL
-                               + "\tinto: " + what + NL;
-                    }
+                    result += listed + NL
+                            + "  into: " + NL
+                            + prefix + what + NL;
+
+                    break;
+                case DiffType.Move:
+                    string descType = Target.GetDescriptorType();
+                    string name = Target.Name;
+
+                    string moveFrom = From.ToString();
+                    string moveTo = To.ToString();
+
+                    result += $"Moved {descType} {name}" + NL +
+                            "\tfrom: " + moveFrom + NL +
+                            "\t  to: " + moveTo + NL;
 
                     break;
             }
@@ -176,35 +189,34 @@ namespace Roblox.Reflection
             }
             else if (Type == DiffType.Merge)
             {
-                if (From.Count > 1)
+                // Write the elements that are being merged.
+                From.WriteHtml(buffer, false, 0, new Descriptor.HtmlConfig()
                 {
-                    // Write the elements that are being merged.
-                    From.WriteHtml(buffer, false, 0, new Descriptor.HtmlConfig()
-                    {
-                        TagType = "li",
-                        NumTabs = stack + 2,
-                    });
+                    TagType = "li",
+                    NumTabs = stack + 2,
+                });
                     
-                    // Write what they merged into.
-                    buffer.OpenClassTag("MergeListInto", stack + 1);
-                    buffer.NextLine();
+                // Write what they merged into.
+                buffer.OpenClassTag("MergeListInto", stack + 1);
+                buffer.NextLine();
 
-                    To.WriteHtml(buffer, false, 1, new Descriptor.HtmlConfig()
-                    {
-                        TagType = "li",
-                        NumTabs = stack + 3,
-                    });
-
-                    buffer.CloseClassTag(stack + 1);
-                }
-                else
+                To.WriteHtml(buffer, false, 1, new Descriptor.HtmlConfig()
                 {
-                    // Write what we're merging.
-                    Target.WriteHtml(buffer, stack + 1);
+                    TagType = "li",
+                    NumTabs = stack + 3,
+                });
 
-                    // Write what it merged into.
-                    To.WriteHtml(buffer, true);
-                }
+                buffer.CloseClassTag(stack + 1);
+            }
+            else if (Type == DiffType.Move)
+            {
+                string descType = Target.GetDescriptorType();
+                string name = $" {Target.Name}";
+
+                buffer.WriteElement(descType, name, stack);
+
+                From.WriteHtml(buffer, true);
+                To.WriteHtml(buffer, true);
             }
             else
             {

@@ -17,7 +17,7 @@ namespace Roblox
     public partial class ApiDumpTool : Form
     {
         public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
-        private const string API_DUMP_CSS_FILE = "api-dump-v1.7.css";
+        private const string API_DUMP_CSS_FILE = "api-dump-v1.8.css";
 
         private delegate void StatusDelegate(string msg);
         private delegate string ItemDelegate(ComboBox comboBox);

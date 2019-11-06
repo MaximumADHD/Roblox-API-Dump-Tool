@@ -1,4 +1,4 @@
-/* API Dump CSS (Version 1.7) */
+/* API Dump CSS (Version 1.8) */
 
 body
 {
@@ -86,6 +86,12 @@ div.Renamed::before
 div.Merged::before
 {
 	content: "Merged";
+}
+
+div.Moved::before
+{
+	content: "Moved";
+	color: #FF7FFF;
 }
 
 span.MergeListInto::before

@@ -62,7 +62,7 @@
   <ItemGroup>
     <Compile Include="Differ\IDiffModifier.cs" />
     <Compile Include="Differ\Modifiers\MergeSecurityChanges.cs" />
-    <Compile Include="Differ\Modifiers\MoveMemberToSuperclass.cs" />
+    <Compile Include="Differ\Modifiers\MoveMemberToNewClass.cs" />
     <Compile Include="History\ClientVersionInfo.cs" />
     <Compile Include="History\HistoryCache.cs" />
     <Compile Include="History\DeployLog.cs" />

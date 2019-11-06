@@ -1,17 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Roblox.Reflection
 {
     /*
      * This modifier detects when an API member is removed from 
-     * an object because it was moved to a superclass. 
+     * an object because it was moved to another class.
      * 
-     * Instead of listing it as removed, it is replaced with a 
-     * merge diff that describes the superclass change.
+     * If a member is removed from one class and added to another,
+     * then it is recorded as a move diff.
+     * 
+     * If multiple members of the same name are removed, and
+     * a member is added to a superclass, it is replaced with
+     * a merge diff.
      */
 
-    public sealed class MoveMemberToSuperclass : IDiffModifier
+    public sealed class MoveMemberToNewClass : IDiffModifier
     {
         public ModifierOrder Order => ModifierOrder.PostMemberDiff;
 
@@ -31,6 +36,39 @@ namespace Roblox.Reflection
             }
 
             return members;
+        }
+
+        private void moveMember(ref List<Diff> diffs, MemberDescriptor from, MemberDescriptor to)
+        {
+            var toClass = to.Class;
+            var fromClass = from.Class;
+
+            var fromDiff = diffs
+                .Where(diff => diff.Type == DiffType.Remove)
+                .Where(diff => diff.Target == from)
+                .FirstOrDefault();
+
+            var toDiff = diffs
+                .Where(diff => diff.Type == DiffType.Add)
+                .Where(diff => diff.Target == to)
+                .FirstOrDefault();
+
+            if (fromDiff != null)
+                fromDiff.Disposed = true;
+
+            if (toDiff != null)
+                toDiff.Disposed = true;
+
+            Diff moveDiff = new Diff()
+            {
+                Type = DiffType.Move,
+                Target = from,
+
+                From = { fromClass },
+                To = { toClass }
+            };
+
+            diffs.Add(moveDiff);
         }
 
         public void RunModifier(ref List<Diff> diffs)
@@ -80,6 +118,11 @@ namespace Roblox.Reflection
                             merging[otherMember].Add(targetMember);
                             targetDiff.Disposed = true;
                         }
+                        else
+                        {
+                            // Maybe they're just moving?
+                            moveMember(ref diffs, targetMember, otherMember);
+                        }
                     }
                 }
             }
@@ -90,29 +133,46 @@ namespace Roblox.Reflection
             foreach (MemberDescriptor member in merging.Keys)
             {
                 List<MemberDescriptor> members = merging[member];
-
-                Diff mergeDiff = new Diff();
-                mergeDiff.Type = DiffType.Merge;
-                
-                var mergeInto = new DiffChangeList();
-                mergeInto.Add(member);
-                mergeDiff.To = mergeInto;
                 
                 if (members.Count > 1)
                 {
+                    Diff mergeDiff = new Diff();
+                    mergeDiff.Type = DiffType.Merge;
+
+                    var mergeInto = new DiffChangeList();
+                    mergeInto.Add(member);
+                    mergeDiff.To = mergeInto;
+
                     var mergeFrom = new DiffChangeList();
                     mergeFrom.AddRange(members);
                     
                     mergeDiff.From = mergeFrom;
                     mergeDiff.Target = member;
+
+                    diffs.Add(mergeDiff);
                 }
                 else
                 {
-                    var targetMember = members.First();
-                    mergeDiff.Target = targetMember;
-                }
+                    var target = members.First();
+                    moveMember(ref diffs, member, target);
 
-                diffs.Add(mergeDiff);
+                    var newClassDiff = diffs
+                        .Where(diff => diff.Type == DiffType.Add)
+                        .Where(diff => diff.Target == target)
+                        .FirstOrDefault();
+
+                    if (newClassDiff == null)
+                        continue;
+
+                    var newMemberDiff = newClassDiff.Children
+                        .Where(diff => diff.Target == member)
+                        .FirstOrDefault();
+
+                    if (newMemberDiff == null)
+                        continue;
+
+                    newClassDiff.RemoveChild(newMemberDiff);
+                }
             }
         }
     }
