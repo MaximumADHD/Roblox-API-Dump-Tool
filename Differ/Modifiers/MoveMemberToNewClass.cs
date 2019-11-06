@@ -154,7 +154,7 @@ namespace Roblox.Reflection
                 else
                 {
                     var target = members.First();
-                    moveMember(ref diffs, member, target);
+                    moveMember(ref diffs, target, member);
 
                     var newClassDiff = diffs
                         .Where(diff => diff.Type == DiffType.Add)
