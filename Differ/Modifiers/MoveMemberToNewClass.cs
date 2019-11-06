@@ -118,7 +118,7 @@ namespace Roblox.Reflection
                             merging[otherMember].Add(targetMember);
                             targetDiff.Disposed = true;
                         }
-                        else
+                        else if (otherClass.Name != targetClass.Name)
                         {
                             // Maybe they're just moving?
                             moveMember(ref diffs, targetMember, otherMember);
