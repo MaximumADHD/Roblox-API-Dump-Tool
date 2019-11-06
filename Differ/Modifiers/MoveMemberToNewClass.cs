@@ -158,13 +158,14 @@ namespace Roblox.Reflection
 
                     var newClassDiff = diffs
                         .Where(diff => diff.Type == DiffType.Add)
-                        .Where(diff => diff.Target == target)
+                        .Where(diff => diff.Target == member.Class)
                         .FirstOrDefault();
 
                     if (newClassDiff == null)
                         continue;
 
-                    var newMemberDiff = newClassDiff.Children
+                    var newMemberDiff = diffs
+                        .SelectMany(diff => diff.Children)
                         .Where(diff => diff.Target == member)
                         .FirstOrDefault();
 
