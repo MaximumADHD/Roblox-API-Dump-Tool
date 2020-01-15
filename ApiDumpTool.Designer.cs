@@ -48,11 +48,9 @@
             this.branch.FormattingEnabled = true;
             this.branch.Items.AddRange(new object[] {
             "roblox",
-            "gametest1.robloxlabs",
-            "gametest2.robloxlabs",
-            "gametest3.robloxlabs",
-            "gametest4.robloxlabs",
-            "gametest5.robloxlabs"});
+            "sitetest1.robloxlabs",
+            "sitetest2.robloxlabs",
+            "sitetest3.robloxlabs"});
             this.branch.Location = new System.Drawing.Point(10, 87);
             this.branch.Margin = new System.Windows.Forms.Padding(20, 3, 20, 5);
             this.branch.Name = "branch";

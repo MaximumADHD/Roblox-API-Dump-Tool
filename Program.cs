@@ -109,7 +109,7 @@ namespace Roblox
                 
                 if (int.TryParse(branch, out exportVersion))
                     apiFilePath = await ApiDumpTool.GetApiDumpFilePath("roblox", exportVersion);
-                else if (branch == "roblox" || branch.StartsWith("gametest") && branch.EndsWith(".robloxlabs"))
+                else if (branch == "roblox" || branch.StartsWith("sitetest") && branch.EndsWith(".robloxlabs"))
                     apiFilePath = await ApiDumpTool.GetApiDumpFilePath(branch);
                 else
                     apiFilePath = branch;
@@ -190,7 +190,7 @@ namespace Roblox
 
                 if (int.TryParse(oldArg, out oldVersion))
                     oldFile = await ApiDumpTool.GetApiDumpFilePath("roblox", oldVersion);
-                else if (oldArg == "roblox" || oldArg.StartsWith("gametest") && oldArg.EndsWith(".robloxlabs"))
+                else if (oldArg == "roblox" || oldArg.StartsWith("sitetest") && oldArg.EndsWith(".robloxlabs"))
                     oldFile = await ApiDumpTool.GetApiDumpFilePath(oldArg);
                 else
                     oldFile = oldArg;
@@ -201,7 +201,7 @@ namespace Roblox
 
                 if (int.TryParse(newArg, out newVersion))
                     newFile = await ApiDumpTool.GetApiDumpFilePath("roblox", newVersion);
-                else if (newArg == "roblox" || newArg.StartsWith("gametest") && newArg.EndsWith(".robloxlabs"))
+                else if (newArg == "roblox" || newArg.StartsWith("sitetest") && newArg.EndsWith(".robloxlabs"))
                     newFile = await ApiDumpTool.GetApiDumpFilePath(newArg);
                 else
                     newFile = newArg;
