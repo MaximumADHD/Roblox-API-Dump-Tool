@@ -322,7 +322,7 @@ namespace Roblox
 
                     return head + dump.Trim();
                 });
-
+                
                 // Write Roblox-API-Dump.html
                 ReflectionDumper dumper = new ReflectionDumper(currentData);
                 string currentApi = dumper.DumpApi(ReflectionDumper.DumpUsingHtml, postProcess);
@@ -350,6 +350,23 @@ namespace Roblox
 
                     File.WriteAllText(historyPath, history);
                 }
+
+                var git = new Action<string>((input) =>
+                {
+                    var gitExecute = Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "git",
+                        Arguments = input,
+                        CreateNoWindow = true,
+                        UseShellExecute = false
+                    });
+
+                    gitExecute.WaitForExit();
+                });
+
+                git("add .");
+                git($"commit -m \"{currentLog.ToString()}\"");
+                git("push");
 
                 Environment.Exit(0);
             }
