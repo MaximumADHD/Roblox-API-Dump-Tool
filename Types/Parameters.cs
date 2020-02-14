@@ -16,13 +16,21 @@ namespace Roblox.Reflection
             string result = Type.ToString() + " " + Name;
             string category = Program.GetEnumName(Type.Category);
 
-            if ((Type.Name == "string" || category == "Enum") && Default != null)
-                if (!Default.StartsWith(quote) && !Default.EndsWith(quote))
-                    Default = quote + Default + quote;
+            if (Default != null)
+            {
+                if ((Type.Name == "string" || category == "Enum"))
+                    if (!Default.StartsWith(quote) && !Default.EndsWith(quote))
+                        Default = quote + Default + quote;
 
-            if (Default != null && Default.Length > 0)
+                if (Type.Category == TypeCategory.DataType && Type.Name != "Function")
+                    Default = $"{Type.Name}.new()";
+
+                if (Default.Length == 0)
+                    return result;
+
                 result += " = " + Default;
-
+            }
+            
             return result;
         }
 
@@ -52,10 +60,19 @@ namespace Roblox.Reflection
                 else
                     typeName = Type.Name;
 
-                if (typeName == "Enum")
-                    typeName = "String";
+                if (Type.Category == TypeCategory.DataType && typeName != "Function")
+                {
+                    buffer.WriteElement("ClassName Type", typeName, numTabs + 1);
+                    buffer.WriteElement("Name", "new", numTabs + 1);
+                    buffer.WriteElement("Parameters", null, numTabs + 1);
+                }
+                else
+                {
+                    if (typeName == "Enum")
+                        typeName = "String";
 
-                buffer.WriteElement("ParamDefault " + typeName, Default, numTabs + 1);
+                    buffer.WriteElement("ParamDefault " + typeName, Default, numTabs + 1);
+                }
             }
 
             buffer.CloseClassTag(numTabs);
