@@ -137,10 +137,10 @@ namespace Roblox.Reflection
 
         private static void Compare(Descriptor target, string context, object oldVal, object newVal)
         {
-            if (oldVal.ToString() != newVal.ToString())
-            {
-                Changed(context, target, oldVal, newVal);
-            }
+            if (oldVal.ToString() == newVal.ToString())
+                return;
+            
+            Changed(context, target, oldVal, newVal);
         }
 
         private static void Compare(Descriptor target, string context, string oldVal, string newVal, bool inQuotes = false)
@@ -226,7 +226,6 @@ namespace Roblox.Reflection
                 if (!oldClasses.ContainsKey(className))
                 {
                     ClassDescriptor classDesc = newClasses[className];
-
                     flagEntireClass(classDesc, Added, true);
                 }
             }
