@@ -112,7 +112,7 @@ namespace Roblox.Reflection
 
                     break;
                 case DiffType.Move:
-                    string descType = Target.GetDescriptorType();
+                    string descType = Target.DescriptorType;
                     string name = Target.Name;
 
                     string moveFrom = From.ToString();
@@ -210,7 +210,7 @@ namespace Roblox.Reflection
             }
             else if (Type == DiffType.Move)
             {
-                string descType = Target.GetDescriptorType();
+                string descType = Target.DescriptorType;
                 string name = $" {Target.Name}";
 
                 buffer.WriteElement(descType, name, stack);
@@ -220,7 +220,7 @@ namespace Roblox.Reflection
             }
             else
             {
-                string descType = Target.GetDescriptorType();
+                string descType = Target.DescriptorType;
                 bool detailed = (Type == DiffType.Add);
 
                 if (Field != descType)
@@ -292,8 +292,8 @@ namespace Roblox.Reflection
 
             if (Type == DiffType.Change && Field == diff.Field)
             {
-                string myType = Target.GetDescriptorType();
-                string diffType = diff.Target.GetDescriptorType();
+                string myType = Target.DescriptorType;
+                string diffType = diff.Target.DescriptorType;
 
                 int myPriority = typePriority.IndexOf(myType);
                 int diffPriority = typePriority.IndexOf(diffType);

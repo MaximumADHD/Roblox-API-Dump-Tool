@@ -85,7 +85,7 @@ namespace Roblox.Reflection
 
         private static Diff Added(Descriptor target, bool detailed = true, Diff parent = null)
         {
-            string descType = target.GetDescriptorType();
+            string descType = target.DescriptorType;
             return Added(descType, target, detailed, parent);
         }
 
@@ -113,7 +113,7 @@ namespace Roblox.Reflection
 
         private static Diff Removed(Descriptor target, bool detailed = true, Diff parent = null)
         {
-            string descType = target.GetDescriptorType();
+            string descType = target.DescriptorType;
             return Removed(descType, target, detailed, parent);
         }
 
@@ -298,11 +298,11 @@ namespace Roblox.Reflection
                                 var oldMerged = oldProp.Security.Merged;
                                 var newMerged = newProp.Security.Merged;
 
-                                if (oldMerged || newMerged)
+                                if (oldMerged && newMerged)
                                 {
                                     // Just compare them as a security change alone.
-                                    var oldSecurity = oldProp.Security.Describe(oldMerged && newMerged);
-                                    var newSecurity = newProp.Security.Describe(oldMerged && newMerged);
+                                    var oldSecurity = oldProp.Security.Value;
+                                    var newSecurity = newProp.Security.Value;
 
                                     Compare(newMember, "security", oldSecurity, newSecurity);
                                 }

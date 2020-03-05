@@ -28,14 +28,17 @@ namespace Roblox.Reflection
             public string TagType = "span";
         }
 
-        public string GetDescriptorType()
+        public string DescriptorType
         {
-            string descType = GetType().Name;
+            get
+            {
+                string descType = GetType().Name;
 
-            if (descType != "Descriptor")
-                descType = descType.Replace("Descriptor", "");
+                if (descType != "Descriptor")
+                    descType = descType.Replace("Descriptor", "");
 
-            return descType;
+                return descType;
+            }
         }
 
         public virtual string GetSchema(bool detailed = false)
@@ -63,10 +66,9 @@ namespace Roblox.Reflection
         public string Describe(bool detailed = false)
         {
             int search = 0;
-            var descType = GetDescriptorType();
-
+            
             var tokens = GetTokens(detailed);
-            string desc = descType + ' ' + GetSchema(detailed);
+            string desc = DescriptorType + ' ' + GetSchema(detailed);
 
             while (search < desc.Length)
             {
@@ -109,14 +111,12 @@ namespace Roblox.Reflection
             tokens.Remove("DescriptorType");
 
             string schema = GetSchema(detailed);
-            string descType = GetDescriptorType();
-
-            string tagClass = descType;
+            string tagClass = DescriptorType;
 
             if (!diffMode && Tags.Contains("Deprecated"))
                 tagClass += " deprecated"; // The CSS will strike-through this.
 
-            if (!diffMode && descType != "Class" && descType != "Enum")
+            if (!diffMode && DescriptorType != "Class" && DescriptorType != "Enum")
                 tagClass += " child";
             
             buffer.OpenClassTag(tagClass, numTabs, tagType);
@@ -172,7 +172,7 @@ namespace Roblox.Reflection
                         if (value.Length > 0)
                         {
                             if (token == "ClassName")
-                                token += " " + descType;
+                                token += " " + DescriptorType;
 
                             buffer.WriteElement(token, value, numTabs + 1);
                         }

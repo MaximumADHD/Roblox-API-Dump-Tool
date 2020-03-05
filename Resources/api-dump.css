@@ -1,4 +1,4 @@
-/* API Dump CSS (Version 1.8) */
+/* API Dump CSS (Version 1.9) */
 
 body
 {
@@ -208,8 +208,8 @@ span.Security
 
 span.Security.Darken
 {
-	background-color: #2F2F2F;
-	color: #9F9F9F !important;
+	background-color: #051525;
+	color: #6F7F8F !important;
 }
 
 span.Serialization

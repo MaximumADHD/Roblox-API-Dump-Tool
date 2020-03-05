@@ -120,6 +120,12 @@ namespace Roblox.Reflection
                         }
                         else if (otherClass.Name != targetClass.Name)
                         {
+                            if (targetDiff.Field != targetMember.DescriptorType)
+                                continue;
+
+                            if (otherDiff.Field != otherMember.DescriptorType)
+                                continue;
+
                             // Maybe they're just moving?
                             moveMember(ref diffs, targetMember, otherMember);
                         }
