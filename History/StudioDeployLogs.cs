@@ -7,9 +7,9 @@ namespace Roblox.Reflection
 {
     public class StudioDeployLogs
     {
-        private const string LogPattern = "New Studio (version-[a-f\\d]+) at \\d+/\\d+/\\d+ \\d+:\\d+:\\d+ [A,P]M, file version: (\\d+), (\\d+), (\\d+), (\\d+)";
-        public const int EarliestVersion = 349; // The earliest version of studio where the API Dump is available on Roblox's setup servers.
-
+        private const string LogPattern = "New Studio64 (version-[a-f\\d]+) at \\d+/\\d+/\\d+ \\d+:\\d+:\\d+ [A,P]M, file version: (\\d+), (\\d+), (\\d+), (\\d+)";
+        private const int EarliestChangelist = 338804; // The earliest acceptable changelist of Roblox Studio, with explicit 64-bit versions declared via DeployHistory.txt
+        
         public string Branch { get; private set; }
 
         public Dictionary<string, DeployLog> LookupFromGuid;
@@ -29,7 +29,7 @@ namespace Roblox.Reflection
 
         private void Add(DeployLog deployLog)
         {
-            if (deployLog.Version >= EarliestVersion)
+            if (deployLog.Changelist >= EarliestChangelist)
             {
                 // Add by version info
                 int version = deployLog.Version;

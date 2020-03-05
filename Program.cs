@@ -302,7 +302,7 @@ namespace Roblox
                 }
                 else
                 {
-                    var versionInfo = await ClientVersionInfo.Get("WindowsStudio", "roblox");
+                    var versionInfo = await ClientVersionInfo.Get("WindowsStudio64", "roblox");
                     currentLog = logs.LookupFromGuid[versionInfo.Guid];
                 }
 

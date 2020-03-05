@@ -12,7 +12,7 @@ namespace Roblox.Reflection
         public string Version;
         public string Guid;
 
-        public static async Task<ClientVersionInfo> Get(string buildType = "WindowsStudio", string branch = "roblox")
+        public static async Task<ClientVersionInfo> Get(string buildType = "WindowsStudio64", string branch = "roblox")
         {
             string jsonUrl = $"https://clientsettingscdn.{branch}.com/v1/client-version/{buildType}";
 

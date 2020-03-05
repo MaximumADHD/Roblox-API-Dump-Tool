@@ -63,6 +63,9 @@ namespace Roblox.Reflection
 
         private static Diff Added(string field, Descriptor target, bool detailed = true, Diff parent = null)
         {
+            var tags = target.Tags;
+            tags.SwitchToPreliminary();
+
             Diff added = new Diff()
             {
                 Type = DiffType.Add,
@@ -88,6 +91,9 @@ namespace Roblox.Reflection
 
         private static Diff Removed(string field, Descriptor target, bool detailed = false, Diff parent = null)
         {
+            var tags = target.Tags;
+            tags.SwitchToPreliminary();
+            
             Diff removed = new Diff()
             {
                 Type = DiffType.Remove,
@@ -220,6 +226,7 @@ namespace Roblox.Reflection
                 if (!oldClasses.ContainsKey(className))
                 {
                     ClassDescriptor classDesc = newClasses[className];
+
                     flagEntireClass(classDesc, Added, true);
                 }
             }
@@ -389,13 +396,6 @@ namespace Roblox.Reflection
                         if (!oldItems.ContainsKey(itemName))
                         {
                             EnumItemDescriptor item = newItems[itemName];
-
-                            if (item.HasTag("Deprecated"))
-                            {
-                                item.AddTag("Preliminary");
-                                item.DropTag("Deprecated");
-                            }
-
                             Added(item);
                         }
                     }
@@ -409,12 +409,6 @@ namespace Roblox.Reflection
                             EnumItemDescriptor newItem = newItems[itemName];
                             Compare(newItem, "value", oldItem.Value, newItem.Value);
                             
-                            if (oldItem.HasTag("Deprecated") && !newItem.HasTag("Deprecated"))
-                            {
-                                oldItem.AddTag("Preliminary");
-                                oldItem.DropTag("Deprecated");
-                            }
-
                             // Check if any tags that were added to this item were also added to its parent enum.
                             var itemTagDiffs = CompareTags(newItem, oldItem.Tags, newItem.Tags);
                             MergeTagDiffs(enumTagDiffs, itemTagDiffs);

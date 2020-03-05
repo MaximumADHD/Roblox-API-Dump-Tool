@@ -38,5 +38,14 @@ namespace Roblox.Reflection
             var tags = this.ToList();
             tags.ForEach(tag => buffer.WriteElement("Tag", '[' + tag + ']', numTabs));
         }
+
+        public void SwitchToPreliminary()
+        {
+            if (Contains("Deprecated"))
+            {
+                Add("Preliminary");
+                Remove("Deprecated");
+            }
+        }
     }
 }
