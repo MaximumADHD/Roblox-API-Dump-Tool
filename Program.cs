@@ -351,6 +351,8 @@ namespace Roblox
                     File.WriteAllText(historyPath, history);
                 }
 
+                Directory.SetCurrentDirectory(dir);
+
                 var git = new Action<string>((input) =>
                 {
                     var gitExecute = Process.Start(new ProcessStartInfo
