@@ -282,13 +282,17 @@ namespace Roblox.Reflection
                         {
                             MemberDescriptor newMember = newMembers[memberName];
 
-                            // Check if any tags that were added to this member were also added to its parent class.
+                            if (oldMember.ThreadSafety.Type != ThreadSafetyType.Unknown)
+                                Compare(newMember, "thread safety", oldMember.ThreadSafety, newMember.ThreadSafety);
+
+                            // Check if any tags added to this member were also added to its parent class.
                             var memberTagDiffs = CompareTags(newMember, oldMember.Tags, newMember.Tags);
                             MergeTagDiffs(classTagDiffs, memberTagDiffs);
 
                             // Compare the fields specific to these member types
                             // TODO: I'd like to move these routines into their respective 
                             //       members, but I'm not sure how to do so in a clean manner.
+
                             if (newMember is PropertyDescriptor)
                             {
                                 var oldProp = oldMember as PropertyDescriptor;

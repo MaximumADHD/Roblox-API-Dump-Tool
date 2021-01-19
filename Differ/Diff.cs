@@ -64,7 +64,7 @@ namespace Roblox.Reflection
             string what = Target.Describe(detailed);
 
             if (Type != DiffType.Change)
-                what = (what.StartsWith(Field) ? "" : Field + ' ') + what;
+                what = (what.StartsWith(Field, StringComparison.InvariantCulture) ? "" : Field + ' ') + what;
             else
                 what = "the " + Field + " of " + what;
 
@@ -104,8 +104,7 @@ namespace Roblox.Reflection
                     result += ':' + NL;
 
                     string listed = From.ListElements(NL, prefix);
-                    string into = prefix + what;
-
+                    
                     result += listed + NL
                             + "  into: " + NL
                             + prefix + what + NL;
@@ -283,7 +282,7 @@ namespace Roblox.Reflection
 
             // Try sorting by the field priority.
             var typePriority = ReflectionDatabase.TypePriority;
-            int sortByField = 0;
+            int sortByField;
             
             if (typePriority.Contains(Field) && typePriority.Contains(diff.Field))
                 sortByField = typePriority.IndexOf(Field) - typePriority.IndexOf(diff.Field);

@@ -28,7 +28,9 @@ namespace Roblox.Reflection
 
         public Security(string security, string prefix = "")
         {
-            Enum.TryParse(security, out Type);
+            if (!Enum.TryParse(security, out Type))
+                Type = SecurityType.None;
+
             Prefix = prefix;
         }
 

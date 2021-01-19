@@ -21,8 +21,8 @@ namespace Roblox.Reflection
                 string jsonData = await http.DownloadStringTaskAsync(jsonUrl);
 
                 using (TextReader reader = new StringReader(jsonData))
+                using (var jsonReader = new JsonTextReader(reader))
                 {
-                    var jsonReader = new JsonTextReader(reader);
                     var versionData = JObject.Load(jsonReader);
 
                     var versionInfo = new ClientVersionInfo()

@@ -14,7 +14,7 @@ namespace Roblox.Reflection
             string schema = base.GetSchema();
 
             if (detailed)
-                schema = "{ValueType} " + schema + " {Security} {Serialization} {Tags}";
+                schema = "{ValueType} " + schema + " {Security} {Serialization} {Tags} {ThreadSafety}";
 
             return schema;
         }

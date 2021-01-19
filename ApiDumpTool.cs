@@ -17,7 +17,7 @@ namespace Roblox
     public partial class ApiDumpTool : Form
     {
         public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
-        private const string API_DUMP_CSS_FILE = "api-dump-v1.9.css";
+        private const string API_DUMP_CSS_FILE = "api-dump-v1.10.css";
 
         private delegate void StatusDelegate(string msg);
         private delegate string ItemDelegate(ComboBox comboBox);
@@ -44,7 +44,7 @@ namespace Roblox
                 result = comboBox.SelectedItem;
             }
 
-            return result.ToString();
+            return result?.ToString() ?? "roblox";
         }
 
         private string getBranch()

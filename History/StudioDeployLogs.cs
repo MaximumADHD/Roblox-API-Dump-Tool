@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -12,11 +13,13 @@ namespace Roblox.Reflection
         
         public string Branch { get; private set; }
 
-        public Dictionary<string, DeployLog> LookupFromGuid;
-        public Dictionary<int, DeployLog> LookupFromVersion;
+        public Dictionary<string, DeployLog> LookupFromGuid { get; private set; }
+        public Dictionary<int, DeployLog> LookupFromVersion { get; private set; }
 
         private static Dictionary<string, StudioDeployLogs> LogCache = new Dictionary<string, StudioDeployLogs>();
         private string LastDeployHistory = "";
+
+        private static readonly CultureInfo invariant = CultureInfo.InvariantCulture;
 
         private StudioDeployLogs(string branch)
         {
@@ -57,13 +60,14 @@ namespace Roblox.Reflection
                     .Where(value => value.Length != 0)
                     .ToArray();
 
-                DeployLog deployLog = new DeployLog();
-                deployLog.VersionGuid = data[1];
-
-                int.TryParse(data[2], out deployLog.MajorRev);
-                int.TryParse(data[3], out deployLog.Version);
-                int.TryParse(data[4], out deployLog.Patch);
-                int.TryParse(data[5], out deployLog.Changelist);
+                DeployLog deployLog = new DeployLog()
+                {
+                    VersionGuid = data[1],
+                    MajorRev    = int.Parse(data[2], invariant),
+                    Version     = int.Parse(data[3], invariant),
+                    Patch       = int.Parse(data[4], invariant),
+                    Changelist  = int.Parse(data[5], invariant)
+                };
 
                 Add(deployLog);
             }
@@ -71,7 +75,7 @@ namespace Roblox.Reflection
 
         public static async Task<StudioDeployLogs> GetDeployLogs(string branch)
         {
-            StudioDeployLogs logs = null;
+            StudioDeployLogs logs;
 
             if (LogCache.ContainsKey(branch))
                 logs = LogCache[branch];

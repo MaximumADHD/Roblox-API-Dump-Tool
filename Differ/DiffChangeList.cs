@@ -56,8 +56,6 @@ namespace Roblox.Reflection
 
             foreach (object change in this)
             {
-                int stack = numTabs;
-
                 if (change is Parameters)
                 {
                     var parameters = change as Parameters;
@@ -89,11 +87,13 @@ namespace Roblox.Reflection
 
                     string tagClass;
 
-                    if (value.StartsWith("{") && value.EndsWith("}"))
-                        tagClass = "Security";
-                    else if (value.StartsWith("[") && value.EndsWith("]"))
+                    if (value.Contains("🧬"))
+                        tagClass = "ThreadSafety";
+                    else if (value.StartsWith("["))
                         tagClass = "Serialization";
-                    else if (value.StartsWith("\"") && value.EndsWith("\""))
+                    else if (value.StartsWith("{"))
+                        tagClass = "Security";
+                    else if (value.StartsWith("\""))
                         tagClass = "String";
                     else
                         tagClass = change.GetType().Name;

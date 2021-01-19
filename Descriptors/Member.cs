@@ -16,6 +16,7 @@ namespace Roblox.Reflection
     {
         public ClassDescriptor Class;
         public MemberType MemberType;
+        public ThreadSafety ThreadSafety = ThreadSafetyType.Unknown;
 
         public override string GetSchema(bool detailed = true)
         {
@@ -26,6 +27,7 @@ namespace Roblox.Reflection
         {
             var tokens = base.GetTokens(detailed);
             tokens.Add("ClassName", Class.Name);
+            tokens.Add("ThreadSafety", ThreadSafety.Describe(MemberType));
 
             Type type = GetType();
 

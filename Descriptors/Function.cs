@@ -11,7 +11,7 @@
             string schema = "{ClassName}:{Name}";
 
             if (detailed)
-                schema = "{ReturnType} " + schema + "{Parameters} {Security} {Tags}";
+                schema = "{ReturnType} " + schema + "{Parameters} {Security} {Tags} {ThreadSafety}";
 
             return schema;
         }

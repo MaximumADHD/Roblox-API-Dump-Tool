@@ -11,6 +11,7 @@ using Roblox.Reflection;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace Roblox
 {
@@ -51,10 +52,10 @@ namespace Roblox
         {
             string value = GetRegistryString(key, name);
 
-            bool result = false;
-            bool.TryParse(value, out result);
+            if (bool.TryParse(value, out bool result))
+                return result;
 
-            return result;
+            return false;
         }
 
         public static bool GetRegistryBool(string name)
@@ -67,7 +68,7 @@ namespace Roblox
             return Enum.GetName(typeof(T), item);
         }
 
-        private static async Task processArgs(string[] args)
+        private static async Task ProcessArgs(string[] args)
         {
             if (args.Length < 2)
                 return;
@@ -79,22 +80,23 @@ namespace Roblox
             {
                 if (arg.StartsWith("-"))
                 {
-                    if (currentArg != "")
+                    if (!string.IsNullOrEmpty(currentArg))
                         argMap.Add(currentArg, "");
 
                     currentArg = arg;
                 }
-                else if (currentArg != "")
+                else if (!string.IsNullOrEmpty(currentArg))
                 {
                     argMap.Add(currentArg, arg);
                     currentArg = "";
                 }
             }
 
-            if (currentArg != "")
+            if (!string.IsNullOrEmpty(currentArg))
                 argMap.Add(currentArg, "");
 
             string format = "TXT";
+
             if (argMap.ContainsKey("-format"))
                 format = argMap["-format"];
 
@@ -104,23 +106,23 @@ namespace Roblox
             if (argMap.ContainsKey("-export"))
             {
                 string branch = argMap["-export"];
-                int exportVersion = -1;
                 string apiFilePath;
                 
-                if (int.TryParse(branch, out exportVersion))
-                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath("roblox", exportVersion);
-                else if (branch == "roblox" || branch.StartsWith("sitetest") && branch.EndsWith(".robloxlabs"))
-                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(branch);
+                if (int.TryParse(branch, out int exportVersion))
+                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath("roblox", exportVersion).ConfigureAwait(false);
+                else if (branch == "roblox" || branch.StartsWith("sitetest", StringComparison.InvariantCulture) && branch.EndsWith(".robloxlabs", StringComparison.InvariantCulture))
+                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(branch).ConfigureAwait(false);
                 else
                     apiFilePath = branch;
 
                 string exportBin = Path.Combine(bin, "ExportAPI");
+
                 if (argMap.ContainsKey("-outdir"))
                     exportBin = argMap["-outdir"];
                 else
                     Directory.CreateDirectory(exportBin);
 
-                if (format.ToLower() == "json")
+                if (format.ToUpperInvariant() == "JSON")
                 {
                     string jsonPath = Path.Combine(exportBin, branch + ".json");
                     File.Copy(apiFilePath, jsonPath);
@@ -129,12 +131,19 @@ namespace Roblox
                     return;
                 }
 
-                ReflectionDatabase api = new ReflectionDatabase(apiFilePath);
-                ReflectionDumper dumper = new ReflectionDumper(api);
+                var api = new ReflectionDatabase(apiFilePath);
+                var dumper = new ReflectionDumper(api);
 
                 string result = "";
+                bool isPng = false;
 
-                if (format.ToLower() != "html")
+                if (format.ToUpperInvariant() == "PNG")
+                {
+                    isPng = true;
+                    format = "html";
+                    result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml);
+                }
+                else if (format.ToUpperInvariant() != "HTML")
                 {
                     format = "txt";
                     result = dumper.DumpApi(ReflectionDumper.DumpUsingTxt);
@@ -147,7 +156,7 @@ namespace Roblox
 
                 string exportPath = Path.Combine(exportBin, branch + '.' + format);
 
-                if (format == "html")
+                if (format == "html" || format == "png")
                 {
                     FileInfo info = new FileInfo(exportPath);
                     string dir = info.DirectoryName;
@@ -155,6 +164,15 @@ namespace Roblox
                 }
 
                 File.WriteAllText(exportPath, result);
+
+                if (isPng)
+                {
+                    using (var bitmap = await ApiDumpTool.RenderApiDump(exportPath))
+                    {
+                        exportPath = Path.Combine(exportBin, branch + ".png");
+                        bitmap.Save(exportPath);
+                    }
+                }
 
                 if (argMap.ContainsKey("-start"))
                     Process.Start(exportPath);
@@ -184,22 +202,20 @@ namespace Roblox
                     Environment.Exit(1);
                 }
 
-                int oldVersion = -1;
                 string oldFile = "";
                 string oldArg = argMap["-old"];
 
-                if (int.TryParse(oldArg, out oldVersion))
+                if (int.TryParse(oldArg, out int oldVersion))
                     oldFile = await ApiDumpTool.GetApiDumpFilePath("roblox", oldVersion);
                 else if (oldArg == "roblox" || oldArg.StartsWith("sitetest") && oldArg.EndsWith(".robloxlabs"))
                     oldFile = await ApiDumpTool.GetApiDumpFilePath(oldArg);
                 else
                     oldFile = oldArg;
 
-                int newVersion = -1;
                 string newFile = "";
                 string newArg = argMap["-new"];
 
-                if (int.TryParse(newArg, out newVersion))
+                if (int.TryParse(newArg, out int newVersion))
                     newFile = await ApiDumpTool.GetApiDumpFilePath("roblox", newVersion);
                 else if (newArg == "roblox" || newArg.StartsWith("sitetest") && newArg.EndsWith(".robloxlabs"))
                     newFile = await ApiDumpTool.GetApiDumpFilePath(newArg);
@@ -209,7 +225,10 @@ namespace Roblox
                 var oldApi = new ReflectionDatabase(oldFile);
                 var newApi = new ReflectionDatabase(newFile);
 
-                if (format.ToLower() == "html" && !isDiffLog)
+                var invFormat = format.ToUpperInvariant();
+                bool isPng = (invFormat == "PNG");
+
+                if (invFormat == "PNG" || (invFormat == "HTML" && !isDiffLog))
                     format = "HTML";
                 else
                     format = "TXT";
@@ -222,7 +241,7 @@ namespace Roblox
                 else if (argMap.ContainsKey("-out"))
                     exportPath = argMap["-out"];
                 else
-                    exportPath = Path.Combine(bin, "custom-comp." + format.ToLower());
+                    exportPath = Path.Combine(bin, "custom-comp." + format.ToLowerInvariant());
 
                 if (format == "HTML")
                 {
@@ -234,9 +253,11 @@ namespace Roblox
                 if (isDiffLog)
                 {
                     string commitUrl = "";
-                    
-                    var userAgent = new WebHeaderCollection();
-                    userAgent.Add("User-Agent", "Roblox API Dump Tool");
+
+                    var userAgent = new WebHeaderCollection
+                    {
+                        { "User-Agent", "Roblox API Dump Tool" }
+                    };
 
                     using (WebClient http = new WebClient() { Headers = userAgent })
                     {
@@ -244,8 +265,8 @@ namespace Roblox
                         string commitsJson = await http.DownloadStringTaskAsync(commitsUrl);
 
                         using (StringReader reader = new StringReader(commitsJson))
+                        using (JsonTextReader jsonReader = new JsonTextReader(reader))
                         {
-                            JsonTextReader jsonReader = new JsonTextReader(reader);
                             JArray data = JArray.Load(jsonReader);
                             string prefix = "0." + version;
                             
@@ -279,6 +300,15 @@ namespace Roblox
 
                 File.WriteAllText(exportPath, result);
 
+                if (isPng)
+                {
+                    using (var bitmap = await ApiDumpTool.RenderApiDump(exportPath))
+                    {
+                        exportPath = exportPath.Replace(".html", ".png");
+                        bitmap.Save(exportPath);
+                    }
+                }
+
                 if (argMap.ContainsKey("-start") || isDiffLog)
                     Process.Start(exportPath);
 
@@ -311,8 +341,8 @@ namespace Roblox
                 string currentPath = await ApiDumpTool.GetApiDumpFilePath("roblox", currentLog.VersionGuid);
                 string prevPath = await ApiDumpTool.GetApiDumpFilePath("roblox", prevLog.VersionGuid);
 
-                ReflectionDatabase currentData = new ReflectionDatabase(currentPath, "roblox", currentLog.ToString());
-                ReflectionDatabase prevData = new ReflectionDatabase(prevPath, "roblox", prevLog.ToString());
+                var currentData = new ReflectionDatabase(currentPath, "roblox", currentLog.ToString());
+                var prevData = new ReflectionDatabase(prevPath, "roblox", prevLog.ToString());
 
                 var postProcess = new ReflectionDumper.DumpPostProcesser((dump, workDir) =>
                 {
@@ -367,7 +397,7 @@ namespace Roblox
                 });
 
                 git("add .");
-                git($"commit -m \"{currentLog.ToString()}\"");
+                git($"commit -m \"{currentLog}\"");
                 git("push");
 
                 Environment.Exit(0);
@@ -400,7 +430,7 @@ namespace Roblox
             // Check the launch arguments.
             if (args.Length > 0)
             {
-                Task processArgsTask = Task.Run(() => processArgs(args));
+                Task processArgsTask = Task.Run(() => ProcessArgs(args));
                 processArgsTask.Wait();
             }
 

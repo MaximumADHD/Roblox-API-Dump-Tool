@@ -11,13 +11,13 @@ namespace Roblox.Reflection
 {
     public class ReflectionDatabase
     {
-        public string Branch;
-        public string Version;
+        public string Branch { get; set; }
+        public string Version { get; set; }
 
         public Dictionary<string, ClassDescriptor> Classes;
         public Dictionary<string, EnumDescriptor> Enums;
 
-        public static ReadOnlyCollection<string> TypePriority = new ReadOnlyCollection<string>(new string[]
+        public static readonly ReadOnlyCollection<string> TypePriority = new ReadOnlyCollection<string>(new string[]
         {
             "Class",
             "Property",
@@ -41,16 +41,15 @@ namespace Roblox.Reflection
             Version = version;
 
             using (StringReader jsonText = new StringReader(jsonApiDump))
+            using (JsonTextReader reader = new JsonTextReader(jsonText))
             {
                 Type MemberDescriptor = typeof(MemberDescriptor);
-
-                JsonTextReader reader = new JsonTextReader(jsonText);
                 JObject database = JObject.Load(reader);
 
                 // Initialize classes.
                 Classes = new Dictionary<string, ClassDescriptor>();
 
-                foreach (JObject classObj in database.GetValue("Classes"))
+                foreach (JObject classObj in database.GetValue("Classes", StringComparison.InvariantCulture))
                 {
                     var classDesc = classObj.ToObject<ClassDescriptor>();
                     classDesc.Database = this;
@@ -59,11 +58,9 @@ namespace Roblox.Reflection
                     int membersDeprecated = 0;
 
                     // Initialize members.
-                    foreach (JObject memberObj in classObj.GetValue("Members"))
+                    foreach (JObject memberObj in classObj.GetValue("Members", StringComparison.InvariantCulture))
                     {
-                        MemberType memberType;
-
-                        if (Enum.TryParse(memberObj.Value<string>("MemberType"), out memberType))
+                        if (Enum.TryParse(memberObj.Value<string>("MemberType"), out MemberType memberType))
                         {
                             // Use some Reflection magic to resolve the descriptor object in use.
                             // This assumes that all MemberType values have a corresponding object with

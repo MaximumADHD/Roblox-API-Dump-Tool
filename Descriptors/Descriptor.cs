@@ -73,10 +73,12 @@ namespace Roblox.Reflection
             while (search < desc.Length)
             {
                 int openToken = desc.IndexOf('{', search);
+
                 if (openToken < 0)
                     break;
 
                 int closeToken = desc.IndexOf('}', openToken);
+
                 if (closeToken < 0)
                     break;
 
@@ -127,14 +129,17 @@ namespace Roblox.Reflection
             while (true)
             {
                 int openToken = schema.IndexOf('{', search);
+
                 if (openToken < 0)
                     break;
 
                 int closeToken = schema.IndexOf('}', openToken);
+
                 if (closeToken < 0)
                     break;
 
                 string token = schema.Substring(openToken + 1, closeToken - openToken - 1);
+
                 if (tokens.ContainsKey(token))
                 {
                     if (token == "Tags")

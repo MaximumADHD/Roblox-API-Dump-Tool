@@ -1,4 +1,4 @@
-/* API Dump CSS (Version 1.9) */
+/* API Dump CSS (Version 1.10) */
 
 body
 {
@@ -186,6 +186,7 @@ span.ChangeList::before
 
 span.Tag,
 span.Security,
+span.ThreadSafety,
 span.Serialization
 {
 	font-weight: bold !important;
@@ -216,6 +217,12 @@ span.Serialization
 {
 	background-color: #3F3F6F;
 	color: #CF9FFF !important;
+}
+
+span.ThreadSafety
+{
+	background-color: #001F3F;
+	color: #007FFF !important;
 }
 
 span.Type,

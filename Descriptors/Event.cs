@@ -10,7 +10,7 @@
             string schema = base.GetSchema();
 
             if (detailed)
-                schema += "{Parameters} {Security} {Tags}";
+                schema += "{Parameters} {Security} {Tags} {ThreadSafety}";
 
             return schema;
         }
