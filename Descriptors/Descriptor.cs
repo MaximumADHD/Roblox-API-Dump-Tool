@@ -92,10 +92,10 @@ namespace Roblox.Reflection
                 search = openToken + value.Length;
             }
 
-            desc = desc.Replace("  ", " ");
-            desc = desc.Trim();
+            while (desc.Contains("  "))
+                desc = desc.Replace("  ", " ");
 
-            return desc;
+            return desc.Trim();
         }
         
         public void WriteHtml(ReflectionDumper buffer, HtmlConfig config = null)

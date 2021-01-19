@@ -12,7 +12,10 @@ namespace Roblox.Reflection
 
         public override string ToString()
         {
-            string[] tags = this.Select(tag => '[' + tag + ']').ToArray();
+            if (Contains("ReadOnly"))
+                Remove("NotReplicated");
+
+            var tags = this.Select(tag => $"[{tag}]");
             return string.Join(" ", tags);
         }
 
@@ -20,9 +23,13 @@ namespace Roblox.Reflection
         {
             get
             {
+                if (Contains("ReadOnly"))
+                    Remove("NotReplicated");
+
                 if (Count > 0)
                 {
                     string label = "Tag";
+
                     if (Count > 1)
                         label += "s";
 
@@ -36,7 +43,7 @@ namespace Roblox.Reflection
         public void WriteHtml(ReflectionDumper buffer, int numTabs = 0)
         {
             var tags = this.ToList();
-            tags.ForEach(tag => buffer.WriteElement("Tag", '[' + tag + ']', numTabs));
+            tags.ForEach(tag => buffer.WriteElement("Tag", $"[{tag}]", numTabs));
         }
 
         public void SwitchToPreliminary()
