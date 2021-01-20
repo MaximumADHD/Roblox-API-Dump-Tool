@@ -5,29 +5,26 @@
         public bool CanSave;
         public bool CanLoad;
 
-        private static string[] flagLabels = new string[4]
+        private static readonly string[] flagLabels = new string[4]
         {
             "<🕒> RuntimeOnly",
 
-            "", "<📁> LoadOnly",
+            "<💾> SaveOnly", "<📁> LoadOnly",
 
             "<💾|📁> Saves|Loads"
         };
 
-        public override string ToString()
+        public string Describe(bool showSaveOnly = true)
         {
-            // sure would be nice if booleans could be 
-            // casted as ints in C# like in C++ lol
+            if (CanSave && !CanLoad && !showSaveOnly)
+                return "";
 
             int saves = (CanSave ? 1 : 0);
             int loads = (CanLoad ? 1 : 0);
 
-            string label = flagLabels[loads << 1 | saves];
-
-            if (string.IsNullOrEmpty(label))
-                return label;
-
-            return $"[{label}]";
+            return $"[{flagLabels[loads << 1 | saves]}]";
         }
+
+        public override string ToString() => Describe();
     }
 }

@@ -22,13 +22,15 @@ namespace Roblox.Reflection
         public override Dictionary<string, object> GetTokens(bool detailed = false)
         {
             var tokens = base.GetTokens(detailed);
-
-            if (!detailed)
+            
+            if (detailed)
                 return tokens;
 
             // Only provide a serialization token if the save/load states differ.
             if (Serialization.CanSave == Serialization.CanLoad)
                 tokens.Remove("Serialization");
+            else
+                tokens["Serialization"] = Serialization.Describe(false);
 
             return tokens;
         }
