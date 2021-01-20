@@ -9,7 +9,7 @@
         {
             "<🕒> RuntimeOnly",
 
-            "<💾> SaveOnly", "<📁> LoadOnly",
+            "", "<📁> LoadOnly",
 
             "<💾|📁> Saves|Loads"
         };
@@ -22,7 +22,12 @@
             int saves = (CanSave ? 1 : 0);
             int loads = (CanLoad ? 1 : 0);
 
-            return $"[{flagLabels[loads << 1 | saves]}]";
+            string label = flagLabels[loads << 1 | saves];
+
+            if (string.IsNullOrEmpty(label))
+                return label;
+
+            return $"[{label}]";
         }
     }
 }
