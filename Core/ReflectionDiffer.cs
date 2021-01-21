@@ -324,9 +324,12 @@ namespace Roblox.Reflection
                                     Compare(newMember, "read permissions", oldRead, newRead);
                                     Compare(newMember, "write permissions", oldWrite, newWrite);
                                 }
-                                
+
+                                var oldSerial = oldProp.Serialization.Describe(true);
+                                var newSerial = newProp.Serialization.Describe(true);
+
+                                Compare(newMember, "serialization", oldSerial, newSerial);
                                 Compare(newMember, "value-type", oldProp.ValueType, newProp.ValueType);
-                                Compare(newMember, "serialization", oldProp.Serialization, newProp.Serialization);
                                 Compare(newMember, "category", oldProp.Category, newProp.Category, true);
                             }
                             else if (newMember is FunctionDescriptor)

@@ -29,9 +29,7 @@ namespace Roblox.Reflection
             // Only provide a serialization token if the save/load states differ.
             if (Serialization.CanSave == Serialization.CanLoad)
                 tokens.Remove("Serialization");
-            else
-                tokens["Serialization"] = Serialization.Describe(false);
-
+            
             return tokens;
         }
 

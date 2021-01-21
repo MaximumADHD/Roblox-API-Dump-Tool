@@ -14,9 +14,12 @@
             "<💾|📁> Saves|Loads"
         };
 
-        public string Describe(bool showSaveOnly = true)
+        public string Describe(bool isDiff = false)
         {
-            if (CanSave && !CanLoad && !showSaveOnly)
+            if (CanSave && !CanLoad && !isDiff)
+                return "";
+
+            if (CanSave == CanLoad && !isDiff)
                 return "";
 
             int saves = (CanSave ? 1 : 0);
