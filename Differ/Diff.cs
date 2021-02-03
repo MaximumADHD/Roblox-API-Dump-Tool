@@ -99,10 +99,7 @@ namespace Roblox.Reflection
                 }
                 case DiffType.Rename:
                 {
-                    string renameTo = $"\"{To}\"";
-                    string renameTarget = $"\"{Target.Name}\"";
-
-                    result += $"Renamed {Field}{NL}{renameTarget} to {renameTo}";
+                    result += $"Renamed {Field}{NL}\"{Target.Name}\" to \"{To}\"";
                     break;
                 }
                 case DiffType.Merge:
