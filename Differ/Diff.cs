@@ -64,64 +64,74 @@ namespace Roblox.Reflection
             string what = Target.Describe(detailed);
 
             if (Type != DiffType.Change)
-                what = (what.StartsWith(Field, StringComparison.InvariantCulture) ? "" : Field + ' ') + what;
+                what = (what.StartsWith(Field, StringComparison.InvariantCulture) ? "" : $"{Field} ") + what;
             else
-                what = "the " + Field + " of " + what;
+                what = $"the {Field} of {what}";
 
             switch (Type)
             {
                 case DiffType.Add:
-                    result += "Added " + what;
+                {
+                    result += $"Added {what}";
                     break;
+                }
                 case DiffType.Change:
-                    result += "Changed " + what;
-
+                {
                     string from = From.ToString();
                     string to = To.ToString();
 
-                    string grouped = "from " + from + " to " + to;
+                    string grouped = $"from {from} to {to}";
+                    result += $"Changed {what}";
+
                     if (grouped.Length < 18)
-                        result += " " + grouped;
+                        result += $" {grouped}";
                     else
-                        result += ' ' + NL +
-                            "\tfrom: " + from + NL +
-                            "\t  to: " + to + NL;
+                        result += $" {NL}" +
+                            $"\tfrom: {from}{NL}" +
+                            $"\t  to: {to}{NL}";
 
                     break;
+                }
                 case DiffType.Remove:
+                {
                     result += "Removed " + what;
                     break;
+                }
                 case DiffType.Rename:
-                    string renameTo = '"' + To.ToString() + '"';
-                    string renameTarget = '"' + Target.Name + '"';
-                    
-                    result += "Renamed " + Field + NL  + renameTarget + " to " + renameTo;
+                {
+                    string renameTo = $"\"{To}\"";
+                    string renameTarget = $"\"{Target.Name}\"";
+
+                    result += $"Renamed {Field}{NL}{renameTarget} to {renameTo}";
                     break;
+                }
                 case DiffType.Merge:
-                    result += "Merged";
-
-                    string prefix = "\t• ";
-                    result += ':' + NL;
-
+                {
+                    const string prefix = "\t• ";
                     string listed = From.ListElements(NL, prefix);
-                    
-                    result += listed + NL
-                            + "  into: " + NL
-                            + prefix + what + NL;
+
+                    result +=
+                        $"Merged: {NL}" +
+                        $"{listed}{NL}" +
+                        $"  into: {NL}" +
+                        $"{prefix}{what}{NL}";
 
                     break;
+                }
                 case DiffType.Move:
+                {
                     string descType = Target.DescriptorType;
                     string name = Target.Name;
 
                     string moveFrom = From.ToString();
                     string moveTo = To.ToString();
 
-                    result += $"Moved {descType} {name}" + NL +
-                            "\tfrom: " + moveFrom + NL +
-                            "\t  to: " + moveTo + NL;
+                    result += $"Moved {descType} {name}{NL}" +
+                              $"\tfrom: {moveFrom}{NL}" +
+                              $"\t  to: {moveTo}{NL}";
 
                     break;
+                }  
             }
 
             if (children.Count > 0)
