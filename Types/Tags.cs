@@ -10,11 +10,18 @@ namespace Roblox.Reflection
             tags?.ToList().ForEach(tag => Add(tag));
         }
 
-        public override string ToString()
+        public new bool Add(string value)
         {
-            if (Contains("ReadOnly"))
+            if (Contains("ReadOnly") && value == "NotReplicated")
+                return false;
+            else if (value == "ReadOnly" && Contains("NotReplicated"))
                 Remove("NotReplicated");
 
+            return base.Add(value);
+        }
+
+        public override string ToString()
+        {
             var tags = this.Select(tag => $"[{tag}]");
             return string.Join(" ", tags);
         }

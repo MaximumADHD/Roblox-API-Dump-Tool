@@ -17,7 +17,7 @@ namespace Roblox.Reflection
     {
         private const string NL = "\r\n";
         
-        private List<Diff> children = new List<Diff>();
+        private readonly List<Diff> children = new List<Diff>();
         private int stack;
 
         public DiffType Type;
