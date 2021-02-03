@@ -30,9 +30,6 @@ namespace Roblox.Reflection
         {
             get
             {
-                if (Contains("ReadOnly"))
-                    Remove("NotReplicated");
-
                 if (Count > 0)
                 {
                     string label = "Tag";
