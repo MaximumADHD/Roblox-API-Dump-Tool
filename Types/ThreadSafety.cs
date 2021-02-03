@@ -49,12 +49,16 @@ namespace Roblox.Reflection
                     case MemberType.Callback:
                     case MemberType.Function:
                     case MemberType.Event:
+                    {
                         empty = (Type == ThreadSafetyType.Unsafe);
                         break;
+                    }
+                        
                     case MemberType.Property:
+                    {
                         empty = (Type == ThreadSafetyType.ReadOnly);
                         break;
-                    default: break;
+                    }
                 }
             }
 

@@ -12,12 +12,27 @@ namespace Roblox.Reflection
 
         public new bool Add(string value)
         {
-            if (Contains("ReadOnly") && value == "NotReplicated")
-                return false;
-            else if (value == "ReadOnly" && Contains("NotReplicated"))
-                Remove("NotReplicated");
+            switch (value)
+            {
+                case "ReadOnly":
+                {
+                    if (Contains("NotReplicated"))
+                        Remove("NotReplicated");
 
-            return base.Add(value);
+                    goto default;
+                }
+                case "NotReplicated":
+                {
+                    if (Contains("ReadOnly"))
+                        return false;
+
+                    goto default;
+                }
+                default:
+                {
+                    return base.Add(value);
+                }
+            }
         }
 
         public override string ToString()

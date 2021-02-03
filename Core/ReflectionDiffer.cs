@@ -33,14 +33,20 @@ namespace Roblox.Reflection
             foreach (Type taskType in taskTypes)
             {
                 var modifier = Activator.CreateInstance(taskType) as IDiffModifier;
-                List<IDiffModifier> orderList = null;
-
-                if (modifier.Order == ModifierOrder.PreMemberDiff)
-                    orderList = preModifiers;
-                else if (modifier.Order == ModifierOrder.PostMemberDiff)
-                    orderList = postModifiers;
-
-                orderList?.Add(modifier);
+                
+                switch (modifier.Order)
+                {
+                    case ModifierOrder.PreMemberDiff:
+                    {
+                        preModifiers.Add(modifier);
+                        break;
+                    }
+                    case ModifierOrder.PostMemberDiff:
+                    {
+                        postModifiers.Add(modifier);
+                        break;
+                    }
+                }
             }
         }
 
