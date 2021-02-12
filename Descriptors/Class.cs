@@ -13,7 +13,7 @@ namespace Roblox.Reflection
         public string MemoryCategory;
         
         public ReflectionDatabase Database;
-
+        
         [JsonIgnore]
         public List<MemberDescriptor> Members = new List<MemberDescriptor>();
 
@@ -94,23 +94,20 @@ namespace Roblox.Reflection
                 int diff = InheritanceLevel - otherClass.InheritanceLevel;
                 return Math.Sign(diff);
             }
-            else
-            {
-                return base.CompareTo(otherClass);
-            }
+            
+            return base.CompareTo(otherClass);
         }
 
         public override int CompareTo(object other)
         {
-            if (other is ClassDescriptor)
-            {
-                var otherClass = other as ClassDescriptor;
-                return CompareTo(otherClass, true);
-            }
+            int result;
+
+            if (other is ClassDescriptor otherClass)
+                result = CompareTo(otherClass, true);
             else
-            {
-                return base.CompareTo(other);
-            }
+                result = base.CompareTo(other);
+
+            return result;
         }
     }
 }

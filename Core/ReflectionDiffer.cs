@@ -215,6 +215,7 @@ namespace Roblox.Reflection
 
             // For the purposes of the differ, treat png like html.
             // Its assumed that the result will be processed afterwards.
+
             if (currentFormat == "png")
                 currentFormat = "html";
 
@@ -453,11 +454,11 @@ namespace Roblox.Reflection
                 postModifier.RunModifier(ref diffs);
 
             // Remove diffs that were disposed during the modifier tasks,
-            diffs = diffs.Where(diff => !diff.Disposed).ToList();
+            diffs = diffs
+                .Where(diff => !diff.Disposed)
+                .OrderBy(diff => diff)
+                .ToList();
 
-            // and sort the results.
-            diffs.Sort();
-            
             // Setup actions for generating the final result, based on the requested format.
             DiffResultLineAdder addLineToResults;
             DiffResultFinalizer finalizeResults;

@@ -37,6 +37,9 @@ namespace Roblox.Reflection
 
         public override string ToString()
         {
+            if (Contains("ReadOnly"))
+                Remove("NotReplicated");
+
             var tags = this.Select(tag => $"[{tag}]");
             return string.Join(" ", tags);
         }
@@ -47,6 +50,9 @@ namespace Roblox.Reflection
             {
                 if (Count > 0)
                 {
+                    if (Contains("ReadOnly"))
+                        Remove("NotReplicated");
+
                     string label = "Tag";
 
                     if (Count > 1)
@@ -61,6 +67,9 @@ namespace Roblox.Reflection
 
         public void WriteHtml(ReflectionDumper buffer, int numTabs = 0)
         {
+            if (Contains("ReadOnly"))
+                Remove("NotReplicated");
+
             var tags = this.ToList();
             tags.ForEach(tag => buffer.WriteElement("Tag", $"[{tag}]", numTabs));
         }

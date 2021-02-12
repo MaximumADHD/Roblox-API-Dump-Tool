@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Roblox.Reflection
@@ -45,26 +46,11 @@ namespace Roblox.Reflection
 
         public override int CompareTo(object other)
         {
-            if (other is MemberDescriptor)
-            {
-                var otherDesc = other as MemberDescriptor;
+            if (!(other is MemberDescriptor otherDesc))
+                return base.CompareTo(other);
 
-                if (Class != otherDesc.Class)
-                    return Class.CompareTo(otherDesc.Class);
-
-                if (MemberType != otherDesc.MemberType)
-                {
-                    var priority = ReflectionDatabase.TypePriority;
-
-                    string thisMT = Program.GetEnumName(MemberType);
-                    string otherMT = Program.GetEnumName(otherDesc.MemberType);
-
-                    if (priority.Contains(thisMT) && priority.Contains(otherMT))
-                    {
-                        return priority.IndexOf(thisMT) - priority.IndexOf(otherMT);
-                    }
-                }
-            }
+            if (Class != otherDesc.Class)
+                return Class.CompareTo(otherDesc.Class);
 
             return base.CompareTo(other);
         }

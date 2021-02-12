@@ -17,17 +17,6 @@ namespace Roblox.Reflection
         public Dictionary<string, ClassDescriptor> Classes;
         public Dictionary<string, EnumDescriptor> Enums;
 
-        public static readonly ReadOnlyCollection<string> TypePriority = new ReadOnlyCollection<string>(new string[]
-        {
-            "Class",
-            "Property",
-            "Function",
-            "Event",
-            "Callback",
-            "Enum",
-            "EnumItem"
-        });
-
         public override string ToString()
         {
             return $"{Branch} - {Version}";

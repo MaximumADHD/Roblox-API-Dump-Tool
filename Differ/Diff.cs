@@ -287,47 +287,38 @@ namespace Roblox.Reflection
 
         public int CompareTo(object obj)
         {
-            if (obj.GetType() != GetType())
+            if (!(obj is Diff diff))
                 throw new NotImplementedException("Diff can only be compared with another Diff");
 
-            Diff diff = obj as Diff;
+            var diffTarget = diff.Target;
 
-            // Try sorting by the type of diff.
-            int sortByType = Type - diff.Type;
+            if (Target == null || diffTarget == null)
+                throw new NotSupportedException("Both Diffs must have their Target fields defined!");
 
-            if (sortByType != 0)
-                return sortByType;
+            // Compare diff types.
+            if (Type != diff.Type)
+                return Type - diff.Type;
 
-            // Try sorting by the field priority.
-            var typePriority = ReflectionDatabase.TypePriority;
-            int sortByField;
+            // Compare type priorities.
+            var myPriority = Target.TypePriority;
+            var diffPriority = diffTarget.TypePriority;
+
+            if (Field.StartsWith("Tag"))
+                myPriority = TypePriority.Tag;
+                
+            if (diff.Field.StartsWith("Tag"))
+                diffPriority = TypePriority.Tag;
+
+            if (myPriority != diffPriority)
+                return myPriority - diffPriority;
             
-            if (typePriority.Contains(Field) && typePriority.Contains(diff.Field))
-                sortByField = typePriority.IndexOf(Field) - typePriority.IndexOf(diff.Field);
-            else
-                sortByField = Field.CompareTo(diff.Field);
+            // Compare fields.
+            int sortByField = Field.CompareTo(diff.Field);
 
-            if (Type == DiffType.Change && Field == diff.Field)
-            {
-                string myType = Target.DescriptorType;
-                string diffType = diff.Target.DescriptorType;
-
-                int myPriority = typePriority.IndexOf(myType);
-                int diffPriority = typePriority.IndexOf(diffType);
-
-                if (myPriority >= 0)
-                    myType = myPriority.ToString();
-
-                if (diffPriority >= 0)
-                    diffType = diffPriority.ToString();
-
-                sortByField = myType.CompareTo(diffType);
-            }
-            
             if (sortByField != 0)
                 return sortByField;
 
-            // Try sorting by the targets.
+            // Compare targets.
             int sortByTarget = Target.CompareTo(diff.Target);
 
             if (sortByTarget != 0)

@@ -129,6 +129,8 @@
     <PreBuildEvent>taskkill /f /im $(TargetFileName) /fi "memusage gt 2</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(TargetDir)$(TargetFileName)" "$(ProjectDir)..\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>echo Copying $(TargetFileName)...
+copy /y "$(TargetDir)$(TargetFileName)" "$(ProjectDir)$(TargetFileName)"
+echo Done!</PostBuildEvent>
   </PropertyGroup>
 </Project>

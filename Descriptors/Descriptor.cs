@@ -4,6 +4,21 @@ using System.Reflection;
 
 namespace Roblox.Reflection
 {
+    // This defines the priority of each descriptor type.
+    public enum TypePriority
+    {
+        Class,
+        Property,
+        Function,
+        Event,
+        Callback,
+        Enum,
+        EnumItem,
+        Tag,
+
+        Unknown = -1
+    }
+
     public class Descriptor : IComparable
     {
         public string Name;
@@ -18,6 +33,35 @@ namespace Roblox.Reflection
 
         public override string ToString() => Summary;
 
+        public readonly string DescriptorType;
+        public readonly TypePriority TypePriority;
+
+        private static readonly Dictionary<Type, Descriptor> InitCache = new Dictionary<Type, Descriptor>();
+
+        public Descriptor()
+        {
+            var type = GetType();
+
+            if (!InitCache.ContainsKey(type))
+            {
+                string descType = GetType().Name;
+
+                if (descType != DescriptorType)
+                {
+                    DescriptorType = descType.Replace("Descriptor", "");
+                    Enum.TryParse(DescriptorType, out TypePriority);
+                }
+
+                InitCache.Add(type, this);
+            }
+            else
+            {
+                var baseRef = InitCache[type];
+                TypePriority = baseRef.TypePriority;
+                DescriptorType = baseRef.DescriptorType;
+            }
+        }
+
         public class HtmlConfig
         {
             public int NumTabs = 0;
@@ -26,19 +70,6 @@ namespace Roblox.Reflection
             public bool Detailed = false;
 
             public string TagType = "span";
-        }
-
-        public string DescriptorType
-        {
-            get
-            {
-                string descType = GetType().Name;
-
-                if (descType != "Descriptor")
-                    descType = descType.Replace("Descriptor", "");
-
-                return descType;
-            }
         }
 
         public virtual string GetSchema(bool detailed = false)
@@ -209,19 +240,17 @@ namespace Roblox.Reflection
 
         public virtual int CompareTo(object other)
         {
-            string label;
+            if (other is Descriptor otherDesc)
+            {
+                int typeDiff = TypePriority - otherDesc.TypePriority;
 
-            if (other is Descriptor)
-            {
-                var otherDesc = other as Descriptor;
-                label = otherDesc.Name;
-            }
-            else
-            {
-                label = other.ToString();
+                if (typeDiff != 0)
+                    return typeDiff;
+
+                return string.CompareOrdinal(Name, otherDesc.Name);
             }
 
-            return string.CompareOrdinal(Name, label);
+            throw new NotSupportedException("Descriptor can only be compared with another Descriptor.");
         }
     }
 }
