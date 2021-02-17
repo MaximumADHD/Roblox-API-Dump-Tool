@@ -10,36 +10,34 @@ namespace Roblox.Reflection
             tags?.ToList().ForEach(tag => Add(tag));
         }
 
+        public void ClearBadData()
+        {
+            if (!Contains("ReadOnly"))
+                return;
+
+            Remove("NotReplicated");
+        }
+
+        public void SwitchToPreliminary()
+        {
+            if (Contains("Deprecated"))
+            {
+                Add("Preliminary");
+                Remove("Deprecated");
+            }
+        }
+
         public new bool Add(string value)
         {
-            switch (value)
-            {
-                case "ReadOnly":
-                {
-                    if (Contains("NotReplicated"))
-                        Remove("NotReplicated");
+            bool result = base.Add(value);
+            ClearBadData();
 
-                    goto default;
-                }
-                case "NotReplicated":
-                {
-                    if (Contains("ReadOnly"))
-                        return false;
-
-                    goto default;
-                }
-                default:
-                {
-                    return base.Add(value);
-                }
-            }
+            return result;
         }
 
         public override string ToString()
         {
-            if (Contains("ReadOnly"))
-                Remove("NotReplicated");
-
+            ClearBadData();
             var tags = this.Select(tag => $"[{tag}]");
             return string.Join(" ", tags);
         }
@@ -50,9 +48,7 @@ namespace Roblox.Reflection
             {
                 if (Count > 0)
                 {
-                    if (Contains("ReadOnly"))
-                        Remove("NotReplicated");
-
+                    ClearBadData();
                     string label = "Tag";
 
                     if (Count > 1)
@@ -67,20 +63,9 @@ namespace Roblox.Reflection
 
         public void WriteHtml(ReflectionDumper buffer, int numTabs = 0)
         {
-            if (Contains("ReadOnly"))
-                Remove("NotReplicated");
-
+            ClearBadData();
             var tags = this.ToList();
             tags.ForEach(tag => buffer.WriteElement("Tag", $"[{tag}]", numTabs));
-        }
-
-        public void SwitchToPreliminary()
-        {
-            if (Contains("Deprecated"))
-            {
-                Add("Preliminary");
-                Remove("Deprecated");
-            }
         }
     }
 }

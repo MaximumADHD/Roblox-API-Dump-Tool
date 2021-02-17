@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -166,6 +167,8 @@ namespace Roblox.Reflection
         private static Dictionary<string, Diff> CompareTags(Descriptor target, Tags oldTags, Tags newTags)
         {
             var tagChanges = new Dictionary<string, Diff>();
+            oldTags.ClearBadData();
+            newTags.ClearBadData();
 
             // Record tags that were added.
             Tags addTags = new Tags(newTags.Except(oldTags));
