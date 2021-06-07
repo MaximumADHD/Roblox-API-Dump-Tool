@@ -5,10 +5,9 @@ namespace Roblox.Reflection
     public enum ThreadSafetyType
     {
         Unsafe,
-        Safe,
-
-        Unknown,
-        ReadOnly = Safe
+        ReadOnly,
+        ReadWrite,
+        Unknown
     }
 
     public class ThreadSafety
@@ -42,9 +41,9 @@ namespace Roblox.Reflection
         public string Describe(MemberType? memberType = null)
         {
             string name = $"{Type}";
-            var empty = (name == "Unknown");
+            var empty = false;
 
-            if (!empty && memberType.HasValue)
+            if (memberType.HasValue)
             {
                 switch (memberType.Value)
                 {
@@ -57,7 +56,7 @@ namespace Roblox.Reflection
                     }
                     case MemberType.Property:
                     {
-                        empty = (Type == ThreadSafetyType.Safe);
+                        empty = (Type != ThreadSafetyType.Unsafe);
                         break;
                     }
                 }
@@ -65,7 +64,9 @@ namespace Roblox.Reflection
 
             if (empty)
                 return "";
-            
+            else if (name.StartsWith("Read", StringComparison.InvariantCulture))
+                name = "Safe";
+
             return $"{{🧬{name}}}";
         }
     }
