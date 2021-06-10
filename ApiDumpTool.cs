@@ -280,50 +280,79 @@ namespace Roblox
             return apiRender;
         }
 
-        public static async Task<string> GetApiDumpFilePath(string branch, string version, Action<string> setStatus = null)
+        public static async Task<string> GetApiDumpFilePath(string branch, string versionGuid, Action<string> setStatus = null)
         {
-            string apiUrl = $"https://s3.amazonaws.com/setup.{branch}.com/{version}-API-Dump.json";
+            string apiUrl = $"https://s3.amazonaws.com/setup.{branch}.com/{versionGuid}-API-Dump.json";
+            
+            string coreBin = GetWorkDirectory();
+            string file = Path.Combine(coreBin, versionGuid + ".json");
 
-            if (UseClientTracker)
+            if (!File.Exists(file))
             {
-                var userAgent = new WebHeaderCollection
+                if (UseClientTracker)
                 {
-                    { "User-Agent", "Roblox API Dump Tool" }
-                };
+                    var logs = await StudioDeployLogs.GetDeployLogs(branch);
 
-                using (WebClient http = new WebClient() { Headers = userAgent })
-                {
-                    string commitsUrl = $"https://api.github.com/repos/{Program.ClientTracker}/commits?sha={branch}";
-                    string commitsJson = await http.DownloadStringTaskAsync(commitsUrl);
+                    var versionId = logs
+                        .LookupFromGuid[versionGuid]
+                        .ToString();
 
-                    using (StringReader reader = new StringReader(commitsJson))
-                    using (JsonTextReader jsonReader = new JsonTextReader(reader))
+                    var userAgent = new WebHeaderCollection
                     {
-                        JArray data = JArray.Load(jsonReader);
-                        
-                        foreach (JObject info in data)
+                        { "User-Agent", "Roblox API Dump Tool" }
+                    };
+
+                    using (WebClient http = new WebClient() { Headers = userAgent })
+                    {
+                        string commitsJson = "[]";
+
+                        try
                         {
-                            string sha = info.Value<string>("sha");
-                            string contentPath = $"https://raw.githubusercontent.com/{Program.ClientTracker}/{sha}";
+                            string commitsUrl = $"https://api.github.com/repos/{Program.ClientTracker}/commits?sha={branch}";
+                            commitsJson = await http.DownloadStringTaskAsync(commitsUrl);
 
-                            string versionPath = $"{contentPath}/version-guid.txt";
-                            string versionGuid = await http.DownloadStringTaskAsync(versionPath);
+                        }
+                        catch (WebException e)
+                        {
+                            var response = e.Response;
+                            var header = response.Headers.Get("X-RateLimit-Reset");
 
-                            if (versionGuid == version)
+                            if (!string.IsNullOrEmpty(header))
                             {
-                                apiUrl = $"{contentPath}/API-Dump.json";
-                                break;
+                                long seconds = long.Parse(header);
+
+                                string reset = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                                    .AddSeconds(seconds)
+                                    .ToLocalTime()
+                                    .ToString();
+
+                                MessageBox.Show($"GitHub rate limited until: {reset}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+
+                        using (StringReader reader = new StringReader(commitsJson))
+                        using (JsonTextReader jsonReader = new JsonTextReader(reader))
+                        {
+                            var array = JArray.Load(jsonReader);
+
+                            foreach (var info in array)
+                            {
+                                string sha = info.Value<string>("sha");
+
+                                string message = info
+                                    .Value<JToken>("commit")
+                                    .Value<string>("message");
+
+                                if (message == versionId)
+                                {
+                                    apiUrl = $"https://raw.githubusercontent.com/{Program.ClientTracker}/{sha}/API-Dump.json";
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            string coreBin = GetWorkDirectory();
-            string file = Path.Combine(coreBin, version + ".json");
-
-            if (!File.Exists(file))
-            {
                 setStatus?.Invoke("Grabbing API Dump for " + branch);
 
                 string apiDump = await http.DownloadStringTaskAsync(apiUrl);
