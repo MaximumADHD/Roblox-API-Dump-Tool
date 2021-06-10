@@ -18,7 +18,7 @@ namespace Roblox
     {
         public static RegistryKey MainRegistry => GetRegistryKey(Registry.CurrentUser, "SOFTWARE", "Roblox API Dump Tool"); 
         
-        private const string clientTracker = "CloneTrooper1019/Roblox-Client-Tracker";
+        public const string ClientTracker = "CloneTrooper1019/Roblox-Client-Tracker";
         private const string apiHistoryUrl = "https://clonetrooper1019.github.io/Roblox-API-History.html";
 
         public static RegistryKey GetRegistryKey(RegistryKey root, params string[] subKeys)
@@ -260,7 +260,7 @@ namespace Roblox
 
                     using (WebClient http = new WebClient() { Headers = userAgent })
                     {
-                        string commitsUrl = $"https://api.github.com/repos/{clientTracker}/commits?sha=roblox";
+                        string commitsUrl = $"https://api.github.com/repos/{ClientTracker}/commits?sha=roblox";
                         string commitsJson = await http.DownloadStringTaskAsync(commitsUrl);
 
                         using (StringReader reader = new StringReader(commitsJson))
@@ -277,7 +277,7 @@ namespace Roblox
                                 if (message.StartsWith(prefix))
                                 {
                                     string sha = info.Value<string>("sha");
-                                    commitUrl = $"https://github.com/{clientTracker}/commit/{sha}";
+                                    commitUrl = $"https://github.com/{ClientTracker}/commit/{sha}";
 
                                     break;
                                 }

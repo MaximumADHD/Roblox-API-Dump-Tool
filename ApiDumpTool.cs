@@ -11,6 +11,8 @@ using System.Windows.Forms;
 
 using Roblox.Reflection;
 using Microsoft.Win32;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Roblox
 {
@@ -18,6 +20,7 @@ namespace Roblox
     {
         public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
         private const string API_DUMP_CSS_FILE = "api-dump-v1.10.css";
+        public static bool UseClientTracker { get; set; } = true;
 
         private delegate void StatusDelegate(string msg);
         private delegate string ItemDelegate(ComboBox comboBox);
@@ -277,12 +280,47 @@ namespace Roblox
             return apiRender;
         }
 
-        public static async Task<string> GetApiDumpFilePath(string branch, string versionGuid, Action<string> setStatus = null)
+        public static async Task<string> GetApiDumpFilePath(string branch, string version, Action<string> setStatus = null)
         {
-            string apiUrl = $"https://s3.amazonaws.com/setup.{branch}.com/{versionGuid}-API-Dump.json";
+            string apiUrl = $"https://s3.amazonaws.com/setup.{branch}.com/{version}-API-Dump.json";
+
+            if (UseClientTracker)
+            {
+                var userAgent = new WebHeaderCollection
+                {
+                    { "User-Agent", "Roblox API Dump Tool" }
+                };
+
+                using (WebClient http = new WebClient() { Headers = userAgent })
+                {
+                    string commitsUrl = $"https://api.github.com/repos/{Program.ClientTracker}/commits?sha={branch}";
+                    string commitsJson = await http.DownloadStringTaskAsync(commitsUrl);
+
+                    using (StringReader reader = new StringReader(commitsJson))
+                    using (JsonTextReader jsonReader = new JsonTextReader(reader))
+                    {
+                        JArray data = JArray.Load(jsonReader);
+                        
+                        foreach (JObject info in data)
+                        {
+                            string sha = info.Value<string>("sha");
+                            string contentPath = $"https://raw.githubusercontent.com/{Program.ClientTracker}/{sha}";
+
+                            string versionPath = $"{contentPath}/version-guid.txt";
+                            string versionGuid = await http.DownloadStringTaskAsync(versionPath);
+
+                            if (versionGuid == version)
+                            {
+                                apiUrl = $"{contentPath}/API-Dump.json";
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
 
             string coreBin = GetWorkDirectory();
-            string file = Path.Combine(coreBin, versionGuid + ".json");
+            string file = Path.Combine(coreBin, version + ".json");
 
             if (!File.Exists(file))
             {
