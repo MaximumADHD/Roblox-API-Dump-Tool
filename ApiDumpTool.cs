@@ -88,20 +88,8 @@ namespace Roblox
 
         public static async Task<string> GetVersion(string branch)
         {
-            string result;
-
-            if (branch == "roblox")
-            {
-                var versionInfo = await ClientVersionInfo.Get();
-                result = versionInfo.Guid;
-            }
-            else
-            {
-                string versionUrl = $"https://s3.amazonaws.com/setup.{branch}.com/versionQTStudio";
-                result = await http.DownloadStringTaskAsync(versionUrl);
-            }
-            
-            return result;
+            var result = await ClientVersionInfo.Get("WindowsStudio64", branch);
+            return result.Guid;
         }
 
         private void setStatus(string msg = "")
