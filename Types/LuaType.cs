@@ -13,39 +13,45 @@
     {
         public string Name;
         public TypeCategory Category;
+
+        public bool IsReturnType = false;
         public override string ToString() => GetSignature();
 
-        public string GetSignature()
+        public string GetSignature(bool ignoreReturnType = false)
         {
             string result;
 
-            if (Name == "Instance" || Category != TypeCategory.Class && Category != TypeCategory.Enum)
+            if (Category != TypeCategory.Enum)
                 result = Name;
             else
-                result = Program.GetEnumName(Category) + '<' + Name + '>';
+                result = $"{Category}.{Name}";
+
+            if (IsReturnType && !ignoreReturnType)
+                result = "-> " + result;
 
             return result;
         }
 
         public void WriteHtml(ReflectionDumper buffer, int numTabs = 0)
         {
-            string typeVal = GetSignature();
-            buffer.OpenClassTag("Type", numTabs);
+            string typeVal = GetSignature(true);
 
-            if (typeVal.Contains("<") && typeVal.EndsWith(">"))
+            if (typeVal.StartsWith("Enum."))
             {
-                string category = Program.GetEnumName(Category);
-                buffer.Write(category);
+                buffer.OpenClassTag("EnumName Type", numTabs);
+                buffer.Write("Enum");
                 buffer.CloseClassTag();
 
-                buffer.OpenClassTag("InnerType", numTabs);
-                buffer.Write(Name);
-            }
-            else
-            {
-                buffer.Write(typeVal);
+                typeVal = typeVal.Substring(5);
             }
 
+            string typeTag = "Type";
+
+            if (IsReturnType)
+                typeTag += " WithReturn";
+
+            buffer.OpenClassTag(typeTag, numTabs);
+            buffer.Write(typeVal);
             buffer.CloseClassTag();
         }
     }

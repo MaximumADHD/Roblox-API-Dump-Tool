@@ -62,11 +62,6 @@ namespace Roblox
             return GetRegistryBool(MainRegistry, name);
         }
 
-        public static string GetEnumName<T>(T item)
-        {
-            return Enum.GetName(typeof(T), item);
-        }
-
         private static async Task ProcessArgs(string[] args)
         {
             if (args.Length < 2)

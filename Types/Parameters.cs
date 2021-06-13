@@ -13,8 +13,8 @@ namespace Roblox.Reflection
 
         public override string ToString()
         {
-            string result = Type.ToString() + " " + Name;
-            string category = Program.GetEnumName(Type.Category);
+            string result = $"{Type} {Name}";
+            string category = $"{Type.Category}";
 
             if (Default != null)
             {
@@ -56,7 +56,7 @@ namespace Roblox.Reflection
                 string typeName;
 
                 if (typeLbl.Contains("<") && typeLbl.EndsWith(">"))
-                    typeName = Program.GetEnumName(Type.Category);
+                    typeName = $"{Type.Category}";
                 else
                     typeName = Type.Name;
 

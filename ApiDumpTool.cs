@@ -19,7 +19,7 @@ namespace Roblox
     public partial class ApiDumpTool : Form
     {
         public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
-        private const string API_DUMP_CSS_FILE = "api-dump-v1.10.css";
+        private const string API_DUMP_CSS_FILE = "api-dump-v1.11.css";
         public static bool UseClientTracker { get; set; } = true;
 
         private delegate void StatusDelegate(string msg);

@@ -49,7 +49,7 @@ namespace Roblox.Reflection
             string result = "";
 
             if (displayNone || Type != SecurityType.None)
-                result += $"{{{Prefix}{Program.GetEnumName(Type)}}}";
+                result += $"{{{Prefix}{Type}}}";
 
             return result;
         }

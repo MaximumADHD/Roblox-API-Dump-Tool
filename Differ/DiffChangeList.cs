@@ -12,8 +12,24 @@ namespace Roblox.Reflection
             Name = name;
         }
 
+        private void PreformatList()
+        {
+            object lastChange = null;
+
+            foreach (object change in this)
+            {
+                if (lastChange is Parameters)
+                    if (change is LuaType type)
+                        type.IsReturnType = true;
+
+                lastChange = change;
+            }
+        }
+
         public string ListElements(string separator, string prefix = "")
         {
+            PreformatList();
+
             string[] elements = this
                 .Select(elem => prefix + elem.ToString())
                 .ToArray();
@@ -53,6 +69,7 @@ namespace Roblox.Reflection
                 config.NumTabs = numTabs;
 
             buffer.NextLine();
+            PreformatList();
 
             foreach (object change in this)
             {

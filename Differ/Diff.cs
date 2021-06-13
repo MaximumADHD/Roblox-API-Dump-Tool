@@ -154,7 +154,7 @@ namespace Roblox.Reflection
 
         public void WriteDiffHtml(ReflectionDumper buffer)
         {
-            string diffType = Program.GetEnumName(Type);
+            string diffType = $"{Type}";
 
             if (Type == DiffType.Add)
                 diffType += "e";

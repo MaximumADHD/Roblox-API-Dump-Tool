@@ -56,8 +56,8 @@ namespace Roblox.Reflection
                             // a "Descriptor" suffix (Example: MemberType.Property -> PropertyDescriptor)
                             // It will also assume that the descriptor object derives MemberDescriptor.
 
-                            string typeName = Program.GetEnumName(memberType) + "Descriptor";
-                            Type descType = Type.GetType(MemberDescriptor.Namespace + '.' + typeName);
+                            string typeName = $"{memberType}Descriptor";
+                            Type descType = Type.GetType($"{MemberDescriptor.Namespace}.{typeName}");
 
                             if (!MemberDescriptor.IsAssignableFrom(descType))
                                 throw new TypeLoadException(typeName + " does not derive from MemberDescriptor!");
