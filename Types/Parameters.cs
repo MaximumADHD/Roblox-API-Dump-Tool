@@ -68,7 +68,7 @@ namespace Roblox.Reflection
                 }
                 else
                 {
-                    if (typeName == "Enum")
+                    if (Type.Category == TypeCategory.Enum)
                         typeName = "String";
 
                     buffer.WriteElement("ParamDefault " + typeName, Default, numTabs + 1);

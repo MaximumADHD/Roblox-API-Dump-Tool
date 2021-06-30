@@ -225,6 +225,14 @@ span.ThreadSafety
 	color: #007FFF !important;
 }
 
+
+span.WithReturn::before
+{
+	content: " -> ";
+	font-style: normal;
+	font-weight: normal;
+}
+
 span.Type,
 span.InnerType,
 span.ParamDefault
@@ -275,8 +283,9 @@ span.Parameters::after,
 span.Parameters::before,
 span.Superclass::before,
 span.ChangeList::before,
+span.WithReturn::before,
 span.ParamDefault.Array,
-span.ParamName.Default::after
+span.ParamName.Default::after 
 {
 	color: #FFAA50;
 	font-weight: normal;

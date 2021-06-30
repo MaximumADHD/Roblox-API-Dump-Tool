@@ -19,7 +19,7 @@ namespace Roblox
     public partial class ApiDumpTool : Form
     {
         public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
-        private const string API_DUMP_CSS_FILE = "api-dump-v1.11.css";
+        private const string API_DUMP_CSS_FILE = "api-dump.css";
         public static bool UseClientTracker { get; set; } = true;
 
         private delegate void StatusDelegate(string msg);
@@ -230,9 +230,7 @@ namespace Roblox
                 workDir = GetWorkDirectory();
 
             string apiDumpCss = Path.Combine(workDir, API_DUMP_CSS_FILE);
-
-            if (!File.Exists(apiDumpCss))
-                File.WriteAllText(apiDumpCss, Properties.Resources.ApiDumpStyler);
+            File.WriteAllText(apiDumpCss, Properties.Resources.ApiDumpStyler);
 
             return "<head>\n"
                  + "\t<link rel=\"stylesheet\" href=\"" + API_DUMP_CSS_FILE + "\">\n"

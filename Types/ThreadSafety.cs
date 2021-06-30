@@ -5,8 +5,13 @@ namespace Roblox.Reflection
     public enum ThreadSafetyType
     {
         Unsafe,
-        ReadOnly,
-        ReadWrite,
+        ReadSafe,
+        LocalSafe,
+        Safe,
+
+        ReadOnly = ReadSafe,
+        ReadWrite = Safe,
+
         Unknown
     }
 
