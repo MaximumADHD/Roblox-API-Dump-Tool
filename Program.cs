@@ -326,8 +326,8 @@ namespace Roblox
                 }
                 else
                 {
-                    var versionInfo = await ClientVersionInfo.Get("WindowsStudio64", "roblox");
-                    currentLog = logs.LookupFromGuid[versionInfo.Guid];
+                    var versionGuid = await ApiDumpTool.GetVersion("roblox");
+                    currentLog = logs.LookupFromGuid[versionGuid];
                 }
 
                 DeployLog prevLog = logs.LookupFromVersion[currentLog.Version - 1];
