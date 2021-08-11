@@ -511,11 +511,9 @@ namespace Roblox.Reflection
 
                 if (newApi.Branch == "roblox")
                 {
-                    var versionInfo = await ClientVersionInfo.Get();
-                    newApi.Version = versionInfo.Version;
-
+                    var deployLog = await ApiDumpTool.GetLastDeployLog("roblox");
                     htmlDumper.OpenHtmlTag("h2");
-                    htmlDumper.Write("Version " + newApi.Version);
+                    htmlDumper.Write("Version " + deployLog.ToString());
 
                     htmlDumper.CloseHtmlTag("h2");
                     htmlDumper.NextLine(2);

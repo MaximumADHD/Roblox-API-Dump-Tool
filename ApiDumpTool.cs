@@ -87,10 +87,21 @@ namespace Roblox
             return await http.DownloadStringTaskAsync(versionUrl);
         }
 
+        public static async Task<DeployLog> GetLastDeployLog(string branch)
+        {
+            var history = await StudioDeployLogs.GetDeployLogs(branch);
+
+            var latestDeploy = history.LookupFromVersion.Keys
+                .OrderBy(version => version)
+                .Last();
+
+            return history.LookupFromVersion[latestDeploy];
+        }
+
         public static async Task<string> GetVersion(string branch)
         {
-            var result = await ClientVersionInfo.Get("WindowsStudio64", branch);
-            return result.Guid;
+            var log = await GetLastDeployLog(branch);
+            return log.VersionGuid;
         }
 
         private void setStatus(string msg = "")
