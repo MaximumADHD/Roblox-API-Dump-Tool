@@ -52,8 +52,7 @@ namespace Roblox
 
         private string getBranch()
         {
-            // return getSelectedItem(branch);
-            return "roblox";
+            return getSelectedItem(branch);
         }
 
         private string getApiDumpFormat()

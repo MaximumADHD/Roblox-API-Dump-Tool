@@ -44,14 +44,14 @@
             this.branch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.branch.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.branch.Enabled = false;
+            this.branch.Enabled = true;
             this.branch.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.branch.FormattingEnabled = true;
             this.branch.Items.AddRange(new object[] {
             "roblox",
-            //"sitetest1.robloxlabs",
-            //"sitetest2.robloxlabs",
-            /*"sitetest3.robloxlabs"*/});
+            "sitetest1.robloxlabs",
+            "sitetest2.robloxlabs",
+            "sitetest3.robloxlabs"});
             this.branch.Location = new System.Drawing.Point(15, 134);
             this.branch.Margin = new System.Windows.Forms.Padding(30, 5, 30, 8);
             this.branch.Name = "branch";
