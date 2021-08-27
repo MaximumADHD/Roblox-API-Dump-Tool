@@ -17,6 +17,8 @@ namespace Roblox.Reflection
         public Dictionary<string, ClassDescriptor> Classes;
         public Dictionary<string, EnumDescriptor> Enums;
 
+        public readonly JObject Source;
+
         public override string ToString()
         {
             return $"{Branch} - {Version}";
@@ -36,6 +38,7 @@ namespace Roblox.Reflection
                 JObject database = JObject.Load(reader);
 
                 // Initialize classes.
+                Source = database;
                 Classes = new Dictionary<string, ClassDescriptor>();
 
                 foreach (JObject classObj in database.GetValue("Classes", StringComparison.InvariantCulture))
