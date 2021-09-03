@@ -20,7 +20,6 @@ namespace Roblox
     {
         public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
         private const string API_DUMP_CSS_FILE = "api-dump.css";
-        public static bool UseClientTracker { get; set; } = true;
 
         private delegate void StatusDelegate(string msg);
         private delegate string ItemDelegate(ComboBox comboBox);
@@ -286,72 +285,7 @@ namespace Roblox
 
             if (!File.Exists(file))
             {
-                if (UseClientTracker)
-                {
-                    var logs = await StudioDeployLogs.GetDeployLogs(branch);
-
-                    var versionId = logs
-                        .LookupFromGuid[versionGuid]
-                        .ToString();
-
-                    var userAgent = new WebHeaderCollection
-                    {
-                        { "User-Agent", "Roblox API Dump Tool" }
-                    };
-
-                    using (WebClient http = new WebClient() { Headers = userAgent })
-                    {
-                        string commitsJson = "[]";
-
-                        try
-                        {
-                            string commitsUrl = $"https://api.github.com/repos/{Program.ClientTracker}/commits?sha={branch}";
-                            commitsJson = await http.DownloadStringTaskAsync(commitsUrl);
-
-                        }
-                        catch (WebException e)
-                        {
-                            var response = e.Response;
-                            var header = response.Headers.Get("X-RateLimit-Reset");
-
-                            if (!string.IsNullOrEmpty(header))
-                            {
-                                long seconds = long.Parse(header);
-
-                                string reset = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                                    .AddSeconds(seconds)
-                                    .ToLocalTime()
-                                    .ToString();
-
-                                MessageBox.Show($"GitHub rate limited until: {reset}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
-                        }
-
-                        using (StringReader reader = new StringReader(commitsJson))
-                        using (JsonTextReader jsonReader = new JsonTextReader(reader))
-                        {
-                            var array = JArray.Load(jsonReader);
-
-                            foreach (var info in array)
-                            {
-                                string sha = info.Value<string>("sha");
-
-                                string message = info
-                                    .Value<JToken>("commit")
-                                    .Value<string>("message");
-
-                                if (message == versionId)
-                                {
-                                    apiUrl = $"https://raw.githubusercontent.com/{Program.ClientTracker}/{sha}/API-Dump.json";
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
                 setStatus?.Invoke("Grabbing API Dump for " + branch);
-
                 string apiDump = await http.DownloadStringTaskAsync(apiUrl);
                 File.WriteAllText(file, apiDump);
             }
