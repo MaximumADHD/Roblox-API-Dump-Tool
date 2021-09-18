@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("A tool that lets you view and compare the latest API Dump files from Roblox's servers.")]
 [assembly: AssemblyCompany("Roblox")]
 [assembly: AssemblyProduct("Roblox API Dump Tool")]
-[assembly: AssemblyCopyright("Made by CloneTrooper1019, 2018")]
+[assembly: AssemblyCopyright("Made by MaximumADHD, 2018")]
 
 [assembly: AssemblyVersion("2.0.1.0")]
 [assembly: AssemblyFileVersion("2.0.1.0")]
