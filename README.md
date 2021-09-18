@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/CloneTrooper1019/Roblox-API-Dump-Tool/master/Resources/AppLogo.png" width=80%>
+<img src="https://raw.githubusercontent.com/MaximumADHD/Roblox-API-Dump-Tool/master/Resources/AppLogo.png" width=80%>
 </p>
 
 <hr/>
@@ -12,14 +12,14 @@ It also serves to replace Roblox's original API Dump, as this tool can generate 
 
 # Download Link
 You can download the latest version of the program directly through this link:
-https://raw.githubusercontent.com/CloneTrooper1019/Roblox-API-Dump-Tool/master/RobloxAPIDumpTool.exe
+https://raw.githubusercontent.com/MaximumADHD/Roblox-API-Dump-Tool/master/RobloxAPIDumpTool.exe
 
 # Demonstrations
 
 ## API Dump
 This tool can generate a full dump of Roblox's API based on the JSON API Dump!<br/>
 The full dump is ~3000 lines though, so I won't embed it in this README.<br/>
-You can view the full one [here](https://github.com/CloneTrooper1019/Roblox-Client-Watch/blob/roblox/API-Dump.txt)!
+You can view the full one [here](https://github.com/MaximumADHD/Roblox-Client-Watch/blob/roblox/API-Dump.txt)!
 
 Here's an example of what it generates for the AnimationTrack class:
 
