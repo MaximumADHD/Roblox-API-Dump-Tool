@@ -18,8 +18,8 @@ namespace Roblox
     {
         public static RegistryKey MainRegistry => GetRegistryKey(Registry.CurrentUser, "SOFTWARE", "Roblox API Dump Tool"); 
         
-        public const string ClientTracker = "CloneTrooper1019/Roblox-Client-Tracker";
-        private const string apiHistoryUrl = "https://clonetrooper1019.github.io/Roblox-API-History.html";
+        public const string ClientTracker = "MaximumADHD/Roblox-Client-Tracker";
+        private const string apiHistoryUrl = "https://maximumadhd.github.io/Roblox-API-History.html";
 
         public static RegistryKey GetRegistryKey(RegistryKey root, params string[] subKeys)
         {

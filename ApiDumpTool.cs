@@ -11,8 +11,6 @@ using System.Windows.Forms;
 
 using Roblox.Reflection;
 using Microsoft.Win32;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Roblox
 {
