@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Roblox.Reflection
+namespace RobloxApiDumpTool
 {
     // This defines the priority of each descriptor type.
     public enum TypePriority

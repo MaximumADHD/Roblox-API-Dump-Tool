@@ -1,4 +1,4 @@
-﻿namespace Roblox
+﻿namespace RobloxApiDumpTool
 {
     partial class ApiDumpTool
     {
@@ -108,7 +108,7 @@
             // 
             this.appLogo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.appLogo.BackgroundImage = global::Roblox.Properties.Resources.AppLogo;
+            this.appLogo.BackgroundImage = global::RobloxApiDumpTool.Properties.Resources.AppLogo;
             this.appLogo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.appLogo.Location = new System.Drawing.Point(15, 15);
             this.appLogo.Margin = new System.Windows.Forms.Padding(15);
@@ -173,7 +173,7 @@
             this.Controls.Add(this.branch);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = global::Roblox.Properties.Resources.AppIcon;
+            this.Icon = global::RobloxApiDumpTool.Properties.Resources.AppIcon;
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MaximizeBox = false;
             this.Name = "ApiDumpTool";

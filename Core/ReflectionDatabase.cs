@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.IO;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Roblox.Reflection
+namespace RobloxApiDumpTool
 {
     public class ReflectionDatabase
     {

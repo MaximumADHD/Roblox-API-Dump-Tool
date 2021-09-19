@@ -1,4 +1,4 @@
-﻿namespace Roblox.Reflection
+﻿namespace RobloxApiDumpTool
 {
     public sealed class CallbackDescriptor : MemberDescriptor
     {

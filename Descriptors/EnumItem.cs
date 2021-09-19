@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Roblox.Reflection
+namespace RobloxApiDumpTool
 {
     public sealed class EnumItemDescriptor : Descriptor
     {

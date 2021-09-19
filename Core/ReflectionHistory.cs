@@ -1,44 +1,45 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace Roblox.Reflection
+using RobloxDeployHistory;
+
+namespace RobloxApiDumpTool
 {
     public static class ReflectionHistory
     {
         public static async Task<DeployLog> FindDeployLog(string branch, string versionGuid)
         {
-            StudioDeployLogs deployLogs = await StudioDeployLogs.GetDeployLogs(branch);
-            DeployLog result = null;
+            var deployLogs = await StudioDeployLogs.Get(branch);
 
-            if (deployLogs.LookupFromGuid.ContainsKey(versionGuid))
-                result = deployLogs.LookupFromGuid[versionGuid];
+            var result = deployLogs.CurrentLogs_x64
+                .Where(log => log.VersionGuid == versionGuid)
+                .First();
 
             return result;
         }
 
         public static async Task<DeployLog> GetPreviousVersion(string branch, DeployLog log)
         {
-            StudioDeployLogs deployLogs = await StudioDeployLogs.GetDeployLogs(branch);
+            var deployLogs = await StudioDeployLogs.Get(branch);
             string versionGuid = log.VersionGuid;
 
-            if (deployLogs.LookupFromGuid.ContainsKey(versionGuid))
-            {
-                DeployLog currentLog = deployLogs.LookupFromGuid[versionGuid];
-                int previousVersion = currentLog.Version - 1;
+            var currentLog = deployLogs.CurrentLogs_x64
+                .Where(deployLog => deployLog.VersionGuid == versionGuid)
+                .FirstOrDefault();
 
-                DeployLog previousLog = null;
-
-                if (deployLogs.LookupFromVersion.ContainsKey(previousVersion))
-                    previousLog = deployLogs.LookupFromVersion[previousVersion];
-                else
-                    Console.WriteLine("Could not resolve previous version for {0}", versionGuid);
-
-                return previousLog;
-            }
-            else
-            {
+            if (currentLog == null)
                 throw new Exception("Unknown version guid: " + versionGuid);
-            }
+
+            var prevLog = deployLogs.CurrentLogs_x64
+                .Where(deployLog => deployLog.Version == currentLog.Version - 1)
+                .OrderBy(deployLog => deployLog.Changelist)
+                .Last();
+
+            if (prevLog == null)
+                throw new Exception($"Could not resolve previous version for {versionGuid}");
+
+            return prevLog;
         }
 
         public static async Task<string> GetPreviousVersionGuid(string branch, string versionGuid)

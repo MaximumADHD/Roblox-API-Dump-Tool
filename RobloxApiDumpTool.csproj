@@ -7,7 +7,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{585EAB66-7C64-482D-8619-2D2EB972CFC9}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Roblox</RootNamespace>
+    <RootNamespace>RobloxApiDumpTool</RootNamespace>
     <AssemblyName>RobloxApiDumpTool</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -84,10 +84,6 @@
     <Compile Include="Differ\Modifiers\MergeRenamedClasses.cs" />
     <Compile Include="Differ\Modifiers\MergeSecurityChanges.cs" />
     <Compile Include="Differ\Modifiers\MoveMemberToNewClass.cs" />
-    <Compile Include="History\ClientVersionInfo.cs" />
-    <Compile Include="History\DeployLog.cs" />
-    <Compile Include="History\HistoryCache.cs" />
-    <Compile Include="History\StudioDeployLogs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -106,7 +102,12 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Roblox-Deploy-History\RobloxDeployHistory.csproj">
+      <Project>{83c4e02a-ca74-470c-8aba-ff49b9dd7c59}</Project>
+      <Name>RobloxDeployHistory</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

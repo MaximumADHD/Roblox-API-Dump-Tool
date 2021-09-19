@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Roblox.Reflection
+namespace RobloxApiDumpTool
 {
     /*
      * This modifier detects when an API member is removed from 

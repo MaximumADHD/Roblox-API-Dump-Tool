@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Roblox.Reflection
+namespace RobloxApiDumpTool
 {
     public enum ThreadSafetyType
     {

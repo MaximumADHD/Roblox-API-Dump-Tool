@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Roblox.Reflection
+namespace RobloxApiDumpTool
 {
     public struct Parameter
     {

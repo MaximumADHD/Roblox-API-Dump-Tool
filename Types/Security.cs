@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Roblox.Reflection
+namespace RobloxApiDumpTool
 {
     public enum SecurityType
     {

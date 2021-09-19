@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json;
 
-namespace Roblox.Reflection
+namespace RobloxApiDumpTool
 {
     public sealed class ClassDescriptor : Descriptor
     {

@@ -1,4 +1,4 @@
-﻿namespace Roblox.Reflection
+﻿namespace RobloxApiDumpTool
 {
     public struct Serialization
     {

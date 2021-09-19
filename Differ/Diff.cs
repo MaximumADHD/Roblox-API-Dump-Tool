@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Roblox.Reflection
+namespace RobloxApiDumpTool
 {
     public enum DiffType
     {

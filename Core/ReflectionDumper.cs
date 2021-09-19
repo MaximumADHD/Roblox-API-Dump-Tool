@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Roblox.Reflection
+namespace RobloxApiDumpTool
 {
     public class ReflectionDumper
     {

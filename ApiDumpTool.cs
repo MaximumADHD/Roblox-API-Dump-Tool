@@ -9,10 +9,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using Roblox.Reflection;
+using RobloxDeployHistory;
 using Microsoft.Win32;
 
-namespace Roblox
+namespace RobloxApiDumpTool
 {
     public partial class ApiDumpTool : Form
     {
@@ -77,21 +77,15 @@ namespace Roblox
             }
         }
 
-        public static async Task<string> GetDeployedVersion(string branch, string versionType = "versionQTStudio")
-        {
-            string versionUrl = $"https://s3.amazonaws.com/setup.{branch}.com/{versionType}";
-            return await http.DownloadStringTaskAsync(versionUrl);
-        }
-
         public static async Task<DeployLog> GetLastDeployLog(string branch)
         {
-            var history = await StudioDeployLogs.GetDeployLogs(branch);
+            var history = await StudioDeployLogs.Get(branch);
 
-            var latestDeploy = history.LookupFromVersion.Keys
-                .OrderBy(version => version)
+            var latestDeploy = history.CurrentLogs_x64
+                .OrderBy(log => log.Changelist)
                 .Last();
 
-            return history.LookupFromVersion[latestDeploy];
+            return latestDeploy;
         }
 
         public static async Task<string> GetVersion(string branch)
@@ -298,16 +292,17 @@ namespace Roblox
         public static async Task<string> GetApiDumpFilePath(string branch, int versionId, Action<string> setStatus = null)
         {
             setStatus?.Invoke("Fetching deploy logs for " + branch);
+            var logs = await StudioDeployLogs.Get(branch);
 
-            StudioDeployLogs logs = await StudioDeployLogs.GetDeployLogs(branch);
-            var lookup = logs.LookupFromVersion;
+            var deployLog = logs.CurrentLogs_x64
+                .Where(log => log.Version == versionId)
+                .OrderBy(log => log.Changelist)
+                .LastOrDefault();
 
-            if (!lookup.ContainsKey(versionId))
+            if (deployLog == null)
                 throw new Exception("Unknown version id: " + versionId);
 
-            DeployLog log = lookup[versionId];
-            string versionGuid = log.VersionGuid;
-
+            string versionGuid = deployLog.VersionGuid;
             return await GetApiDumpFilePath(branch, versionGuid, setStatus);
         }
 
@@ -474,7 +469,7 @@ namespace Roblox
                 string[] branches = branch.Items.Cast<string>().ToArray();
                 setStatus("Initializing version cache...");
 
-                // Fetch the version guids for roblox, and gametest1-gametest5
+                // Fetch the version guids for roblox and sitetest1-sitetest3
                 foreach (string branchName in branches)
                 {
                     string versionGuid = await GetVersion(branchName);

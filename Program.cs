@@ -1,23 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using Microsoft.Win32;
-using Roblox.Reflection;
+using RobloxDeployHistory;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Roblox
+namespace RobloxApiDumpTool
 {
     static class Program
     {
-        public static RegistryKey MainRegistry => GetRegistryKey(Registry.CurrentUser, "SOFTWARE", "Roblox API Dump Tool"); 
-        
+        public static RegistryKey MainRegistry => GetRegistryKey(Registry.CurrentUser, "SOFTWARE", "Roblox API Dump Tool");
+
+        public const StringComparison StringFormat = StringComparison.InvariantCulture;
+        public static readonly NumberFormatInfo NumberFormat = NumberFormatInfo.InvariantInfo;
+
         public const string ClientTracker = "MaximumADHD/Roblox-Client-Tracker";
         private const string apiHistoryUrl = "https://maximumadhd.github.io/Roblox-API-History.html";
 
@@ -315,28 +320,37 @@ namespace Roblox
                 if (!Directory.Exists(dir))
                     Environment.Exit(1);
 
-                StudioDeployLogs logs = await StudioDeployLogs.GetDeployLogs("roblox");
+                StudioDeployLogs logs = await StudioDeployLogs.Get("roblox");
                 DeployLog currentLog;
 
                 if (argMap.ContainsKey("-version"))
                 {
                     string versionStr = argMap["-version"];
                     int version = int.Parse(versionStr);
-                    currentLog = logs.LookupFromVersion[version];
+
+                    var logQuery = logs.CurrentLogs_x64
+                        .Where(log => log.Version == version)
+                        .OrderBy(log => log.Changelist);
+
+                    currentLog = logQuery.Last();
                 }
                 else
                 {
                     var versionGuid = await ApiDumpTool.GetVersion("roblox");
-                    currentLog = logs.LookupFromGuid[versionGuid];
+                    var logQuery = logs.CurrentLogs_x64.Where(log => log.VersionGuid == versionGuid);
+                    currentLog = logQuery.FirstOrDefault();
                 }
 
-                DeployLog prevLog = logs.LookupFromVersion[currentLog.Version - 1];
+                DeployLog prevLog = logs.CurrentLogs_x64
+                    .Where(log => log.Version == currentLog.Version - 1)
+                    .OrderBy(log => log.Changelist)
+                    .LastOrDefault();
 
                 string currentPath = await ApiDumpTool.GetApiDumpFilePath("roblox", currentLog.VersionGuid);
                 string prevPath = await ApiDumpTool.GetApiDumpFilePath("roblox", prevLog.VersionGuid);
 
-                var currentData = new ReflectionDatabase(currentPath, "roblox", currentLog.ToString());
-                var prevData = new ReflectionDatabase(prevPath, "roblox", prevLog.ToString());
+                var currentData = new ReflectionDatabase(currentPath, "roblox", currentLog.VersionId);
+                var prevData = new ReflectionDatabase(prevPath, "roblox", prevLog.VersionId);
 
                 var postProcess = new ReflectionDumper.DumpPostProcesser((dump, workDir) =>
                 {
