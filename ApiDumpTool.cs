@@ -82,7 +82,7 @@ namespace RobloxApiDumpTool
             var history = await StudioDeployLogs.Get(branch);
 
             var latestDeploy = history.CurrentLogs_x64
-                .OrderBy(log => log.Changelist)
+                .OrderBy(log => log.TimeStamp)
                 .Last();
 
             return latestDeploy;
@@ -388,12 +388,12 @@ namespace RobloxApiDumpTool
 
                 setStatus("Reading the " + (fetchPrevious ? "Previous" : "Production") + " API...");
 
-                ReflectionDatabase oldApi = new ReflectionDatabase(oldApiFilePath);
+                var oldApi = new ReflectionDatabase(oldApiFilePath);
                 oldApi.Branch = fetchPrevious ? "roblox-prev" : "roblox";
 
                 setStatus("Reading the " + (fetchPrevious ? "Production" : "New") + " API...");
 
-                ReflectionDatabase newApi = new ReflectionDatabase(newApiFilePath);
+                var newApi = new ReflectionDatabase(newApiFilePath);
                 newApi.Branch = newBranch;
                 
                 setStatus("Comparing APIs...");
