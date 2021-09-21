@@ -512,7 +512,7 @@ namespace RobloxApiDumpTool
                 {
                     var deployLog = await ApiDumpTool.GetLastDeployLog("roblox");
                     htmlDumper.OpenHtmlTag("h2");
-                    htmlDumper.Write("Version " + deployLog.ToString());
+                    htmlDumper.Write("Version " + deployLog.VersionId);
 
                     htmlDumper.CloseHtmlTag("h2");
                     htmlDumper.NextLine(2);
