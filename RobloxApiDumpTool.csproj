@@ -84,7 +84,6 @@
     <Compile Include="Differ\Modifiers\MergeRenamedClasses.cs" />
     <Compile Include="Differ\Modifiers\MergeSecurityChanges.cs" />
     <Compile Include="Differ\Modifiers\MoveMemberToNewClass.cs" />
-    <Compile Include="History\*.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -104,12 +103,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Roblox-Deploy-History\RobloxDeployHistory.csproj">
-      <Project>{83c4e02a-ca74-470c-8aba-ff49b9dd7c59}</Project>
-      <Name>RobloxDeployHistory</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -117,6 +110,12 @@
     <EmbeddedResource Include="Resources\api-dump.css" />
     <EmbeddedResource Include="Resources\AppIcon.ico" />
     <EmbeddedResource Include="Resources\AppLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Roblox-Deploy-History\RobloxDeployHistory.csproj">
+      <Project>{4bfa155a-2059-47b8-a667-b3d09d3b493a}</Project>
+      <Name>RobloxDeployHistory</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
