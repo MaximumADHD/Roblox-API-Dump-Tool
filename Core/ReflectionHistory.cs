@@ -14,7 +14,7 @@ namespace RobloxApiDumpTool
 
             var result = deployLogs.CurrentLogs_x64
                 .Where(log => log.VersionGuid == versionGuid)
-                .First();
+                .FirstOrDefault();
 
             return result;
         }
@@ -32,9 +32,9 @@ namespace RobloxApiDumpTool
                 throw new Exception("Unknown version guid: " + versionGuid);
 
             var prevLog = deployLogs.CurrentLogs_x64
-                .Where(deployLog => deployLog.Version == currentLog.Version - 1)
+                .Where(deployLog => deployLog.Version < currentLog.Version)
                 .OrderBy(deployLog => deployLog.Changelist)
-                .Last();
+                .LastOrDefault();
 
             if (prevLog == null)
                 throw new Exception($"Could not resolve previous version for {versionGuid}");
