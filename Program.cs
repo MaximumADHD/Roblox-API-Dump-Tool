@@ -342,7 +342,7 @@ namespace RobloxApiDumpTool
                 }
 
                 DeployLog prevLog = logs.CurrentLogs_x64
-                    .Where(log => log.Version == currentLog.Version - 1)
+                    .Where(log => log.Version < currentLog.Version)
                     .OrderBy(log => log.Changelist)
                     .LastOrDefault();
 
