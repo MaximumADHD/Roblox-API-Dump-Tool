@@ -11,9 +11,9 @@ namespace RobloxApiDumpTool
         public delegate void SignatureWriter(ReflectionDumper buffer, Descriptor desc, int numTabs = 0);
         public delegate string DumpPostProcesser(string result, string workDir = "");
 
-        private StringBuilder buffer = new StringBuilder();
+        private readonly StringBuilder buffer = new StringBuilder();
 
-        private static Descriptor.HtmlConfig htmlConfig = new Descriptor.HtmlConfig
+        private static readonly Descriptor.HtmlConfig htmlConfig = new Descriptor.HtmlConfig
         {
             NumTabs = 0,
             TagType = "div",

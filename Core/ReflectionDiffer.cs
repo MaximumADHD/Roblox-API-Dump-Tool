@@ -415,6 +415,7 @@ namespace RobloxApiDumpTool
                         }
                     }
 
+                    // Record enum-items that were changed or removed.
                     foreach (var itemName in oldItems.Keys)
                     {
                         EnumItemDescriptor oldItem = oldItems[itemName];
@@ -427,6 +428,37 @@ namespace RobloxApiDumpTool
                             // Check if any tags that were added to this item were also added to its parent enum.
                             var itemTagDiffs = CompareTags(newItem, oldItem.Tags, newItem.Tags);
                             MergeTagDiffs(enumTagDiffs, itemTagDiffs);
+
+                            // Check if any legacy names were added.
+                            var addedNames = newItem.LegacyNames
+                                .Except(oldItem.LegacyNames)
+                                .OrderBy(name => name)
+                                .ToList();
+
+                            var removedNames = oldItem.LegacyNames
+                                .Except(newItem.LegacyNames)
+                                .OrderBy(name => name)
+                                .ToList();
+
+                            if (addedNames.Any())
+                            {
+                                foreach (var name in addedNames)
+                                {
+                                    var added = Added($"LegacyName \"{name}\" to", newItem, false);
+                                    added.BiasTarget = true;
+                                    added.Context = name;
+                                }
+                            }
+
+                            if (removedNames.Any())
+                            {
+                                foreach (var name in removedNames)
+                                {
+                                    var removed = Removed($"LegacyName \"{name}\" from", newItem, false);
+                                    removed.BiasTarget = true;
+                                    removed.Context = name;
+                                }
+                            }
                         }
                         else
                         {

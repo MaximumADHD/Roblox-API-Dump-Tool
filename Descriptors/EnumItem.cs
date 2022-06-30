@@ -4,6 +4,7 @@ namespace RobloxApiDumpTool
 {
     public sealed class EnumItemDescriptor : Descriptor
     {
+        public List<string> LegacyNames = new List<string>();
         public EnumDescriptor Enum;
         public int Value;
 

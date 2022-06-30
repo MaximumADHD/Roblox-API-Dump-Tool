@@ -12,6 +12,8 @@ using System.Windows.Forms;
 using RobloxDeployHistory;
 using Microsoft.Win32;
 
+#pragma warning disable IDE1006 // Naming Styles
+
 namespace RobloxApiDumpTool
 {
     public partial class ApiDumpTool : Form
@@ -22,7 +24,7 @@ namespace RobloxApiDumpTool
         private delegate void StatusDelegate(string msg);
         private delegate string ItemDelegate(ComboBox comboBox);
 
-        private static WebClient http = new WebClient();
+        private static readonly WebClient http = new WebClient();
         private static TaskCompletionSource<Bitmap> renderFinished;
 
         public ApiDumpTool()
@@ -387,14 +389,10 @@ namespace RobloxApiDumpTool
                 string oldApiFilePath = await getApiDumpFilePath("roblox", fetchPrevious);
 
                 setStatus("Reading the " + (fetchPrevious ? "Previous" : "Production") + " API...");
-
-                var oldApi = new ReflectionDatabase(oldApiFilePath);
-                oldApi.Branch = fetchPrevious ? "roblox-prev" : "roblox";
+                var oldApi = new ReflectionDatabase(oldApiFilePath) { Branch = fetchPrevious ? "roblox-prev" : "roblox" };
 
                 setStatus("Reading the " + (fetchPrevious ? "Production" : "New") + " API...");
-
-                var newApi = new ReflectionDatabase(newApiFilePath);
-                newApi.Branch = newBranch;
+                var newApi = new ReflectionDatabase(newApiFilePath) { Branch = newBranch };
                 
                 setStatus("Comparing APIs...");
 

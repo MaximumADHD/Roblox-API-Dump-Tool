@@ -25,6 +25,7 @@ namespace RobloxApiDumpTool
         public string Field = "";
         public object Context;
 
+        public bool BiasTarget = false;
         public Descriptor Target;
 
         public DiffChangeList From = new DiffChangeList("ChangeFrom");
@@ -239,24 +240,41 @@ namespace RobloxApiDumpTool
 
                     if (Field != descType)
                     {
-                        if (Context != null && Context is Tags)
+                        if (Context != null)
                         {
-                            Tags tags = Context as Tags;
-                            string tagClass = "TagChange";
+                            if (Context is Tags tags)
+                            {
+                                string tagClass = "TagChange";
 
-                            if (tags.Count == 1)
-                                tagClass += " singular";
+                                if (tags.Count == 1)
+                                    tagClass += " singular";
 
-                            if (Type == DiffType.Add)
-                                tagClass += " to";
-                            else
-                                tagClass += " from";
+                                if (Type == DiffType.Add)
+                                    tagClass += " to";
+                                else
+                                    tagClass += " from";
 
-                            buffer.OpenClassTag(tagClass, stack + 1);
-                            buffer.NextLine();
+                                buffer.OpenClassTag(tagClass, stack + 1);
+                                buffer.NextLine();
 
-                            tags.WriteHtml(buffer, stack + 2);
-                            buffer.CloseClassTag(stack + 1);
+                                tags.WriteHtml(buffer, stack + 2);
+                                buffer.CloseClassTag(stack + 1);
+                            }
+                            else if (Context is string legacyName)
+                            {
+                                string nameClass = "LegacyName";
+
+                                if (Type == DiffType.Add)
+                                    nameClass += " to";
+                                else
+                                    nameClass += " from";
+
+                                buffer.OpenClassTag(nameClass, stack + 1);
+                                buffer.NextLine();
+
+                                buffer.WriteElement("String", legacyName, stack + 2);
+                                buffer.CloseClassTag(stack + 1);
+                            }
 
                             detailed = false;
                         }
@@ -305,24 +323,36 @@ namespace RobloxApiDumpTool
 
             if (Field.StartsWith("Tag"))
                 myPriority = TypePriority.Tag;
-                
+            else if (Field.StartsWith("Legacy"))
+                myPriority = TypePriority.LegacyName;
+
             if (diff.Field.StartsWith("Tag"))
                 diffPriority = TypePriority.Tag;
+            else if (diff.Field.StartsWith("Legacy"))
+                diffPriority = TypePriority.LegacyName;
 
             if (myPriority != diffPriority)
                 return myPriority - diffPriority;
             
             // Compare fields.
-            int sortByField = Field.CompareTo(diff.Field);
-
-            if (sortByField != 0)
-                return sortByField;
-
+            if (!BiasTarget)
+            {
+                int sortByField = Field.CompareTo(diff.Field);
+                if (sortByField != 0) return sortByField;
+            }
+            
             // Compare targets.
             int sortByTarget = Target.CompareTo(diff.Target);
 
             if (sortByTarget != 0)
                 return sortByTarget;
+
+            // Compare fields.
+            if (BiasTarget)
+            {
+                int sortByField = Field.CompareTo(diff.Field);
+                if (sortByField != 0) return sortByField;
+            }
 
             // These are identical?
             return 0;

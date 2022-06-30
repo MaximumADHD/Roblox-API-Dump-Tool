@@ -14,6 +14,7 @@ namespace RobloxApiDumpTool
         Callback,
         Enum,
         EnumItem,
+        LegacyName,
         Tag,
 
         Unknown = -1
@@ -84,10 +85,9 @@ namespace RobloxApiDumpTool
 
         public virtual Dictionary<string, object> GetTokens(bool detailed = false)
         {
-            var tokens = new Dictionary<string, object>();
-            tokens.Add("Name", Name);
-
+            var tokens = new Dictionary<string, object>() { { "Name", Name } };
             string tags = Tags.ToString();
+
             if (detailed && tags.Length > 0)
                 tokens.Add("Tags", tags);
 
@@ -223,9 +223,7 @@ namespace RobloxApiDumpTool
 
         public void WriteHtml(ReflectionDumper buffer, int numTabs)
         {
-            var config = new HtmlConfig();
-            config.NumTabs = numTabs;
-
+            var config = new HtmlConfig() { NumTabs = numTabs };
             WriteHtml(buffer, config);
         }
 

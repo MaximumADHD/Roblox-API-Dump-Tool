@@ -67,33 +67,8 @@ namespace RobloxApiDumpTool
             return GetRegistryBool(MainRegistry, name);
         }
 
-        private static async Task ProcessArgs(string[] args)
+        public static async Task ProcessArgs(Dictionary<string, string> argMap)
         {
-            if (args.Length < 2)
-                return;
-
-            Dictionary<string, string> argMap = new Dictionary<string, string>();
-            string currentArg = "";
-
-            foreach (string arg in args)
-            {
-                if (arg.StartsWith("-"))
-                {
-                    if (!string.IsNullOrEmpty(currentArg))
-                        argMap.Add(currentArg, "");
-
-                    currentArg = arg;
-                }
-                else if (!string.IsNullOrEmpty(currentArg))
-                {
-                    argMap.Add(currentArg, arg);
-                    currentArg = "";
-                }
-            }
-
-            if (!string.IsNullOrEmpty(currentArg))
-                argMap.Add(currentArg, "");
-
             string format = "TXT";
 
             if (argMap.ContainsKey("-format"))
@@ -412,6 +387,36 @@ namespace RobloxApiDumpTool
             }
         }
 
+        static Dictionary<string, string> ReadArgs(params string[] args)
+        {
+            if (args.Length < 2)
+                return null;
+
+            var argMap = new Dictionary<string, string>();
+            string currentArg = "";
+
+            foreach (string arg in args)
+            {
+                if (arg.StartsWith("-"))
+                {
+                    if (!string.IsNullOrEmpty(currentArg))
+                        argMap.Add(currentArg, "");
+
+                    currentArg = arg;
+                }
+                else if (!string.IsNullOrEmpty(currentArg))
+                {
+                    argMap.Add(currentArg, arg);
+                    currentArg = "";
+                }
+            }
+
+            if (!string.IsNullOrEmpty(currentArg))
+                argMap.Add(currentArg, "");
+
+            return argMap;
+        }
+
         [STAThread]
         static void Main(string[] args)
         {
@@ -438,8 +443,13 @@ namespace RobloxApiDumpTool
             // Check the launch arguments.
             if (args.Length > 0)
             {
-                Task processArgsTask = Task.Run(() => ProcessArgs(args));
-                processArgsTask.Wait();
+                var argMap = ReadArgs(args);
+
+                if (argMap != null)
+                {
+                    var processArgsTask = Task.Run(() => ProcessArgs(argMap));
+                    processArgsTask.Wait();
+                }
             }
 
             // Start the application window.
