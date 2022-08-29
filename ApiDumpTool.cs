@@ -20,6 +20,7 @@ namespace RobloxApiDumpTool
     {
         public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
         private const string API_DUMP_CSS_FILE = "api-dump.css";
+        private const string LIVE = Program.LIVE;
 
         private delegate void StatusDelegate(string msg);
         private delegate string ItemDelegate(ComboBox comboBox);
@@ -46,12 +47,12 @@ namespace RobloxApiDumpTool
                 result = comboBox.SelectedItem;
             }
 
-            return result?.ToString() ?? "roblox";
+            return result?.ToString() ?? LIVE;
         }
 
-        private string getBranch()
+        private Channel getChannel()
         {
-            return getSelectedItem(branch);
+            return getSelectedItem(channel);
         }
 
         private string getApiDumpFormat()
@@ -79,9 +80,9 @@ namespace RobloxApiDumpTool
             }
         }
 
-        public static async Task<DeployLog> GetLastDeployLog(string branch)
+        public static async Task<DeployLog> GetLastDeployLog(Channel channel)
         {
-            var history = await StudioDeployLogs.Get(branch);
+            var history = await StudioDeployLogs.Get(channel);
 
             var latestDeploy = history.CurrentLogs_x64
                 .OrderBy(log => log.TimeStamp)
@@ -90,9 +91,9 @@ namespace RobloxApiDumpTool
             return latestDeploy;
         }
 
-        public static async Task<string> GetVersion(string branch)
+        public static async Task<string> GetVersion(Channel channel)
         {
-            var log = await GetLastDeployLog(branch);
+            var log = await GetLastDeployLog(channel);
             return log.VersionGuid;
         }
 
@@ -270,16 +271,15 @@ namespace RobloxApiDumpTool
             return apiRender;
         }
 
-        public static async Task<string> GetApiDumpFilePath(string branch, string versionGuid, Action<string> setStatus = null)
+        public static async Task<string> GetApiDumpFilePath(Channel channel, string versionGuid, Action<string> setStatus = null)
         {
-            string apiUrl = $"https://s3.amazonaws.com/setup.{branch}.com/{versionGuid}-API-Dump.json";
-            
             string coreBin = GetWorkDirectory();
+            string apiUrl = $"{channel.BaseUrl}/{versionGuid}-API-Dump.json";
             string file = Path.Combine(coreBin, versionGuid + ".json");
 
             if (!File.Exists(file))
             {
-                setStatus?.Invoke("Grabbing API Dump for " + branch);
+                setStatus?.Invoke("Grabbing API Dump for " + channel);
                 string apiDump = await http.DownloadStringTaskAsync(apiUrl);
                 File.WriteAllText(file, apiDump);
             }
@@ -291,10 +291,10 @@ namespace RobloxApiDumpTool
             return file;
         }
 
-        public static async Task<string> GetApiDumpFilePath(string branch, int versionId, Action<string> setStatus = null)
+        public static async Task<string> GetApiDumpFilePath(Channel channel, int versionId, Action<string> setStatus = null)
         {
-            setStatus?.Invoke("Fetching deploy logs for " + branch);
-            var logs = await StudioDeployLogs.Get(branch);
+            setStatus?.Invoke("Fetching deploy logs for " + channel);
+            var logs = await StudioDeployLogs.Get(channel);
 
             var deployLog = logs.CurrentLogs_x64
                 .Where(log => log.Version == versionId)
@@ -305,43 +305,43 @@ namespace RobloxApiDumpTool
                 throw new Exception("Unknown version id: " + versionId);
 
             string versionGuid = deployLog.VersionGuid;
-            return await GetApiDumpFilePath(branch, versionGuid, setStatus);
+            return await GetApiDumpFilePath(channel, versionGuid, setStatus);
         }
 
-        public static async Task<string> GetApiDumpFilePath(string branch, Action<string> setStatus = null, bool fetchPrevious = false)
+        public static async Task<string> GetApiDumpFilePath(string channel, Action<string> setStatus = null, bool fetchPrevious = false)
         {
             setStatus?.Invoke("Checking for update...");
-            string versionGuid = await GetVersion(branch);
+            string versionGuid = await GetVersion(channel);
 
             if (fetchPrevious)
-                versionGuid = await ReflectionHistory.GetPreviousVersionGuid(branch, versionGuid);
+                versionGuid = await ReflectionHistory.GetPreviousVersionGuid(channel, versionGuid);
 
-            string file = await GetApiDumpFilePath(branch, versionGuid, setStatus);
+            string file = await GetApiDumpFilePath(channel, versionGuid, setStatus);
 
             if (fetchPrevious)
-                branch += "-prev";
+                channel += "-prev";
 
-            VersionRegistry.SetValue(branch, versionGuid);
+            VersionRegistry.SetValue(channel, versionGuid);
             clearOldVersionFiles();
 
             return file;
         }
 
-        private async Task<string> getApiDumpFilePath(string branch, bool fetchPrevious = false)
+        private async Task<string> getApiDumpFilePath(Channel channel, bool fetchPrevious = false)
         {
-            return await GetApiDumpFilePath(branch, setStatus, fetchPrevious);
+            return await GetApiDumpFilePath(channel, setStatus, fetchPrevious);
         }
 
-        private void branch_SelectedIndexChanged(object sender, EventArgs e)
+        private void channel_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string branch = getBranch();
+            Channel channel = getChannel();
 
-            if (branch == "roblox")
+            if (channel.Equals(LIVE))
                 compareVersions.Text = "Compare Previous Version";
             else
                 compareVersions.Text = "Compare to Production";
 
-            Program.MainRegistry.SetValue("LastSelectedBranch", branch);
+            Program.MainRegistry.SetValue("LastSelectedChannel", channel);
             updateEnabledStates();
         }
 
@@ -349,10 +349,9 @@ namespace RobloxApiDumpTool
         {
             await lockWindowAndRunTask(async () =>
             {
-                string branch = getBranch();
+                var channel = getChannel();
                 string format = getApiDumpFormat();
-
-                string apiFilePath = await getApiDumpFilePath(branch);
+                string apiFilePath = await getApiDumpFilePath(channel);
 
                 if (format == "JSON")
                 {
@@ -373,7 +372,7 @@ namespace RobloxApiDumpTool
                 FileInfo info = new FileInfo(apiFilePath);
                 string directory = info.DirectoryName;
 
-                string resultPath = Path.Combine(directory, branch + "-api-dump." + format.ToLower());
+                string resultPath = Path.Combine(directory, channel + "-api-dump." + format.ToLower());
                 writeAndViewFile(resultPath, result);
             });
         }
@@ -382,29 +381,32 @@ namespace RobloxApiDumpTool
         {
             await lockWindowAndRunTask(async () =>
             {
-                string newBranch = getBranch();
-                bool fetchPrevious = (newBranch == "roblox");
+                Channel newChannel = getChannel();
+                bool fetchPrevious = newChannel.Equals(LIVE);
 
-                string newApiFilePath = await getApiDumpFilePath(newBranch);
-                string oldApiFilePath = await getApiDumpFilePath("roblox", fetchPrevious);
+                string newApiFilePath = await getApiDumpFilePath(newChannel);
+                string oldApiFilePath = await getApiDumpFilePath(LIVE, fetchPrevious);
 
-                setStatus("Reading the " + (fetchPrevious ? "Previous" : "Production") + " API...");
-                var oldApi = new ReflectionDatabase(oldApiFilePath) { Branch = fetchPrevious ? "roblox-prev" : "roblox" };
+                var latestLog = await GetLastDeployLog(newChannel);
+                string version = latestLog.VersionId;
 
-                setStatus("Reading the " + (fetchPrevious ? "Production" : "New") + " API...");
-                var newApi = new ReflectionDatabase(newApiFilePath) { Branch = newBranch };
+                setStatus($"Reading the {(fetchPrevious ? "Previous" : "Production")} API...");
+                var oldApi = new ReflectionDatabase(oldApiFilePath, LIVE, version);
+
+                setStatus($"Reading the {(fetchPrevious ? "Production" : "New")} API...");
+                var newApi = new ReflectionDatabase(newApiFilePath, newChannel, version);
                 
                 setStatus("Comparing APIs...");
 
                 string format = getApiDumpFormat();
-                string result = await ReflectionDiffer.CompareDatabases(oldApi, newApi, format);
+                string result = ReflectionDiffer.CompareDatabases(oldApi, newApi, format);
 
                 if (result.Length > 0)
                 {
                     FileInfo info = new FileInfo(newApiFilePath);
                     string dirName = info.DirectoryName;
 
-                    string fileBase = Path.Combine(dirName, $"{newBranch}-diff.");
+                    string fileBase = Path.Combine(dirName, $"{newChannel}-diff.");
                     string filePath = fileBase + format.ToLower();
 
                     if (format == "PNG")
@@ -438,7 +440,7 @@ namespace RobloxApiDumpTool
             string workDir = GetWorkDirectory();
 
             string[] activeVersions = VersionRegistry.GetValueNames()
-                .Select(branch => Program.GetRegistryString(VersionRegistry, branch))
+                .Select(channel => Program.GetRegistryString(VersionRegistry, channel))
                 .ToArray();
 
             string[] oldFiles = Directory.GetFiles(workDir, "version-*.json")
@@ -464,17 +466,16 @@ namespace RobloxApiDumpTool
         {
             await lockWindowAndRunTask(async () =>
             {
-                string[] branches = branch.Items.Cast<string>().ToArray();
+                string[] channels = channel.Items.Cast<string>().ToArray();
                 setStatus("Initializing version cache...");
 
-                // Fetch the version guids for roblox and sitetest1-sitetest3
-                foreach (string branchName in branches)
+                foreach (string channelName in channels)
                 {
-                    string versionGuid = await GetVersion(branchName);
-                    VersionRegistry.SetValue(branchName, versionGuid);
+                    string versionGuid = await GetVersion(channelName);
+                    VersionRegistry.SetValue(channelName, versionGuid);
                 }
 
-                Program.MainRegistry.SetValue("InitializedVersions", true);
+                Program.MainRegistry.SetValue("InitializedChannels", true);
             });
         }
 
@@ -482,13 +483,13 @@ namespace RobloxApiDumpTool
         {
             WebRequest.DefaultWebProxy = null;
 
-            if (!Program.GetRegistryBool("InitializedVersions"))
+            if (!Program.GetRegistryBool("InitializedChannels"))
             {
                 await initVersionCache();
                 clearOldVersionFiles();
             }
 
-            loadSelectedIndex(branch, "LastSelectedBranch");
+            loadSelectedIndex(channel, "LastSelectedChannel");
             loadSelectedIndex(apiDumpFormat, "PreferredFormat");
         }
 
@@ -498,6 +499,60 @@ namespace RobloxApiDumpTool
             Program.MainRegistry.SetValue("PreferredFormat", format);
 
             updateEnabledStates();
+        }
+
+        private async void channel_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter)
+                return;
+
+            Channel input = channel.Text;
+            e.SuppressKeyPress = true;
+
+            foreach (var item in channel.Items)
+            {
+                Channel old = item.ToString();
+
+                if (old.Name == input.Name)
+                {
+                    channel.SelectedItem = item;
+                    return;
+                }
+            }
+
+            try
+            {
+                var logs = await StudioDeployLogs.Get(input);
+
+                if (logs.CurrentLogs_x64.Any())
+                {
+                    var addItem = new Action(() =>
+                    {
+                        var index = channel.Items.Add(channel.Text);
+                        channel.SelectedIndex = index;
+                    });
+
+                    Invoke(addItem);
+                    return;
+                }
+
+                throw new Exception("No channels to work with!");
+            }
+            catch
+            {
+                var reset = new Action(() => channel.SelectedIndex = 0);
+
+                MessageBox.Show
+                (
+                    $"Channel '{input}' had no valid data on Roblox's CDN!",
+                    "Invalid channel!",
+
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+
+                Invoke(reset);
+            }
         }
     }
 }

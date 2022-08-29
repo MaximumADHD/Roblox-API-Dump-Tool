@@ -38,7 +38,7 @@ namespace RobloxApiDumpTool
             return result;
         }
 
-        private static List<T> sorted<T>(List<T> list)
+        private static List<T> Sorted<T>(List<T> list)
         {
             list.Sort();
             return list;
@@ -125,7 +125,7 @@ namespace RobloxApiDumpTool
                 WriteSignature(this, classDesc, 0);
                 NextLine();
 
-                foreach (MemberDescriptor memberDesc in sorted(classDesc.Members))
+                foreach (MemberDescriptor memberDesc in Sorted(classDesc.Members))
                 {
                     WriteSignature(this, memberDesc, 1);
                     NextLine();
@@ -137,7 +137,7 @@ namespace RobloxApiDumpTool
                 WriteSignature(this, enumDesc, 0);
                 NextLine();
 
-                foreach (EnumItemDescriptor itemDesc in sorted(enumDesc.Items))
+                foreach (EnumItemDescriptor itemDesc in Sorted(enumDesc.Items))
                 {
                     WriteSignature(this, itemDesc, 1);
                     NextLine();

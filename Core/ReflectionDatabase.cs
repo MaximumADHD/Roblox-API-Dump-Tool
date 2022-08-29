@@ -10,7 +10,9 @@ namespace RobloxApiDumpTool
 {
     public class ReflectionDatabase
     {
-        public string Branch { get; set; }
+        public const string UNKNOWN = "unknown";
+
+        public string Channel { get; set; }
         public string Version { get; set; }
 
         public Dictionary<string, ClassDescriptor> Classes;
@@ -20,14 +22,13 @@ namespace RobloxApiDumpTool
 
         public override string ToString()
         {
-            return $"{Branch} - {Version}";
+            return $"{Channel} - {Version}";
         }
 
-        public ReflectionDatabase(string filePath, string branch = "unknown", string version = "0.0.0.0")
+        public ReflectionDatabase(string filePath, string channel = UNKNOWN, string version = "0.0.0.0")
         {
             string jsonApiDump = File.ReadAllText(filePath);
-
-            Branch = branch;
+            Channel = channel;
             Version = version;
 
             using (StringReader jsonText = new StringReader(jsonApiDump))

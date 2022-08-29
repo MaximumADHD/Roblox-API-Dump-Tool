@@ -8,9 +8,9 @@ namespace RobloxApiDumpTool
 {
     public static class ReflectionHistory
     {
-        public static async Task<DeployLog> FindDeployLog(string branch, string versionGuid)
+        public static async Task<DeployLog> FindDeployLog(Channel channel, string versionGuid)
         {
-            var deployLogs = await StudioDeployLogs.Get(branch);
+            var deployLogs = await StudioDeployLogs.Get(channel);
 
             var result = deployLogs.CurrentLogs_x64
                 .Where(log => log.VersionGuid == versionGuid)
@@ -19,9 +19,9 @@ namespace RobloxApiDumpTool
             return result;
         }
 
-        public static async Task<DeployLog> GetPreviousVersion(string branch, DeployLog log)
+        public static async Task<DeployLog> GetPreviousVersion(Channel channel, DeployLog log)
         {
-            var deployLogs = await StudioDeployLogs.Get(branch);
+            var deployLogs = await StudioDeployLogs.Get(channel);
             string versionGuid = log.VersionGuid;
 
             var currentLog = deployLogs.CurrentLogs_x64
@@ -42,10 +42,10 @@ namespace RobloxApiDumpTool
             return prevLog;
         }
 
-        public static async Task<string> GetPreviousVersionGuid(string branch, string versionGuid)
+        public static async Task<string> GetPreviousVersionGuid(Channel channel, string versionGuid)
         {
-            DeployLog current = await FindDeployLog(branch, versionGuid);
-            DeployLog previous = await GetPreviousVersion(branch, current);
+            DeployLog current = await FindDeployLog(channel, versionGuid);
+            DeployLog previous = await GetPreviousVersion(channel, current);
 
             return previous.VersionGuid;
         }

@@ -23,6 +23,7 @@ namespace RobloxApiDumpTool
         public const StringComparison StringFormat = StringComparison.InvariantCulture;
         public static readonly NumberFormatInfo NumberFormat = NumberFormatInfo.InvariantInfo;
 
+        public const string LIVE = "LIVE";
         public const string ClientTracker = "MaximumADHD/Roblox-Client-Tracker";
         private const string apiHistoryUrl = "https://maximumadhd.github.io/Roblox-API-History.html";
 
@@ -79,15 +80,15 @@ namespace RobloxApiDumpTool
 
             if (argMap.ContainsKey("-export"))
             {
-                string branch = argMap["-export"];
+                string channel = argMap["-export"];
                 string apiFilePath;
                 
-                if (int.TryParse(branch, out int exportVersion))
-                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath("roblox", exportVersion).ConfigureAwait(false);
-                else if (branch == "roblox" || branch.StartsWith("sitetest", StringComparison.InvariantCulture) && branch.EndsWith(".robloxlabs", StringComparison.InvariantCulture))
-                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(branch).ConfigureAwait(false);
+                if (int.TryParse(channel, out int exportVersion))
+                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(LIVE, exportVersion).ConfigureAwait(false);
+                else if (!File.Exists(channel))
+                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(channel).ConfigureAwait(false);
                 else
-                    apiFilePath = branch;
+                    apiFilePath = channel;
 
                 string exportBin = Path.Combine(bin, "ExportAPI");
 
@@ -98,14 +99,17 @@ namespace RobloxApiDumpTool
 
                 if (format.ToUpperInvariant() == "JSON")
                 {
-                    string jsonPath = Path.Combine(exportBin, branch + ".json");
+                    string jsonPath = Path.Combine(exportBin, channel + ".json");
                     File.Copy(apiFilePath, jsonPath);
 
                     Environment.Exit(0);
                     return;
                 }
 
-                var api = new ReflectionDatabase(apiFilePath);
+                var lastLog = await ApiDumpTool.GetLastDeployLog(channel);
+                var version = lastLog.VersionId;
+
+                var api = new ReflectionDatabase(apiFilePath, channel, version);
                 var dumper = new ReflectionDumper(api);
 
                 string result = "";
@@ -128,7 +132,7 @@ namespace RobloxApiDumpTool
                     result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml);
                 }
 
-                string exportPath = Path.Combine(exportBin, branch + '.' + format);
+                string exportPath = Path.Combine(exportBin, channel + '.' + format);
 
                 if (format == "html" || format == "png")
                 {
@@ -143,7 +147,7 @@ namespace RobloxApiDumpTool
                 {
                     using (var bitmap = await ApiDumpTool.RenderApiDump(exportPath))
                     {
-                        exportPath = Path.Combine(exportBin, branch + ".png");
+                        exportPath = Path.Combine(exportBin, channel + ".png");
                         bitmap.Save(exportPath);
                     }
                 }
@@ -180,8 +184,8 @@ namespace RobloxApiDumpTool
                 string oldArg = argMap["-old"];
 
                 if (int.TryParse(oldArg, out int oldVersion))
-                    oldFile = await ApiDumpTool.GetApiDumpFilePath("roblox", oldVersion);
-                else if (oldArg == "roblox" || oldArg.StartsWith("sitetest") && oldArg.EndsWith(".robloxlabs"))
+                    oldFile = await ApiDumpTool.GetApiDumpFilePath(LIVE, oldVersion);
+                else if (!File.Exists(oldArg))
                     oldFile = await ApiDumpTool.GetApiDumpFilePath(oldArg);
                 else
                     oldFile = oldArg;
@@ -190,8 +194,8 @@ namespace RobloxApiDumpTool
                 string newArg = argMap["-new"];
 
                 if (int.TryParse(newArg, out int newVersion))
-                    newFile = await ApiDumpTool.GetApiDumpFilePath("roblox", newVersion);
-                else if (newArg == "roblox" || newArg.StartsWith("sitetest") && newArg.EndsWith(".robloxlabs"))
+                    newFile = await ApiDumpTool.GetApiDumpFilePath(LIVE, newVersion);
+                else if (!File.Exists(newArg))
                     newFile = await ApiDumpTool.GetApiDumpFilePath(newArg);
                 else
                     newFile = newArg;
@@ -207,7 +211,7 @@ namespace RobloxApiDumpTool
                 else
                     format = "TXT";
 
-                string result = await ReflectionDiffer.CompareDatabases(oldApi, newApi, format, false);
+                string result = ReflectionDiffer.CompareDatabases(oldApi, newApi, format, false);
                 string exportPath = "";
 
                 if (isDiffLog)
@@ -295,7 +299,7 @@ namespace RobloxApiDumpTool
                 if (!Directory.Exists(dir))
                     Environment.Exit(1);
 
-                StudioDeployLogs logs = await StudioDeployLogs.Get("roblox");
+                StudioDeployLogs logs = await StudioDeployLogs.Get(LIVE);
                 DeployLog currentLog;
 
                 if (argMap.ContainsKey("-version"))
@@ -311,7 +315,7 @@ namespace RobloxApiDumpTool
                 }
                 else
                 {
-                    var versionGuid = await ApiDumpTool.GetVersion("roblox");
+                    var versionGuid = await ApiDumpTool.GetVersion(LIVE);
                     var logQuery = logs.CurrentLogs_x64.Where(log => log.VersionGuid == versionGuid);
                     currentLog = logQuery.FirstOrDefault();
                 }
@@ -321,11 +325,11 @@ namespace RobloxApiDumpTool
                     .OrderBy(log => log.Changelist)
                     .LastOrDefault();
 
-                string currentPath = await ApiDumpTool.GetApiDumpFilePath("roblox", currentLog.VersionGuid);
-                string prevPath = await ApiDumpTool.GetApiDumpFilePath("roblox", prevLog.VersionGuid);
+                string currentPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, currentLog.VersionGuid);
+                string prevPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, prevLog.VersionGuid);
 
-                var currentData = new ReflectionDatabase(currentPath, "roblox", currentLog.VersionId);
-                var prevData = new ReflectionDatabase(prevPath, "roblox", prevLog.VersionId);
+                var currentData = new ReflectionDatabase(currentPath);
+                var prevData = new ReflectionDatabase(prevPath);
 
                 var postProcess = new ReflectionDumper.DumpPostProcesser((dump, workDir) =>
                 {
@@ -344,7 +348,7 @@ namespace RobloxApiDumpTool
                 File.WriteAllText(dumpPath, currentApi);
 
                 // Append to Roblox-API-History.html
-                string comparison = await ReflectionDiffer.CompareDatabases(prevData, currentData, "HTML", false);
+                string comparison = ReflectionDiffer.CompareDatabases(prevData, currentData, "HTML", false);
                 string historyPath = Path.Combine(dir, "Roblox-API-History.html");
 
                 if (!File.Exists(historyPath))

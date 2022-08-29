@@ -13,8 +13,8 @@ namespace RobloxApiDumpTool
         private static List<Diff> results = new List<Diff>();
         private static string currentFormat;
 
-        private static List<IDiffModifier> preModifiers = new List<IDiffModifier>();
-        private static List<IDiffModifier> postModifiers = new List<IDiffModifier>(); 
+        private static readonly List<IDiffModifier> preModifiers = new List<IDiffModifier>();
+        private static readonly List<IDiffModifier> postModifiers = new List<IDiffModifier>(); 
 
         private delegate Diff DiffRecorder(Descriptor target, bool detailed = true, Diff parent = null);
         private delegate void DiffResultLineAdder(string line, bool addBreak);
@@ -50,18 +50,18 @@ namespace RobloxApiDumpTool
             }
         }
 
-        private static Dictionary<string, T> createLookupTable<T>(List<T> entries) where T : Descriptor
+        private static Dictionary<string, T> CreateLookupTable<T>(List<T> entries) where T : Descriptor
         {
             return entries.ToDictionary(entry => entry.Name);
         }
 
-        private static void flagEntireClass(ClassDescriptor classDesc, DiffRecorder record, bool detailed)
+        private static void FlagEntireClass(ClassDescriptor classDesc, DiffRecorder record, bool detailed)
         {
             Diff classDiff = record(classDesc, detailed);
             classDesc.Members.ForEach(memberDesc => record(memberDesc, detailed, classDiff));
         }
 
-        private static void flagEntireEnum(EnumDescriptor enumDesc, DiffRecorder record, bool detailed)
+        private static void FlagEntireEnum(EnumDescriptor enumDesc, DiffRecorder record, bool detailed)
         {
             Diff enumDiff = record(enumDesc, detailed);
             enumDesc.Items.ForEach(itemDesc => record(itemDesc, detailed, enumDiff));
@@ -211,7 +211,7 @@ namespace RobloxApiDumpTool
             }
         }
 
-        public static async Task<string> CompareDatabases(ReflectionDatabase oldApi, ReflectionDatabase newApi, string format = "TXT", bool postProcess = true)
+        public static string CompareDatabases(ReflectionDatabase oldApi, ReflectionDatabase newApi, string format = "TXT", bool postProcess = true)
         {
             currentFormat = format.ToLower();
 
@@ -235,7 +235,7 @@ namespace RobloxApiDumpTool
                 if (!oldClasses.ContainsKey(className))
                 {
                     ClassDescriptor classDesc = newClasses[className];
-                    flagEntireClass(classDesc, Added, true);
+                    FlagEntireClass(classDesc, Added, true);
                 }
             }
 
@@ -245,7 +245,7 @@ namespace RobloxApiDumpTool
                 if (!newClasses.ContainsKey(className))
                 {
                     ClassDescriptor classDesc = oldClasses[className];
-                    flagEntireClass(classDesc, Removed, false);
+                    FlagEntireClass(classDesc, Removed, false);
                 }
             }
 
@@ -263,8 +263,8 @@ namespace RobloxApiDumpTool
                     ClassDescriptor newClass = newClasses[className];
                     
                     // Capture the members of these classes.
-                    var oldMembers = createLookupTable(oldClass.Members);
-                    var newMembers = createLookupTable(newClass.Members);
+                    var oldMembers = CreateLookupTable(oldClass.Members);
+                    var newMembers = CreateLookupTable(newClass.Members);
 
                     // Compare the classes directly.
                     var classTagDiffs = CompareTags(oldClass, oldClass.Tags, newClass.Tags);
@@ -387,7 +387,7 @@ namespace RobloxApiDumpTool
                 if (!oldEnums.ContainsKey(enumName))
                 {
                     EnumDescriptor newEnum = newEnums[enumName];
-                    flagEntireEnum(newEnum, Added, true);
+                    FlagEntireEnum(newEnum, Added, true);
                 }
             }
 
@@ -402,8 +402,8 @@ namespace RobloxApiDumpTool
                     var enumTagDiffs = CompareTags(newEnum, oldEnum.Tags, newEnum.Tags);
 
                     // Grab the enum-item lists.
-                    var oldItems = createLookupTable(oldEnum.Items);
-                    var newItems = createLookupTable(newEnum.Items);
+                    var oldItems = CreateLookupTable(oldEnum.Items);
+                    var newItems = CreateLookupTable(newEnum.Items);
 
                     // Record enum-items that were added.
                     foreach (var itemName in newItems.Keys)
@@ -470,7 +470,7 @@ namespace RobloxApiDumpTool
                 else
                 {
                     // Remove old enum.
-                    flagEntireEnum(oldEnum, Removed, false);
+                    FlagEntireEnum(oldEnum, Removed, false);
                 }
             }
 
@@ -529,9 +529,6 @@ namespace RobloxApiDumpTool
 
                 finalizeResults = new DiffResultFinalizer(() =>
                 {
-                    if (newApi.Branch == "roblox")
-                        htmlDumper.NextLine();
-
                     string result = htmlDumper.ExportResults();
 
                     if (postProcess)
@@ -540,11 +537,10 @@ namespace RobloxApiDumpTool
                     return result;
                 });
 
-                if (newApi.Branch == "roblox")
+                if (newApi.Channel != ReflectionDatabase.UNKNOWN)
                 {
-                    var deployLog = await ApiDumpTool.GetLastDeployLog("roblox");
                     htmlDumper.OpenHtmlTag("h2");
-                    htmlDumper.Write("Version " + deployLog.VersionId);
+                    htmlDumper.Write("Version " + newApi.Version);
 
                     htmlDumper.CloseHtmlTag("h2");
                     htmlDumper.NextLine(2);
