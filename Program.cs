@@ -164,16 +164,15 @@ namespace RobloxApiDumpTool
                 if (isDiffLog)
                 {
                     string diffLog = argMap["-difflog"];
-                    
-                    if (int.TryParse(diffLog, out version))
+
+                    if (!int.TryParse(diffLog, out version))
                     {
-                        argMap["-new"] = version.ToString();
-                        argMap["-old"] = (version - 1).ToString();
+                        var lastLog = await ApiDumpTool.GetLastDeployLog(LIVE);
+                        version = lastLog.Version;
                     }
-                    else
-                    {
-                        Environment.Exit(1);
-                    }
+
+                    argMap["-new"] = version.ToString();
+                    argMap["-old"] = (version - 1).ToString();
                 }
                 else if (!argMap.ContainsKey("-old") || !argMap.ContainsKey("-new"))
                 {
@@ -214,10 +213,10 @@ namespace RobloxApiDumpTool
                 string result = ReflectionDiffer.CompareDatabases(oldApi, newApi, format, false);
                 string exportPath = "";
 
-                if (isDiffLog)
-                    exportPath = Path.Combine(bin, version + ".md");
-                else if (argMap.ContainsKey("-out"))
+                if (argMap.ContainsKey("-out"))
                     exportPath = argMap["-out"];
+                else if (isDiffLog)
+                    exportPath = Path.Combine(bin, version + ".md");
                 else
                     exportPath = Path.Combine(bin, "custom-comp." + format.ToLowerInvariant());
 
@@ -328,8 +327,8 @@ namespace RobloxApiDumpTool
                 string currentPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, currentLog.VersionGuid);
                 string prevPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, prevLog.VersionGuid);
 
-                var currentData = new ReflectionDatabase(currentPath);
-                var prevData = new ReflectionDatabase(prevPath);
+                var currentData = new ReflectionDatabase(currentPath, LIVE, currentLog.VersionId);
+                var prevData = new ReflectionDatabase(prevPath, LIVE, prevLog.VersionId);
 
                 var postProcess = new ReflectionDumper.DumpPostProcesser((dump, workDir) =>
                 {

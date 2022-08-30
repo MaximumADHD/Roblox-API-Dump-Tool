@@ -346,7 +346,7 @@ namespace RobloxApiDumpTool
                                 var oldFunc = oldMember as FunctionDescriptor;
                                 var newFunc = newMember as FunctionDescriptor;
 
-                                Compare(newMember, "security", oldFunc.Security, newFunc.Security);
+                                Compare(newMember, "security", oldFunc.Security.Value, newFunc.Security.Value);
                                 Compare(newMember, "parameters", oldFunc.Parameters, newFunc.Parameters);
                                 Compare(newMember, "return-type", oldFunc.ReturnType, newFunc.ReturnType);
                             }
@@ -355,7 +355,7 @@ namespace RobloxApiDumpTool
                                 var oldCall = oldMember as CallbackDescriptor;
                                 var newCall = newMember as CallbackDescriptor;
 
-                                Compare(newMember, "security", oldCall.Security, newCall.Security);
+                                Compare(newMember, "security", oldCall.Security.Value, newCall.Security.Value);
                                 Compare(newMember, "parameters", oldCall.Parameters, newCall.Parameters);
                                 Compare(newMember, "expected return-type", oldCall.ReturnType, newCall.ReturnType);
                             }
@@ -364,7 +364,7 @@ namespace RobloxApiDumpTool
                                 var oldEvent = oldMember as EventDescriptor;
                                 var newEvent = newMember as EventDescriptor;
 
-                                Compare(newMember, "security", oldEvent.Security, newEvent.Security);
+                                Compare(newMember, "security", oldEvent.Security.Value, newEvent.Security.Value);
                                 Compare(newMember, "parameters", oldEvent.Parameters, newEvent.Parameters);
                             }
                         }
