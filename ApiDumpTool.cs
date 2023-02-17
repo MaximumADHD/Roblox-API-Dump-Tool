@@ -271,11 +271,13 @@ namespace RobloxApiDumpTool
             return apiRender;
         }
 
-        public static async Task<string> GetApiDumpFilePath(Channel channel, string versionGuid, Action<string> setStatus = null)
+        public static async Task<string> GetApiDumpFilePath(Channel channel, string versionGuid, bool full, Action<string> setStatus = null)
         {
             string coreBin = GetWorkDirectory();
-            string apiUrl = $"{channel.BaseUrl}/{versionGuid}-API-Dump.json";
-            string file = Path.Combine(coreBin, versionGuid + ".json");
+            string fileName = full ? "Full-API-Dump" : "API-Dump";
+
+            string apiUrl = $"{channel.BaseUrl}/{versionGuid}-{fileName}.json";
+            string file = Path.Combine(coreBin, $"{versionGuid}-{fileName}.json");
 
             if (!File.Exists(file))
             {
@@ -291,7 +293,7 @@ namespace RobloxApiDumpTool
             return file;
         }
 
-        public static async Task<string> GetApiDumpFilePath(Channel channel, int versionId, Action<string> setStatus = null)
+        public static async Task<string> GetApiDumpFilePath(Channel channel, int versionId, bool full, Action<string> setStatus = null)
         {
             setStatus?.Invoke("Fetching deploy logs for " + channel);
             var logs = await StudioDeployLogs.Get(channel);
@@ -305,10 +307,10 @@ namespace RobloxApiDumpTool
                 throw new Exception("Unknown version id: " + versionId);
 
             string versionGuid = deployLog.VersionGuid;
-            return await GetApiDumpFilePath(channel, versionGuid, setStatus);
+            return await GetApiDumpFilePath(channel, versionGuid, full, setStatus);
         }
 
-        public static async Task<string> GetApiDumpFilePath(string channel, Action<string> setStatus = null, bool fetchPrevious = false)
+        public static async Task<string> GetApiDumpFilePath(Channel channel, bool full, Action<string> setStatus = null, bool fetchPrevious = false)
         {
             setStatus?.Invoke("Checking for update...");
             string versionGuid = await GetVersion(channel);
@@ -316,7 +318,7 @@ namespace RobloxApiDumpTool
             if (fetchPrevious)
                 versionGuid = await ReflectionHistory.GetPreviousVersionGuid(channel, versionGuid);
 
-            string file = await GetApiDumpFilePath(channel, versionGuid, setStatus);
+            string file = await GetApiDumpFilePath(channel, versionGuid, full, setStatus);
 
             if (fetchPrevious)
                 channel += "-prev";
@@ -327,9 +329,9 @@ namespace RobloxApiDumpTool
             return file;
         }
 
-        private async Task<string> getApiDumpFilePath(Channel channel, bool fetchPrevious = false)
+        private async Task<string> getApiDumpFilePath(Channel channel, bool full, bool fetchPrevious = false)
         {
-            return await GetApiDumpFilePath(channel, setStatus, fetchPrevious);
+            return await GetApiDumpFilePath(channel, full, setStatus, fetchPrevious);
         }
 
         private void channel_SelectedIndexChanged(object sender, EventArgs e)
@@ -351,7 +353,7 @@ namespace RobloxApiDumpTool
             {
                 var channel = getChannel();
                 string format = getApiDumpFormat();
-                string apiFilePath = await getApiDumpFilePath(channel);
+                string apiFilePath = await getApiDumpFilePath(channel, fullDump.Checked);
 
                 if (format == "JSON")
                 {
@@ -383,9 +385,10 @@ namespace RobloxApiDumpTool
             {
                 Channel newChannel = getChannel();
                 bool fetchPrevious = newChannel.Equals(LIVE);
+                bool full = fullDump.Checked;
 
-                string newApiFilePath = await getApiDumpFilePath(newChannel);
-                string oldApiFilePath = await getApiDumpFilePath(LIVE, fetchPrevious);
+                string newApiFilePath = await getApiDumpFilePath(newChannel, full);
+                string oldApiFilePath = await getApiDumpFilePath(LIVE, full, fetchPrevious);
 
                 var latestLog = await GetLastDeployLog(newChannel);
                 string version = latestLog.VersionId;

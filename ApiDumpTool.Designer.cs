@@ -36,6 +36,7 @@
             this.channelLbl = new System.Windows.Forms.Label();
             this.apiDumpFormat = new System.Windows.Forms.ComboBox();
             this.formatLbl = new System.Windows.Forms.Label();
+            this.fullDump = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.appLogo)).BeginInit();
             this.SuspendLayout();
             // 
@@ -151,12 +152,23 @@
             this.formatLbl.TabIndex = 10;
             this.formatLbl.Text = "Format:";
             // 
+            // fullDump
+            // 
+            this.fullDump.AutoSize = true;
+            this.fullDump.Location = new System.Drawing.Point(222, 181);
+            this.fullDump.Name = "fullDump";
+            this.fullDump.Size = new System.Drawing.Size(73, 17);
+            this.fullDump.TabIndex = 11;
+            this.fullDump.Text = "Full Dump";
+            this.fullDump.UseVisualStyleBackColor = true;
+            // 
             // ApiDumpTool
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(298, 205);
+            this.Controls.Add(this.fullDump);
             this.Controls.Add(this.formatLbl);
             this.Controls.Add(this.apiDumpFormat);
             this.Controls.Add(this.channelLbl);
@@ -190,6 +202,7 @@
         private System.Windows.Forms.Label channelLbl;
         private System.Windows.Forms.ComboBox apiDumpFormat;
         private System.Windows.Forms.Label formatLbl;
+        private System.Windows.Forms.CheckBox fullDump;
     }
 }
 

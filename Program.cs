@@ -71,9 +71,13 @@ namespace RobloxApiDumpTool
         public static async Task ProcessArgs(Dictionary<string, string> argMap)
         {
             string format = "TXT";
+            bool full = false;
 
             if (argMap.ContainsKey("-format"))
                 format = argMap["-format"];
+
+            if (argMap.ContainsKey("-full"))
+                full = true;
 
             string bin = Directory.GetCurrentDirectory();
             bool isDiffLog = argMap.ContainsKey("-difflog");
@@ -84,9 +88,9 @@ namespace RobloxApiDumpTool
                 string apiFilePath;
                 
                 if (int.TryParse(channel, out int exportVersion))
-                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(LIVE, exportVersion).ConfigureAwait(false);
+                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(LIVE, exportVersion, full).ConfigureAwait(false);
                 else if (!File.Exists(channel))
-                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(channel).ConfigureAwait(false);
+                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(channel, full).ConfigureAwait(false);
                 else
                     apiFilePath = channel;
 
@@ -183,9 +187,9 @@ namespace RobloxApiDumpTool
                 string oldArg = argMap["-old"];
 
                 if (int.TryParse(oldArg, out int oldVersion))
-                    oldFile = await ApiDumpTool.GetApiDumpFilePath(LIVE, oldVersion);
+                    oldFile = await ApiDumpTool.GetApiDumpFilePath(LIVE, oldVersion, full);
                 else if (!File.Exists(oldArg))
-                    oldFile = await ApiDumpTool.GetApiDumpFilePath(oldArg);
+                    oldFile = await ApiDumpTool.GetApiDumpFilePath(oldArg, full);
                 else
                     oldFile = oldArg;
 
@@ -193,9 +197,9 @@ namespace RobloxApiDumpTool
                 string newArg = argMap["-new"];
 
                 if (int.TryParse(newArg, out int newVersion))
-                    newFile = await ApiDumpTool.GetApiDumpFilePath(LIVE, newVersion);
+                    newFile = await ApiDumpTool.GetApiDumpFilePath(LIVE, newVersion, full);
                 else if (!File.Exists(newArg))
-                    newFile = await ApiDumpTool.GetApiDumpFilePath(newArg);
+                    newFile = await ApiDumpTool.GetApiDumpFilePath(newArg, full);
                 else
                     newFile = newArg;
 
@@ -324,8 +328,8 @@ namespace RobloxApiDumpTool
                     .OrderBy(log => log.Changelist)
                     .LastOrDefault();
 
-                string currentPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, currentLog.VersionGuid);
-                string prevPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, prevLog.VersionGuid);
+                string currentPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, currentLog.VersionGuid, full);
+                string prevPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, prevLog.VersionGuid, full);
 
                 var currentData = new ReflectionDatabase(currentPath, LIVE, currentLog.VersionId);
                 var prevData = new ReflectionDatabase(prevPath, LIVE, prevLog.VersionId);

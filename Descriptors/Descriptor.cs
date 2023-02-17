@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -23,6 +25,37 @@ namespace RobloxApiDumpTool
     public class Descriptor : IComparable
     {
         public string Name;
+        public string Default = "";
+        public Dictionary<string, string> Metadata = new Dictionary<string, string>();
+
+
+        [JsonProperty("Tags")]
+        private JArray JsonTags
+        {
+            get => null;
+
+            set
+            {
+                Tags.Clear();
+                Metadata.Clear();
+
+                foreach (var element in value)
+                {
+                    if (element is JObject obj)
+                    {
+                        Metadata = obj.ToObject<Dictionary<string, string>>();
+                        continue;
+                    }
+
+                    string tag = element.ToString();
+                    Tags.Add(tag);
+                }
+
+                Tags.ClearBadData();
+            }
+        }
+
+        [JsonIgnore]
         public Tags Tags = new Tags();
 
         public string Summary => Describe(false);
