@@ -21,7 +21,9 @@
         {
             string result;
 
-            if (Category != TypeCategory.Enum)
+            if (Name == "null")
+                result = "void";
+            else if (Category != TypeCategory.Enum)
                 result = Name;
             else
                 result = $"{Category}.{Name}";
