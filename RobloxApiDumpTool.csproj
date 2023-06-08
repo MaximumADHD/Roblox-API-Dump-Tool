@@ -64,6 +64,7 @@
     <Compile Include="ApiDumpTool.Designer.cs">
       <DependentUpon>ApiDumpTool.cs</DependentUpon>
     </Compile>
+    <Compile Include="ArgProcessor.cs" />
     <Compile Include="Core\ReflectionDatabase.cs" />
     <Compile Include="Core\ReflectionDiffer.cs" />
     <Compile Include="Core\ReflectionDumper.cs" />
