@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using RobloxDeployHistory;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Runtime.InteropServices;
 
 namespace RobloxApiDumpTool
 {
@@ -18,7 +19,7 @@ namespace RobloxApiDumpTool
         private const string ClientTracker = "MaximumADHD/Roblox-Client-Tracker";
         private const string ApiHistoryUrl = "https://maximumadhd.github.io/Roblox-API-History.html";
 
-        public static async Task Run(Dictionary<string, string> argMap)
+        public static async Task<bool> Run(Dictionary<string, string> argMap)
         {
             string format = "TXT";
             bool full = false;
@@ -55,9 +56,7 @@ namespace RobloxApiDumpTool
                 {
                     string jsonPath = Path.Combine(exportBin, channel + ".json");
                     File.Copy(apiFilePath, jsonPath);
-
-                    Environment.Exit(0);
-                    return;
+                    return true;
                 }
 
                 var lastLog = await ApiDumpTool.GetLastDeployLog(channel);
@@ -109,7 +108,7 @@ namespace RobloxApiDumpTool
                 if (argMap.ContainsKey("-start"))
                     Process.Start(exportPath);
 
-                Environment.Exit(0);
+                return true;
             }
             else if (argMap.ContainsKey("-compare") || isDiffLog)
             {
@@ -130,7 +129,7 @@ namespace RobloxApiDumpTool
                 }
                 else if (!argMap.ContainsKey("-old") || !argMap.ContainsKey("-new"))
                 {
-                    Environment.Exit(1);
+                    return false;
                 }
 
                 string oldFile = "";
@@ -243,14 +242,14 @@ namespace RobloxApiDumpTool
                 if (argMap.ContainsKey("-start") || isDiffLog)
                     Process.Start(exportPath);
 
-                Environment.Exit(0);
+                return true;
             }
             else if (argMap.ContainsKey("-updatePages"))
             {
                 string dir = argMap["-updatePages"];
 
                 if (!Directory.Exists(dir))
-                    Environment.Exit(1);
+                    return false;
 
                 StudioDeployLogs logs = await StudioDeployLogs.Get(LIVE);
                 DeployLog currentLog;
@@ -305,7 +304,7 @@ namespace RobloxApiDumpTool
                 string historyPath = Path.Combine(dir, "Roblox-API-History.html");
 
                 if (!File.Exists(historyPath))
-                    Environment.Exit(1);
+                    return false;
 
                 string history = File.ReadAllText(historyPath);
                 string appendMarker = $"<hr id=\"{currentLog.Version}\"/>";
@@ -340,8 +339,10 @@ namespace RobloxApiDumpTool
                 git($"commit -m \"{currentLog}\"");
                 git("push");
 
-                Environment.Exit(0);
+                return true;
             }
+
+            return false;
         }
     }
 }
