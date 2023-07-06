@@ -314,6 +314,9 @@ namespace RobloxApiDumpTool
                     string prevMarker = $"<hr id=\"{prevLog.Version}\"/>";
                     int index = history.IndexOf(prevMarker);
 
+                    if (index < 0)
+                        return false;
+
                     string insert = $"{appendMarker}\n{comparison}";
                     history = history.Insert(index, insert);
 
