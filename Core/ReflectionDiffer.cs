@@ -274,10 +274,11 @@ namespace RobloxApiDumpTool
                     // Record members that were added.
                     foreach (string memberName in newMembers.Keys)
                     {
-                        if (!oldMembers.ContainsKey(memberName))
+                        var newMember = newMembers[memberName];
+                        oldMembers.TryGetValue(memberName, out var oldMember);
+
+                        if (oldMember == null || oldMember.GetType() != newMember.GetType())
                         {
-                            // Add New Member
-                            MemberDescriptor newMember = newMembers[memberName];
                             Added(newMember);
                         }
                     }
@@ -290,6 +291,9 @@ namespace RobloxApiDumpTool
                         if (newMembers.ContainsKey(memberName))
                         {
                             MemberDescriptor newMember = newMembers[memberName];
+
+                            if (oldMember.GetType() != newMember.GetType())
+                                continue;
 
                             if (oldMember.ThreadSafety.Type != ThreadSafetyType.Unknown)
                                 Compare(newMember, "thread safety", oldMember.ThreadSafety, newMember.ThreadSafety);
