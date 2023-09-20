@@ -1,4 +1,6 @@
-﻿namespace RobloxApiDumpTool
+﻿using System.Collections.Generic;
+
+namespace RobloxApiDumpTool
 {
     public enum TypeCategory
     {
@@ -12,18 +14,54 @@
     public class LuaType
     {
         public string Name;
+        public string SourceName;
         public TypeCategory Category;
 
         public bool IsReturnType = false;
         public override string ToString() => GetSignature();
 
+        private static IReadOnlyDictionary<string, string> LuauTypes = new Dictionary<string, string>()
+        {
+            { "Dictionary", "{ [string]: any }" },
+            { "Map", "{ [any]: any }" },
+            { "Array", "{ any }" },
+            { "Variant", "any" },
+
+            { "Objects", "{ Instance }" },
+            { "Tuple", "...any" },
+            { "Function", "((...any) -> ...any)" },
+
+            { "null", "()" },
+            { "void", "()" },
+
+            { "int", "number" },
+            { "int64", "number" },
+            { "float", "number" },
+            { "double", "number" },
+
+            { "bool", "boolean" },
+        };
+
         public string GetSignature(bool ignoreReturnType = false)
         {
             string result;
+            SourceName = Name;
 
-            if (Name == "null")
-                result = "void";
-            else if (Category != TypeCategory.Enum)
+            bool optional = false;
+
+            if (Name.EndsWith("?"))
+            {
+                optional = true;
+                Name = Name.Replace("?", "");
+            }
+
+            if (LuauTypes.ContainsKey(Name))
+                Name = LuauTypes[Name];
+
+            if (optional)
+                Name += '?';
+
+            if (Category != TypeCategory.Enum)
                 result = Name;
             else
                 result = $"{Category}.{Name}";

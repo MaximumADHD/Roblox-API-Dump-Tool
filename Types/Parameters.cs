@@ -13,12 +13,12 @@ namespace RobloxApiDumpTool
 
         public override string ToString()
         {
-            string result = $"{Type} {Name}";
+            string result = $"{Name}: {Type}";
             string category = $"{Type.Category}";
 
             if (Default != null)
             {
-                if ((Type.Name == "string" || category == "Enum"))
+                if (Type.Name == "string" || category == "Enum")
                     if (!Default.StartsWith(quote) && !Default.EndsWith(quote))
                         Default = quote + Default + quote;
 
