@@ -8,7 +8,8 @@
 
         public override string GetSchema(bool detailed = true)
         {
-            string schema = "{ClassName}:{Name}";
+            string schema = base.GetSchema(detailed)
+                .Replace(".", ":");
 
             if (detailed)
                 schema += "{Parameters} -> {ReturnType} {Security} {Tags} {ThreadSafety}";

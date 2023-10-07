@@ -69,6 +69,7 @@
     <Compile Include="Core\ReflectionDiffer.cs" />
     <Compile Include="Core\ReflectionDumper.cs" />
     <Compile Include="Core\ReflectionHistory.cs" />
+    <Compile Include="Core\ReflectionHtml.cs" />
     <Compile Include="Descriptors\Callback.cs" />
     <Compile Include="Descriptors\Class.cs" />
     <Compile Include="Descriptors\Descriptor.cs" />

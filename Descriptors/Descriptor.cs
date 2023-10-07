@@ -61,7 +61,7 @@ namespace RobloxApiDumpTool
         public string Summary => Describe(false);
         public string Signature => Describe(true);
 
-        public bool AddTag  (string tag) => Tags.Add(tag);
+        public void AddTag  (string tag) => Tags.Add(tag);
         public bool DropTag (string tag) => Tags.Remove(tag);
         public bool HasTag  (string tag) => Tags.Contains(tag);
 
@@ -98,11 +98,8 @@ namespace RobloxApiDumpTool
 
         public class HtmlConfig
         {
-            public int NumTabs = 0;
-
             public bool DiffMode = true; 
             public bool Detailed = false;
-
             public string TagType = "span";
         }
 
@@ -118,7 +115,12 @@ namespace RobloxApiDumpTool
 
         public virtual Dictionary<string, object> GetTokens(bool detailed = false)
         {
-            var tokens = new Dictionary<string, object>() { { "Name", Name } };
+            var tokens = new Dictionary<string, object>() 
+            {
+                { "DescriptorType", DescriptorType },
+                { "Name", Name }
+            };
+
             string tags = Tags.ToString();
 
             if (detailed && tags.Length > 0)
@@ -132,7 +134,7 @@ namespace RobloxApiDumpTool
             int search = 0;
             
             var tokens = GetTokens(detailed);
-            string desc = DescriptorType + ' ' + GetSchema(detailed);
+            string desc = GetSchema(detailed);
 
             while (search < desc.Length)
             {
@@ -161,113 +163,100 @@ namespace RobloxApiDumpTool
 
             return desc.Trim();
         }
-        
-        public void WriteHtml(ReflectionDumper buffer, HtmlConfig config = null)
+
+        public void WriteHtml(ReflectionHtml html, HtmlConfig config = null)
         {
             if (config == null)
                 config = new HtmlConfig();
 
-            int numTabs = config.NumTabs;
-            string tagType = config.TagType;
-
-            bool detailed = config.Detailed;
-            bool diffMode = config.DiffMode;
-
-            var tokens = GetTokens(detailed);
-            tokens.Remove("DescriptorType");
-
-            string schema = GetSchema(detailed);
+            string tagType = "div";
+            var tokens = GetTokens(true);
+            string schema = GetSchema(true);
             string tagClass = DescriptorType;
 
-            if (!diffMode && Tags.Contains("Deprecated"))
+            if (Tags.Contains("Deprecated"))
                 tagClass += " deprecated"; // The CSS will strike-through this.
 
-            if (!diffMode && DescriptorType != "Class" && DescriptorType != "Enum")
+            // TODO: 
+            if (DescriptorType != "Class" && DescriptorType != "Enum")
                 tagClass += " child";
-            
-            buffer.OpenClassTag(tagClass, numTabs, tagType);
-            buffer.NextLine();
 
-            int search = 0;
-
-            while (true)
+            html.OpenStack("div", tagClass, () =>
             {
-                int openToken = schema.IndexOf('{', search);
+                int search = 0;
 
-                if (openToken < 0)
-                    break;
-
-                int closeToken = schema.IndexOf('}', openToken);
-
-                if (closeToken < 0)
-                    break;
-
-                string token = schema.Substring(openToken + 1, closeToken - openToken - 1);
-
-                if (tokens.ContainsKey(token))
+                while (true)
                 {
-                    if (token == "Tags")
-                    {
-                        Tags.WriteHtml(buffer, numTabs + 1);
-                    }
-                    else if (token == "Parameters" || token.EndsWith("Type"))
-                    {
-                        Type type = GetType();
+                    int openToken = schema.IndexOf('{', search);
 
-                        foreach (FieldInfo info in type.GetFields())
+                    if (openToken < 0)
+                        break;
+
+                    string symbols = schema.Substring(search, openToken - search);
+
+                    if (symbols.Length > 0)
+                        html.Symbol(symbols);
+
+                    int closeToken = schema.IndexOf('}', openToken);
+
+                    if (closeToken < 0)
+                        break;
+
+                    string token = schema.Substring(openToken + 1, closeToken - openToken - 1);
+
+                    if (tokens.ContainsKey(token))
+                    {
+                        if (token == "Tags")
                         {
-                            if (info.FieldType == typeof(Parameters) && token == "Parameters")
+                            Tags.WriteHtml(html);
+                        }
+                        else if (token == "DescriptorType")
+                        {
+                            html.Span($"DescriptorType {DescriptorType}", DescriptorType);
+                        }
+                        else if (token == "Parameters" || token.EndsWith("Type"))
+                        {
+                            Type type = GetType();
+
+                            foreach (FieldInfo info in type.GetFields())
                             {
-                                var parameters = info.GetValue(this) as Parameters;
-                                parameters.WriteHtml(buffer, numTabs + 1);
-                                break;
+                                if (info.FieldType == typeof(Parameters) && token == "Parameters")
+                                {
+                                    var parameters = info.GetValue(this) as Parameters;
+                                    parameters.WriteHtml(html);
+                                    break;
+                                }
+                                else if (info.FieldType == typeof(LuaType) && token.EndsWith("Type"))
+                                {
+                                    var luaType = info.GetValue(this) as LuaType;
+
+                                    if (token == "ValueType" && luaType.Category == TypeCategory.Class)
+                                        if (!luaType.Name.EndsWith("?"))
+                                            luaType.Name += "?";
+
+                                    luaType.WriteHtml(html);
+                                    break;
+                                }
                             }
-                            else if (info.FieldType == typeof(LuaType) && token.EndsWith("Type"))
+                        }
+                        else
+                        {
+                            string value = tokens[token]
+                                .ToString()
+                                .Trim();
+
+                            if (value.Length > 0)
                             {
-                                var luaType = info.GetValue(this) as LuaType;
-                                luaType.WriteHtml(buffer, numTabs + 1);
-                                break;
+                                html.Span(token, value);
                             }
                         }
                     }
-                    else
-                    {
-                        string value = tokens[token]
-                            .ToString()
-                            .Replace("<", "&lt;")
-                            .Replace(">", "&gt;")
-                            .Trim();
 
-                        if (value.Length > 0)
-                        {
-                            if (token == "ClassName")
-                                token += " " + DescriptorType;
-
-                            buffer.WriteElement(token, value, numTabs + 1);
-                        }
-                    }
+                    search = closeToken + 1;
                 }
-
-                search = closeToken + 1;
-            }
-
-            buffer.CloseClassTag(numTabs, tagType);
-        }
-
-        public void WriteHtml(ReflectionDumper buffer, int numTabs)
-        {
-            var config = new HtmlConfig() { NumTabs = numTabs };
-            WriteHtml(buffer, config);
-        }
-
-        public void WriteHtml(ReflectionDumper buffer, int numTabs, bool detailed)
-        {
-            WriteHtml(buffer, new HtmlConfig()
-            {
-                NumTabs = numTabs,
-                Detailed = detailed
             });
         }
+
 
         public virtual int CompareTo(object other)
         {

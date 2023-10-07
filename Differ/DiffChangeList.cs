@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RobloxApiDumpTool
@@ -42,92 +43,71 @@ namespace RobloxApiDumpTool
             return ListElements(" ");
         }
 
-        public void WriteHtml(ReflectionDumper buffer, bool multiline = false, int extraTabs = 0, Descriptor.HtmlConfig config = null)
+        public void WriteHtml(ReflectionHtml html, bool multiline = false)
         {
-            if (config == null)
-                config = new Descriptor.HtmlConfig();
-
-            int numTabs;
-
-            if (multiline)
+            Action buildChangeList = new Action(() =>
             {
-                buffer.OpenClassTag(Name, extraTabs + 1, "div");
-                buffer.NextLine();
+                PreformatList();
 
-                buffer.OpenClassTag("ChangeList", extraTabs + 2);
-                numTabs = 3;
-            }
-            else
-            {
-                buffer.OpenClassTag(Name, extraTabs + 1);
-                numTabs = 2;
-            }
-
-            numTabs += extraTabs;
-
-            if (config.NumTabs == 0)
-                config.NumTabs = numTabs;
-
-            buffer.NextLine();
-            PreformatList();
-
-            foreach (object change in this)
-            {
-                if (change is Parameters)
+                foreach (object change in this)
                 {
-                    var parameters = change as Parameters;
-                    parameters.WriteHtml(buffer, numTabs, true);
-                }
-                else if (change is LuaType)
-                {
-                    var type = change as LuaType;
-                    type.WriteHtml(buffer, numTabs);
-                }
-                else if (change is Descriptor)
-                {
-                    var desc = change as Descriptor;
-                    desc.WriteHtml(buffer, config);
-                }
-                else
-                {
-                    string value;
-
-                    if (change is Security)
+                    if (change is Parameters)
                     {
-                        var security = change as Security;
-                        value = security.Describe(true);
+                        var parameters = change as Parameters;
+                        parameters.WriteHtml(html, true);
+                    }
+                    else if (change is LuaType)
+                    {
+                        var type = change as LuaType;
+                        type.WriteHtml(html);
+                    }
+                    else if (change is Descriptor)
+                    {
+                        var desc = change as Descriptor;
+                        desc.WriteHtml(html);
                     }
                     else
                     {
-                        value = change.ToString();
+                        string value;
+
+                        if (change is Security)
+                        {
+                            var security = change as Security;
+                            value = security.Describe(true);
+                        }
+                        else
+                        {
+                            value = change.ToString();
+                        }
+
+                        string tagClass;
+
+                        if (value.Contains("🧬"))
+                            tagClass = "ThreadSafety";
+                        else if (value.StartsWith("["))
+                            tagClass = "Serialization";
+                        else if (value.StartsWith("{"))
+                            tagClass = "Security";
+                        else if (value.StartsWith("\""))
+                            tagClass = "String";
+                        else
+                            tagClass = change.GetType().Name;
+
+                        if (tagClass == "Security" && value.Contains("None"))
+                            tagClass += " darken";
+
+                        html.Span(tagClass, value);
                     }
-
-                    string tagClass;
-
-                    if (value.Contains("🧬"))
-                        tagClass = "ThreadSafety";
-                    else if (value.StartsWith("["))
-                        tagClass = "Serialization";
-                    else if (value.StartsWith("{"))
-                        tagClass = "Security";
-                    else if (value.StartsWith("\""))
-                        tagClass = "String";
-                    else
-                        tagClass = change.GetType().Name;
-
-                    if (tagClass == "Security" && value.Contains("None"))
-                        tagClass += " darken";
-
-                    buffer.WriteElement(tagClass, value, numTabs);
                 }
-            }
-
-            buffer.CloseClassTag(numTabs - 1);
+            });
 
             if (multiline)
             {
-                buffer.CloseClassTag(1, "div");
+                html.OpenDiv(Name, () => html.OpenSpan("Changelist", buildChangeList));
+                return;
             }
+            
+            html.OpenSpan(Name, buildChangeList);
         }
     }
 }

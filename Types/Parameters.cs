@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RobloxApiDumpTool
 {
-    public struct Parameter
+    public class Parameter
     {
         private const string quote = "\"";
 
@@ -13,6 +14,9 @@ namespace RobloxApiDumpTool
 
         public override string ToString()
         {
+            if (Default != null && !Type.Name.EndsWith("?"))
+                Type.Name += "?";
+
             string result = $"{Name}: {Type}";
             string category = $"{Type.Category}";
 
@@ -34,48 +38,47 @@ namespace RobloxApiDumpTool
             return result;
         }
 
-        public void WriteHtml(ReflectionDumper buffer, int numTabs = 0)
+        public void WriteHtml(ReflectionHtml html)
         {
-            buffer.OpenClassTag("Parameter", numTabs);
-            buffer.NextLine();
+            string name = Name;
+            LuaType luaType = Type;
+            string paramDef = Default;
 
-            // Write Type
-            Type.WriteHtml(buffer, numTabs + 1);
+            if (paramDef != null && !luaType.Name.EndsWith("?"))
+                luaType.Name += "?";
 
-            // Write Name
-            string nameLbl = "ParamName";
-            if (Default != null)
-                nameLbl += " default";
-
-            buffer.WriteElement(nameLbl, Name, numTabs + 1);
-
-            // Write Default
-            if (Default != null)
+            html.OpenSpan("Parameter", () =>
             {
-                string typeLbl = Type.GetSignature();
-                string typeName;
+                html.Span("ParamName", name);
+                html.Symbol(": ");
 
-                if (typeLbl.Contains("<") && typeLbl.EndsWith(">"))
-                    typeName = $"{Type.Category}";
-                else
-                    typeName = Type.Name;
+                luaType.WriteHtml(html);
 
-                if (Type.Category == TypeCategory.DataType && typeName != "Function")
+                // Write Default
+                if (paramDef != null && paramDef != "nil")
                 {
-                    buffer.WriteElement("ClassName Type", typeName, numTabs + 1);
-                    buffer.WriteElement("Name", "new", numTabs + 1);
-                    buffer.WriteElement("Parameters", null, numTabs + 1);
-                }
-                else
-                {
-                    if (Type.Category == TypeCategory.Enum)
-                        typeName = "String";
+                    string typeLbl = luaType.GetSignature();
+                    string typeName = luaType.Name;
+                    
+                    if (luaType.Category == TypeCategory.DataType && typeName != "Function")
+                    {
+                        html.Span("Type", typeName);
+                        html.Symbol(".");
+                        html.Span("Name", "new");
+                        html.Symbol("()");
+                    }
+                    else
+                    {
+                        if (luaType.Category == TypeCategory.Enum)
+                            typeName = "String";
+                        else
+                            typeName = luaType.LuauType;
 
-                    buffer.WriteElement("ParamDefault " + typeName, Default, numTabs + 1);
+                        html.Symbol(" = ");
+                        html.Span(typeName, paramDef);
+                    }
                 }
-            }
-
-            buffer.CloseClassTag(numTabs);
+            });
         }
     }
 
@@ -87,27 +90,30 @@ namespace RobloxApiDumpTool
             return '(' + string.Join(", ", parameters) + ')';
         }
 
-        public void WriteHtml(ReflectionDumper buffer, int numTabs = 0, bool diffMode = false)
+        public void WriteHtml(ReflectionHtml html, bool diffMode = false)
         {
             string paramsTag = "Parameters";
+            IEnumerable<Parameter> parameters = this;
 
             if (diffMode)
                 paramsTag += " change";
 
-            int closingTabs = 0;
-            buffer.OpenClassTag(paramsTag, numTabs);
-
-            if (Count > 0)
+            html.OpenSpan(paramsTag, () =>
             {
-                buffer.NextLine();
+                html.Symbol("(");
 
-                foreach (Parameter parameter in this)
-                    parameter.WriteHtml(buffer, numTabs + 1);
+                for (int i = 0; i < Count; i++)
+                {
+                    var param = this[i];
 
-                closingTabs = numTabs;
-            }
+                    if (i > 0)
+                        html.Symbol(", ");
 
-            buffer.CloseClassTag(closingTabs);
+                    param.WriteHtml(html);
+                }
+
+                html.Symbol(")");
+            });
         }
     }
 }

@@ -153,7 +153,7 @@ namespace RobloxApiDumpTool
             return WriteDiffTxt(Detailed);
         }
 
-        public void WriteDiffHtml(ReflectionDumper buffer)
+        public void WriteHtml(ReflectionHtml html)
         {
             string diffType = $"{Type}";
 
@@ -165,142 +165,114 @@ namespace RobloxApiDumpTool
             if (HasParent)
                 diffType += " child";
 
-            buffer.OpenClassTag(diffType, stack, "div");
-            buffer.NextLine();
-
-            switch (Type)
+            html.OpenDiv(diffType, () =>
             {
-                case DiffType.Change:
+                switch (Type)
                 {
-                    // Check if we should keep this on one line, based on the text version.
-                    string textSignature = WriteDiffTxt();
-                    bool multiline = textSignature.Contains(NL);
-
-                    // Write what we changed.
-                    buffer.WriteElement("WhatChanged", Field, stack + 1);
-
-                    // Write what was changed.
-                    Target.WriteHtml(buffer, stack + 1, false);
-
-                    // Changed From, Changed To.
-                    From.WriteHtml(buffer, multiline);
-                    To.WriteHtml(buffer, multiline);
-
-                    break;
-                }
-                case DiffType.Rename:
-                {
-                    // Write what we're renaming.
-                    buffer.OpenClassTag(Field, stack + 1);
-                    buffer.WriteElement("String", Target.Name, stack + 2);
-                    buffer.CloseClassTag(stack + 1);
-
-                    // Write its new name.
-                    To.WriteHtml(buffer);
-                    break;
-                }
-                case DiffType.Merge:
-                {
-                    // Write the elements that are being merged.
-                    From.WriteHtml(buffer, false, 0, new Descriptor.HtmlConfig()
+                    case DiffType.Change:
                     {
-                        TagType = "li",
-                        NumTabs = stack + 2,
-                    });
+                        // Check if we should keep this on one line, based on the text version.
+                        string textSignature = WriteDiffTxt();
+                        bool multiline = textSignature.Contains(NL);
 
-                    // Write what they merged into.
-                    buffer.OpenClassTag("MergeListInto", stack + 1);
-                    buffer.NextLine();
+                        // Write what we changed.
+                        html.Span("WhatChanged", Field);
 
-                    To.WriteHtml(buffer, false, 1, new Descriptor.HtmlConfig()
-                    {
-                        TagType = "li",
-                        NumTabs = stack + 3,
-                    });
+                        // Write what was changed.
+                        Target.WriteHtml(html);
 
-                    buffer.CloseClassTag(stack + 1);
-                    break;
-                }
-                case DiffType.Move:
-                {
-                    string descType = Target.DescriptorType;
-                    string name = $" {Target.Name}";
+                        // Changed From, Changed To.
+                        From.WriteHtml(html, multiline);
+                        To.WriteHtml(html, multiline);
 
-                    buffer.WriteElement(descType, name, stack);
-
-                    From.WriteHtml(buffer, true);
-                    To.WriteHtml(buffer, true);
-
-                    break;
-                }
-                default:
-                {
-                    string descType = Target.DescriptorType;
-                    bool detailed = (Type == DiffType.Add);
-
-                    if (Field != descType)
-                    {
-                        if (Context != null)
-                        {
-                            if (Context is Tags tags)
-                            {
-                                string tagClass = "TagChange";
-
-                                if (tags.Count == 1)
-                                    tagClass += " singular";
-
-                                if (Type == DiffType.Add)
-                                    tagClass += " to";
-                                else
-                                    tagClass += " from";
-
-                                buffer.OpenClassTag(tagClass, stack + 1);
-                                buffer.NextLine();
-
-                                tags.WriteHtml(buffer, stack + 2);
-                                buffer.CloseClassTag(stack + 1);
-                            }
-                            else if (Context is string legacyName)
-                            {
-                                string nameClass = "LegacyName";
-
-                                if (Type == DiffType.Add)
-                                    nameClass += " to";
-                                else
-                                    nameClass += " from";
-
-                                buffer.OpenClassTag(nameClass, stack + 1);
-                                buffer.NextLine();
-
-                                buffer.WriteElement("String", legacyName, stack + 2);
-                                buffer.CloseClassTag(stack + 1);
-                            }
-
-                            detailed = false;
-                        }
-                        else
-                        {
-                            buffer.WriteElement("Field", Field, stack + 1);
-                        }
+                        break;
                     }
+                    case DiffType.Rename:
+                    {
+                        // Write what we're renaming.
+                        html.OpenSpan(Field, () => html.Span("String", Target.Name));
 
-                    buffer.OpenClassTag("Target", stack + 1);
-                    buffer.NextLine();
+                        // Write its new name.
+                        To.WriteHtml(html);
 
-                    Target.WriteHtml(buffer, stack + 2, detailed);
-                    buffer.CloseClassTag(stack + 1);
+                        break;
+                    }
+                    case DiffType.Merge:
+                    {
+                        // Write the elements that are being merged.
+                        From.WriteHtml(html);
 
-                    break;
+                        // Write what they merged into.
+                        html.OpenSpan("MergeListInto", () => To.WriteHtml(html));
+
+                        break;
+                    }
+                    case DiffType.Move:
+                    {
+                        string descType = Target.DescriptorType;
+                        string name = $" {Target.Name}";
+
+                        html.Span(descType, name);
+
+                        From.WriteHtml(html, true);
+                        To.WriteHtml(html, true);
+
+                        break;
+                    }
+                    default:
+                    {
+                        string descType = Target.DescriptorType;
+                        bool detailed = (Type == DiffType.Add);
+
+                        if (Field != descType)
+                        {
+                            if (Context != null)
+                            {
+                                if (Context is Tags tags)
+                                {
+                                    string tagClass = "TagChange";
+
+                                    if (tags.Count == 1)
+                                        tagClass += " singular";
+
+                                    if (Type == DiffType.Add)
+                                        tagClass += " to";
+                                    else
+                                        tagClass += " from";
+
+                                    html.OpenSpan(tagClass, () => tags.WriteHtml(html));
+                                }
+                                else if (Context is string legacyName)
+                                {
+                                    string nameClass = "LegacyName";
+
+                                    if (Type == DiffType.Add)
+                                        nameClass += " to";
+                                    else
+                                        nameClass += " from";
+
+                                    html.OpenSpan(nameClass, () => html.Span("String", legacyName));
+                                }
+
+                                detailed = false;
+                            }
+                            else
+                            {
+                                html.Span("Field", Field);
+                            }
+                        }
+
+                        html.OpenSpan("Target", () => Target.WriteHtml(html));
+                        break;
+                    }
                 }
-            }
-            
-            if (children.Count > 0)
-            {
-                children.Sort();
-                children.ForEach(child => child.WriteDiffHtml(buffer));
-            }
 
-            buffer.CloseClassTag(stack, "div");
+                if (children.Count > 0)
+                {
+                    children.Sort();
+                    children.ForEach(child => child.WriteHtml(html));
+                }
+            });
         }
 
         public int CompareTo(object obj)

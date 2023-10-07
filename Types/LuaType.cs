@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace RobloxApiDumpTool
 {
@@ -14,22 +15,24 @@ namespace RobloxApiDumpTool
     public class LuaType
     {
         public string Name;
-        public string SourceName;
         public TypeCategory Category;
-
         public bool IsReturnType = false;
+
         public override string ToString() => GetSignature();
 
         private static IReadOnlyDictionary<string, string> LuauTypes = new Dictionary<string, string>()
         {
             { "Dictionary", "{ [string]: any }" },
-            { "Map", "{ [any]: any }" },
+            { "Map", "{ [string]: any }" },
             { "Array", "{ any }" },
-            { "Variant", "any" },
 
             { "Objects", "{ Instance }" },
             { "Tuple", "...any" },
             { "Function", "((...any) -> ...any)" },
+            { "OptionalCoordinateFrame", "CFrame?" },
+
+            { "Content", "string" },
+            { "ProtectedString", "string" },
 
             { "null", "()" },
             { "void", "()" },
@@ -40,59 +43,116 @@ namespace RobloxApiDumpTool
             { "double", "number" },
 
             { "bool", "boolean" },
+            { "Variant", "any" },
         };
+
+        public string LuauType
+        {
+            get
+            {
+                if (LuauTypes.ContainsKey(Name))
+                    return LuauTypes[Name];
+
+                return Name;
+            }
+        }
 
         public string GetSignature(bool ignoreReturnType = false)
         {
             string result;
-            SourceName = Name;
-
-            bool optional = false;
-
-            if (Name.EndsWith("?"))
-            {
-                optional = true;
-                Name = Name.Replace("?", "");
-            }
-
-            if (LuauTypes.ContainsKey(Name))
-                Name = LuauTypes[Name];
-
-            if (optional)
-                Name += '?';
 
             if (Category != TypeCategory.Enum)
                 result = Name;
             else
                 result = $"{Category}.{Name}";
 
-            if (IsReturnType && !ignoreReturnType)
-                result = "-> " + result;
-
             return result;
         }
 
-        public void WriteHtml(ReflectionDumper buffer, int numTabs = 0)
+        public void WriteHtml(ReflectionHtml html)
         {
             string typeVal = GetSignature(true);
+            bool optional = false;
 
             if (typeVal.StartsWith("Enum."))
             {
-                buffer.OpenClassTag("EnumName Type", numTabs);
-                buffer.Write("Enum");
-                buffer.CloseClassTag();
+                html.Span("Type", "Enum");
+                html.Symbol(".");
 
                 typeVal = typeVal.Substring(5);
             }
 
-            string typeTag = "Type";
+            if (typeVal.EndsWith("?"))
+            {
+                optional = true;
+                Name = Name.Replace("?", "");
+            }
 
-            if (IsReturnType)
-                typeTag += " WithReturn";
+            switch (Name)
+            {
+                case "Array":
+                {
+                    html.Symbol("{ ");
+                    html.Span("Type", "any");
+                    html.Symbol(" }");
+                    break;
+                }
+                case "Dictionary":
+                case "Map":
+                {
+                    html.Symbol("{ [");
+                    html.Span("Type", "string");
+                    html.Symbol("]: ");
+                    html.Span("Type", "any");
+                    html.Symbol(" }");
+                    break;
+                }
+                case "Objects":
+                {
+                    html.Symbol("{ ");
+                    html.Span("Type", "Instance");
+                    html.Symbol(" }");
+                    break;
+                }
+                case "Tuple":
+                {
+                    html.Symbol("...");
+                    html.Span("Type", "any");
+                    break;
+                }
+                case "Function":
+                {
+                    if (optional)
+                        html.Symbol("((...");
+                    else
+                        html.Symbol("(...");
 
-            buffer.OpenClassTag(typeTag, numTabs);
-            buffer.Write(typeVal);
-            buffer.CloseClassTag();
+                    html.Span("Type", "any");
+                    html.Symbol(") -> ...");
+                    html.Span("Type", "any");
+
+                    if (optional)
+                        html.Symbol(")");
+
+                    break;
+                }
+                case "null":
+                case "void":
+                {
+                    html.Symbol("()");
+                    break;
+                }
+                default:
+                {
+                    html.Span("Type", LuauType);
+                    break;
+                }
+            }
+
+            if (!optional)
+                return;
+
+            html.Symbol("?");
         }
     }
 }

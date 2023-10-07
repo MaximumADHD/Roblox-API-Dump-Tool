@@ -1,108 +1,76 @@
 /* API Dump CSS (Version 1.10) */
 
-body
-{
+body {
 	background-color: #151515;
 	color: white;
-	font-family: Courier New;
+	font-family: Consolas;
 	white-space: nowrap;
 	padding: 10px;
 }
 
-::before
-{
+.boolean,
+span[class^="DescriptorType"] {
 	font-weight: bold;
 }
 
-.Class::before,
-.Enum::before,
-.EnumItem::before
-{
-	color: #FF6400;	
+.boolean,
+.DescriptorType.Enum,
+.DescriptorType.Class,
+.DescriptorType.EnumItem {
+	color: #FF6400;
 }
 
-.Class::before
-{
-	content: "Class";
-}
-
-.Enum::before
-{
-	content: "Enum";
-}
-
-.EnumItem::before
-{
-	content: "EnumItem";
-}
-
-.Property::before
-{
-	content: "Property";
+.DescriptorType.Property {
 	color: #00FFFF;
 }
 
-.Function::before
-{
-	content: "Function";
+.DescriptorType.Function {
 	color: #00FF00;
 }
 
-.Event::before
-{
-	content: "Event";
+.DescriptorType.Event {
 	color: #F5CD30;
 }
 
-.Callback::before
-{
-	content: "Callback";
+.DescriptorType.Callback {
 	color: #FF00FF;
 }
 
-div.Added::before
-{
+div.Added::before {
 	content: "Added";
 	color: #7FFF7F;
 }
 
-div.Changed::before
-{
+div.Changed::before {
 	content: "Changed";
 }
 
-div.Removed::before
-{
+div.Removed::before {
 	content: "Removed";
 	color: #FF7F7F;
 }
 
-div.Renamed::before
-{
+div.Renamed::before {
 	content: "Renamed";
 	color: #7F7FFF;
 }
 
-div.Merged::before
-{
+div.Merged::before {
 	content: "Merged";
 }
 
-div.Moved::before
-{
+div.Moved::before {
 	content: "Moved";
 	color: #FF7FFF;
 }
 
-span.MergeListInto::before
-{
+span.MergeListInto::before {
 	content: "Into";
 	margin-left: 19px;
 }
 
 div.Merged::before,
-span.MergeListInto::before
-{
+span.MergeListInto::before {
 	color: #FF7F3F;
 }
 
@@ -110,268 +78,148 @@ span.MergeListInto::before
 .ChangeFrom::before,
 .MergedInto::before,
 .TagChange.To::before,
-.TagChange.From::before
-{
+.TagChange.From::before {
 	font-weight: normal;
 }
 
 .ChangeFrom::before,
 .TagChange.From::after,
-.LegacyName.From::after
-{
+.LegacyName.From::after {
 	content: "from";
 }
 
 .ChangeTo::before,
 .TagChange.To::after,
-.LegacyName.To::after
-{
+.LegacyName.To::after {
 	content: "to";
 }
 
-.MergedInto::before
-{
+.MergedInto::before {
 	content: "into";
 	margin-left: 48px;
 }
 
-div.ChangeFrom::before
-{
+div.ChangeFrom::before {
 	margin-left: 30px;
 }
 
-div.ChangeTo::before
-{
+div.ChangeTo::before {
 	margin-left: 49px;
 }
 
 div.Changed::before,
-span.TagChange::before
-{
+span.TagChange::before {
 	color: #FFFF7F;
 	font-weight: bold !important;
 }
 
-span.TagChange::before
-{
+span.TagChange::before {
 	content: "Tags";
 }
 
-span.TagChange.Singular::before
-{
+span.TagChange.Singular::before {
 	content: "Tag";
 }
 
-span.LegacyName::before
-{
+span.LegacyName::before {
 	content: "LegacyName";
 	color: #7F7FFF;
 }
 
-span.WhatChanged
-{
+span.WhatChanged {
 	font-style: italic;
 	font-weight: normal;
 }
 
-span.WhatChanged::before
-{
-	content: "the ";
-	font-style: normal;
-	font-weight: normal;
-}
+	span.WhatChanged::before {
+		content: "the ";
+		font-style: normal;
+		font-weight: normal;
+	}
 
-span.WhatChanged::after
-{
-	content: " of";
-	font-style: normal;
-}
+	span.WhatChanged::after {
+		content: " of";
+		font-style: normal;
+	}
 
-span.ChangeList::before
-{
+span.ChangeList::before {
 	margin-left: -10px;
 }
 
 span.Tag,
 span.Security,
 span.ThreadSafety,
-span.Serialization
-{
+span.Serialization {
 	font-weight: bold !important;
 	font-size: 12px !important;
 	font-style: normal !important;
 	text-decoration: none !important;
 }
 
-span.Tag
-{
+span.Tag {
 	background-color: #56562C;
 	color: #F3F385 !important;
+	text-decoration: none !important;
 }
 
-span.Security
-{
+span.Security {
 	background-color: #3F0000;
 	color: #FF0000 !important;
+	text-decoration: none !important;
 }
 
-span.Security.Darken
-{
-	background-color: #051525;
-	color: #6F7F8F !important;
-}
+	span.Security.Darken {
+		background-color: #051525;
+		color: #6F7F8F !important;
+		text-decoration: none !important;
+	}
 
-span.Serialization
-{
+span.Serialization {
 	background-color: #3F3F6F;
 	color: #CF9FFF !important;
 }
 
-span.ThreadSafety
-{
+span.ThreadSafety {
 	background-color: #001F3F;
 	color: #007FFF !important;
 }
 
-
-span.WithReturn::before
-{
-	content: " -> ";
-	font-style: normal;
-	font-weight: normal;
-}
-
 span.Type,
 span.InnerType,
-span.ParamDefault
-{
+span.ParamDefault {
 	color: #FF6400;
 	font-weight: bold;
 }
 
-span.InnerType::before
-{
-	content: '<';
-	margin-left: -8px;
-}
-
-span.InnerType::after
-{
-	content: '>';
-}
-
-span.EnumName::after,
-span.ClassName::after
-{
-	content: '.';
-	margin-right: -10px;
-}
-
-span.Value::before,
-span.ChangeList::before,
-span.Superclass::before,
-span.ClassName.Function::after
-{
-	content: ':';
-}
-
-span.Value::before,
-span.Superclass::before
-{
-	margin-right: 10px;
-}
-
-span.Value::before,
-span.EnumName::after,
-span.ClassName::after,
-span.InnerType::after,
-span.InnerType::before,
-span.Parameter::after,
-span.Parameters::after,
-span.Parameters::before,
-span.Superclass::before,
-span.ChangeList::before,
-span.WithReturn::before,
-span.ParamDefault.Array,
-span.ParamName.Default::after 
-{
+span.Symbol {
 	color: #FFAA50;
 	font-weight: normal;
+	text-decoration: none !important;
 }
 
-span.Parameters::before
-{
-	content: '(';
-	font-weight: normal;
-	margin-left: -10px;
-}
-
-span.Parameters::after
-{
-	content: ')';
-}
-
-span.Parameters.Change::before
-{
+span.Parameters.Change::before {
 	margin-left: 0px;
 }
 
-span.Parameter::after
-{
-	content: ',';
-	margin-left: -8px;
-}
-
-span.Parameter:first-child
-{
-	margin-left: -8px;
-}
-
-span.Parameter:last-child::after
-{
-	content: "";
-}
-
-span.ParamName.Default::after
-{
-	content: " = ";
-}
-
 span.String,
-span.ParamDefault.String
-{
+span.ParamDefault.String {
 	color: #00FF00;
 	font-weight: normal;
 }
 
-span.String::after,
-span.String::before,
-span.ParamDefault.String::after,
-span.ParamDefault.String::before
-{
+*.String::after,
+*.String::before {
 	font-weight: normal;
 	content: '"' !important;
 }
 
-span.Int32,
-span.Value,
-span.ParamDefault.Int,
-span.ParamDefault.Int64,
-span.ParamDefault.Float,
-span.ParamDefault.Double
-{
+*.number,
+*.Value {
 	color: #FF0000;
 	font-weight: normal;
 }
 
-span.ClassName::before,
-span.ParamDefault::before
-{
-	content: "" !important;
-}
-
-span.ChangeList li
-{
+span.ChangeList li {
 	margin-left: 40px;
 }
 
@@ -379,15 +227,13 @@ span.ChangeList li
 .deprecated::after,
 .deprecated::before,
 .deprecated ::after,
-.deprecated ::before
-{
+.deprecated ::before {
 	font-style: italic;
 	font-weight: normal !important;
 	text-decoration: line-through;
 	color: #AFAFAF !important;
 }
 
-.child
-{
+.child {
 	margin-left: 40px;
 }
