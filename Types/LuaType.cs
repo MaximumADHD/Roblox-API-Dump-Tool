@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace RobloxApiDumpTool
 {
@@ -16,7 +17,6 @@ namespace RobloxApiDumpTool
     {
         public string Name;
         public TypeCategory Category;
-        public bool IsReturnType = false;
 
         public override string ToString() => GetSignature();
 
@@ -30,6 +30,7 @@ namespace RobloxApiDumpTool
             { "Tuple", "...any" },
             { "Function", "((...any) -> ...any)" },
             { "OptionalCoordinateFrame", "CFrame?" },
+            { "CoordinateFrame", "CFrame" },
 
             { "Content", "string" },
             { "ProtectedString", "string" },
@@ -46,49 +47,68 @@ namespace RobloxApiDumpTool
             { "Variant", "any" },
         };
 
+        public bool Optional
+        {
+            get => Name.EndsWith("?") || LuauType.EndsWith("?");
+
+            set
+            {
+                if (value)
+                {
+                    if (Name.EndsWith("?"))
+                        return;
+
+                    Name += "?";
+                }
+                else
+                {
+                    if (!Name.EndsWith("?"))
+                        return;
+
+                    Name = AbsoluteName;
+                }
+            }
+        }
+
         public string LuauType
         {
             get
             {
-                if (LuauTypes.ContainsKey(Name))
-                    return LuauTypes[Name];
+                if (LuauTypes.ContainsKey(AbsoluteName))
+
+                    return LuauTypes[AbsoluteName];
 
                 return Name;
             }
         }
 
-        public string GetSignature(bool ignoreReturnType = false)
+        public string AbsoluteName => Name.Replace("?", "");
+        public string AbsoluteLuauType => LuauType.Replace("?", "");
+
+        public string GetSignature()
         {
             string result;
 
-            if (Category != TypeCategory.Enum)
-                result = Name;
-            else
+            if (Category == TypeCategory.Enum)
                 result = $"{Category}.{Name}";
+            else
+                result = LuauType;
+
+            if (Optional && !result.EndsWith("?"))
+                result += "?";
 
             return result;
         }
 
         public void WriteHtml(ReflectionHtml html)
         {
-            string typeVal = GetSignature(true);
-            bool optional = false;
-
-            if (typeVal.StartsWith("Enum."))
+            if (Category == TypeCategory.Enum)
             {
                 html.Span("Type", "Enum");
                 html.Symbol(".");
-
-                typeVal = typeVal.Substring(5);
             }
 
-            if (typeVal.EndsWith("?"))
-            {
-                optional = true;
-                Name = Name.Replace("?", "");
-            }
-
-            switch (Name)
+            switch (AbsoluteName)
             {
                 case "Array":
                 {
@@ -122,16 +142,16 @@ namespace RobloxApiDumpTool
                 }
                 case "Function":
                 {
-                    if (optional)
-                        html.Symbol("((...");
-                    else
-                        html.Symbol("(...");
+                    if (Optional)
+                        html.Symbol("(");
 
+                    html.Symbol("(...");
                     html.Span("Type", "any");
+
                     html.Symbol(") -> ...");
                     html.Span("Type", "any");
 
-                    if (optional)
+                    if (Optional)
                         html.Symbol(")");
 
                     break;
@@ -144,12 +164,12 @@ namespace RobloxApiDumpTool
                 }
                 default:
                 {
-                    html.Span("Type", LuauType);
+                    html.Span("Type", AbsoluteLuauType);
                     break;
                 }
             }
 
-            if (!optional)
+            if (!Optional)
                 return;
 
             html.Symbol("?");

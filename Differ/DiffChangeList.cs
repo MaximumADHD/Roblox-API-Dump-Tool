@@ -13,24 +13,8 @@ namespace RobloxApiDumpTool
             Name = name;
         }
 
-        private void PreformatList()
-        {
-            object lastChange = null;
-
-            foreach (object change in this)
-            {
-                if (lastChange is Parameters)
-                    if (change is LuaType type)
-                        type.IsReturnType = true;
-
-                lastChange = change;
-            }
-        }
-
         public string ListElements(string separator, string prefix = "")
         {
-            PreformatList();
-
             string[] elements = this
                 .Select(elem => prefix + elem.ToString())
                 .ToArray();
@@ -45,10 +29,8 @@ namespace RobloxApiDumpTool
 
         public void WriteHtml(ReflectionHtml html, bool multiline = false)
         {
-            Action buildChangeList = new Action(() =>
+            var buildChangeList = new Action(() =>
             {
-                PreformatList();
-
                 foreach (object change in this)
                 {
                     if (change is Parameters)

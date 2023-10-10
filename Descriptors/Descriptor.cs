@@ -230,9 +230,10 @@ namespace RobloxApiDumpTool
                                 {
                                     var luaType = info.GetValue(this) as LuaType;
 
-                                    if (token == "ValueType" && luaType.Category == TypeCategory.Class)
-                                        if (!luaType.Name.EndsWith("?"))
-                                            luaType.Name += "?";
+                                    if (luaType.Category == TypeCategory.Class)
+                                        if (token == "ValueType" || luaType.Name == "Instance")
+                                            if (!luaType.Name.EndsWith("?"))
+                                                luaType.Name += "?";
 
                                     luaType.WriteHtml(html);
                                     break;
