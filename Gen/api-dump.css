@@ -157,16 +157,20 @@ span.ParamDefault.String {
 	font-weight: normal;
 }
 
-span.ChangeList li {
-	margin-left: 40px;
+div.ChangeList {
+	margin-left: 22px;
 }
 
-td.ChangeListPrefix {
+span.ChangeListPrefix {
+	display: inline-block;
 	text-align: right;
+	margin-right: 4px;
+	width: 48px;
 }
 
-table.ChangeListTable {
-	margin-left: 32px;
+span.ChangeListItem {
+	margin-left: 4px;
+	margin-right: 4px;
 }
 
 .deprecated *,
