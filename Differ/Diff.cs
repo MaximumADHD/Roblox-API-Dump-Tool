@@ -28,8 +28,8 @@ namespace RobloxApiDumpTool
         public bool BiasTarget = false;
         public Descriptor Target;
 
-        public DiffChangeList From = new DiffChangeList("ChangeFrom");
-        public DiffChangeList To = new DiffChangeList("ChangeTo");
+        public DiffChangeList From = new DiffChangeList("ChangeFrom", "from");
+        public DiffChangeList To = new DiffChangeList("ChangeTo", "  to");
 
         public bool HasParent => (stack > 0);
         public Diff[] Children => children.ToArray();
@@ -162,11 +162,15 @@ namespace RobloxApiDumpTool
 
             diffType += "d";
 
-            if (HasParent)
-                diffType += " child";
-
             html.OpenDiv(diffType, () =>
             {
+                string diffClass = diffType;
+
+                if (HasParent)
+                    diffClass += " child";
+
+                html.Span($"DiffType {diffClass}", $"{diffType} ");
+
                 switch (Type)
                 {
                     case DiffType.Change:
@@ -176,21 +180,23 @@ namespace RobloxApiDumpTool
                         bool multiline = textSignature.Contains(NL);
 
                         // Write what we changed.
+                        html.Text(" the ");
                         html.Span("WhatChanged", Field);
+                        html.Text(" of ");
 
                         // Write what was changed.
-                        Target.WriteHtml(html);
+                        Target.WriteHtml(html, WriteHtmlFlags.DiffMode | WriteHtmlFlags.UseSpan);
 
                         // Changed From, Changed To.
                         From.WriteHtml(html, multiline);
                         To.WriteHtml(html, multiline);
-
+                        
                         break;
                     }
                     case DiffType.Rename:
                     {
                         // Write what we're renaming.
-                        html.OpenSpan(Field, () => html.Span("String", Target.Name));
+                        Target.WriteHtml(html, WriteHtmlFlags.UseSpan);
 
                         // Write its new name.
                         To.WriteHtml(html);
@@ -211,7 +217,6 @@ namespace RobloxApiDumpTool
                     {
                         string descType = Target.DescriptorType;
                         string name = $" {Target.Name}";
-
                         html.Span(descType, name);
 
                         From.WriteHtml(html, true);
@@ -222,7 +227,10 @@ namespace RobloxApiDumpTool
                     default:
                     {
                         string descType = Target.DescriptorType;
-                        bool detailed = (Type == DiffType.Add);
+                        var flags = WriteHtmlFlags.UseSpan | WriteHtmlFlags.DiffMode;
+
+                        if (Type == DiffType.Add)
+                            flags |= WriteHtmlFlags.Detailed;
 
                         if (Field != descType)
                         {
@@ -230,31 +238,37 @@ namespace RobloxApiDumpTool
                             {
                                 if (Context is Tags tags)
                                 {
-                                    string tagClass = "TagChange";
+                                    string tagText = "Tag";
+                                    string suffix;
 
-                                    if (tags.Count == 1)
-                                        tagClass += " singular";
+                                    if (tags.Count > 1)
+                                        tagText += "s";
 
+                                    html.Span("DiffType Tags", $"{tagText} ");
+                                    
                                     if (Type == DiffType.Add)
-                                        tagClass += " to";
+                                        suffix = " to ";
                                     else
-                                        tagClass += " from";
+                                        suffix = " from ";
 
-                                    html.OpenSpan(tagClass, () => tags.WriteHtml(html));
+                                    tags.WriteHtml(html);
+                                    html.Text(suffix);
                                 }
                                 else if (Context is string legacyName)
                                 {
-                                    string nameClass = "LegacyName";
+                                    string suffix;
+                                    html.Span("DiffType LegacyName", "LegacyName ");
 
                                     if (Type == DiffType.Add)
-                                        nameClass += " to";
+                                        suffix = " to ";
                                     else
-                                        nameClass += " from";
+                                        suffix = " from ";
 
-                                    html.OpenSpan(nameClass, () => html.Span("String", legacyName));
+                                    html.String(legacyName);
+                                    html.Text(suffix);
                                 }
 
-                                detailed = false;
+                                flags &= ~WriteHtmlFlags.Detailed;
                             }
                             else
                             {
@@ -262,7 +276,7 @@ namespace RobloxApiDumpTool
                             }
                         }
 
-                        html.OpenSpan("Target", () => Target.WriteHtml(html));
+                        Target.WriteHtml(html, flags);
                         break;
                     }
                 }

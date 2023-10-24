@@ -29,11 +29,11 @@ namespace RobloxApiDumpTool
 
             if (Default != null)
             {
-                if (Type.Name == "string" || category == "Enum")
+                if (Type.AbsoluteName == "string" || category == "Enum")
                     if (!Default.StartsWith(quote) && !Default.EndsWith(quote))
                         Default = quote + Default + quote;
 
-                if (Type.Category == TypeCategory.DataType && Type.Name != "Function")
+                if (Type.Category == TypeCategory.DataType && Type.AbsoluteName != "Function")
                     Default = $"{Type.Name}.new()";
 
                 if (Default.Length == 0)
@@ -56,25 +56,23 @@ namespace RobloxApiDumpTool
 
             html.OpenSpan("Parameter", () =>
             {
-                if (luaType.LuauType == "...any")
+                if (luaType.Name == "Tuple")
                 {
-                    luaType.Name = "Variant";
                     html.Symbol("...: ");
+                    html.Span("Type", "any");
                 }
                 else
                 {
                     html.Span("ParamName", name);
                     html.Symbol(": ");
+                    luaType.WriteHtml(html);
                 }
-                    
-
-                luaType.WriteHtml(html);
-
+                
                 // Write Default
                 if (paramDef != null && paramDef != "nil")
                 {
                     string typeLbl = luaType.GetSignature();
-                    string typeName = luaType.Name;
+                    string typeName = luaType.AbsoluteName;
                     html.Symbol(" = ");
 
                     if (luaType.Category == TypeCategory.DataType && typeName != "Function")
@@ -96,11 +94,36 @@ namespace RobloxApiDumpTool
                     else
                     {
                         if (luaType.Category == TypeCategory.Enum)
-                            typeName = "String";
-                        else
-                            typeName = luaType.LuauType;
+                        {
+                            html.String(paramDef);
+                            return;
+                        }
 
-                        html.Span(typeName, paramDef);
+                        typeName = luaType.AbsoluteName;
+
+                        if (luaType.AbsoluteLuauType == "number")
+                        {
+                            typeName = "number";
+
+                            if (paramDef.StartsWith("-"))
+                            {
+                                html.Symbol("-");
+                                paramDef = paramDef.Substring(1);
+                            }
+                        }
+
+                        if (typeName.ToLowerInvariant() == "string")
+                        {
+                            html.String(paramDef);
+                            return;
+                        }
+                        else if (typeName == "Array" || typeName == "Dictionary")
+                        {
+                            html.Symbol(paramDef);
+                            return;
+                        }
+
+                        html.Span(luaType.AbsoluteLuauType, paramDef);
                     }
                 }
             });

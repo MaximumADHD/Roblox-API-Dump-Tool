@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace RobloxApiDumpTool
@@ -12,13 +13,7 @@ namespace RobloxApiDumpTool
         public delegate string DumpPostProcesser(string result, string workDir = "");
 
         public readonly StringBuilder Builder = new StringBuilder();
-
-        private static readonly Descriptor.HtmlConfig htmlConfig = new Descriptor.HtmlConfig
-        {
-            TagType = "div",
-            Detailed = true,
-            DiffMode = false,
-        };
+        public static readonly ReflectionHtml Html = new ReflectionHtml();
 
         public ReflectionDumper(ReflectionDatabase database = null)
         {
@@ -27,6 +22,9 @@ namespace RobloxApiDumpTool
 
         public string ExportResults(DumpPostProcesser postProcess = null)
         {
+            if (Html.HasElements)
+                Html.WriteTo(Builder);
+
             string result = Builder.ToString();
             string post = postProcess?.Invoke(result);
 
@@ -38,8 +36,9 @@ namespace RobloxApiDumpTool
 
         private static List<T> Sorted<T>(List<T> list)
         {
-            list.Sort();
-            return list;
+            return list
+                .OrderBy(elem => elem)
+                .ToList();
         }
         
         public void Write(object text)
@@ -71,9 +70,7 @@ namespace RobloxApiDumpTool
 
         public static SignatureWriter DumpUsingHtml = (buffer, desc, numTabs) =>
         {
-            var html = new ReflectionHtml();
-            desc.WriteHtml(html);
-            html.WriteTo(buffer.Builder);
+            desc.WriteHtml(Html);
         };
 
         public string DumpApi(SignatureWriter WriteSignature, DumpPostProcesser postProcess = null)
@@ -82,6 +79,7 @@ namespace RobloxApiDumpTool
                 throw new Exception("Cannot Dump API without a ReflectionDatabase provided.");
 
             Builder.Clear();
+            Html.Clear();
 
             foreach (ClassDescriptor classDesc in Database.Classes.Values)
             {

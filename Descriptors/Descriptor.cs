@@ -22,6 +22,14 @@ namespace RobloxApiDumpTool
         Unknown = -1
     }
 
+    [Flags]
+    public enum WriteHtmlFlags
+    {
+        UseSpan = 0x1,
+        Detailed = 0x2,
+        DiffMode = 0x4,
+    }
+
     public class Descriptor : IComparable
     {
         public string Name;
@@ -61,9 +69,8 @@ namespace RobloxApiDumpTool
         public string Summary => Describe(false);
         public string Signature => Describe(true);
 
-        public void AddTag  (string tag) => Tags.Add(tag);
-        public bool DropTag (string tag) => Tags.Remove(tag);
-        public bool HasTag  (string tag) => Tags.Contains(tag);
+        public void AddTag(string tag) => Tags.Add(tag);
+        public bool HasTag(string tag) => Tags.Contains(tag);
 
         public override string ToString() => Summary;
 
@@ -94,13 +101,6 @@ namespace RobloxApiDumpTool
                 TypePriority = baseRef.TypePriority;
                 DescriptorType = baseRef.DescriptorType;
             }
-        }
-
-        public class HtmlConfig
-        {
-            public bool DiffMode = true; 
-            public bool Detailed = false;
-            public string TagType = "span";
         }
 
         public virtual string GetSchema(bool detailed = false)
@@ -164,24 +164,23 @@ namespace RobloxApiDumpTool
             return desc.Trim();
         }
 
-        public void WriteHtml(ReflectionHtml html, HtmlConfig config = null)
+        public void WriteHtml(ReflectionHtml html, WriteHtmlFlags flags = WriteHtmlFlags.Detailed)
         {
-            if (config == null)
-                config = new HtmlConfig();
+            bool diffMode = flags.HasFlag(WriteHtmlFlags.DiffMode);
+            bool detailed = flags.HasFlag(WriteHtmlFlags.Detailed);
+            string elemType = flags.HasFlag(WriteHtmlFlags.UseSpan) ? "span" : "div";
 
-            string tagType = "div";
-            var tokens = GetTokens(true);
-            string schema = GetSchema(true);
-            string tagClass = DescriptorType;
+            var tokens = GetTokens(detailed);
+            string schema = GetSchema(detailed);
+            string elemClass = DescriptorType;
 
-            if (Tags.Contains("Deprecated"))
-                tagClass += " deprecated"; // The CSS will strike-through this.
+            if (!diffMode && Tags.Contains("Deprecated"))
+                elemClass += " deprecated"; // The CSS will strike-through this.
 
-            // TODO: 
-            if (DescriptorType != "Class" && DescriptorType != "Enum")
-                tagClass += " child";
+            if (!diffMode && DescriptorType != "Class" && DescriptorType != "Enum")
+                elemClass += " child";
 
-            html.OpenStack("div", tagClass, () =>
+            html.OpenStack(elemType, elemClass, () =>
             {
                 int search = 0;
 
@@ -229,12 +228,6 @@ namespace RobloxApiDumpTool
                                 else if (info.FieldType == typeof(LuaType) && token.EndsWith("Type"))
                                 {
                                     var luaType = info.GetValue(this) as LuaType;
-
-                                    if (luaType.Category == TypeCategory.Class)
-                                        if (token == "ValueType" || luaType.Name == "Instance")
-                                            if (!luaType.Name.EndsWith("?"))
-                                                luaType.Name += "?";
-
                                     luaType.WriteHtml(html);
                                     break;
                                 }

@@ -259,7 +259,8 @@ namespace RobloxApiDumpTool
                     string versionStr = argMap["-version"];
                     int version = int.Parse(versionStr);
 
-                    var logQuery = logs.CurrentLogs_x64
+                    var logQuery = logs.CurrentLogs_x86
+                        .Union(logs.CurrentLogs_x64)
                         .Where(log => log.Version == version)
                         .OrderBy(log => log.Changelist);
 
@@ -272,7 +273,8 @@ namespace RobloxApiDumpTool
                     currentLog = logQuery.FirstOrDefault();
                 }
 
-                DeployLog prevLog = logs.CurrentLogs_x64
+                DeployLog prevLog = logs.CurrentLogs_x86
+                    .Union(logs.CurrentLogs_x64)
                     .Where(log => log.Version < currentLog.Version)
                     .OrderBy(log => log.Changelist)
                     .LastOrDefault();
@@ -307,11 +309,11 @@ namespace RobloxApiDumpTool
                     return false;
 
                 string history = File.ReadAllText(historyPath);
-                string appendMarker = $"<hr id=\"{currentLog.Version}\"/>";
+                string appendMarker = $"\n\n<hr id=\"{currentLog.Version}\"/>\n";
 
                 if (!history.Contains(appendMarker))
                 {
-                    string prevMarker = $"<hr id=\"{prevLog.Version}\"/>";
+                    string prevMarker = $"\n\n<hr id=\"{prevLog.Version}\"/>\n";
                     int index = history.IndexOf(prevMarker);
 
                     if (index < 0)

@@ -11,7 +11,8 @@ namespace RobloxApiDumpTool
         
         public string Superclass;
         public string MemoryCategory;
-        
+        public SecurityType Security = SecurityType.None;
+
         public ReflectionDatabase Database;
         
         [JsonIgnore]

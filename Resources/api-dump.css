@@ -9,7 +9,9 @@ body {
 }
 
 .boolean,
-span[class^="DescriptorType"] {
+span.TagChange,
+span[class^="DescriptorType"],
+span[class^="DiffType"] {
 	font-weight: bold;
 }
 
@@ -36,67 +38,30 @@ span[class^="DescriptorType"] {
 	color: #FF00FF;
 }
 
-div.Added::before {
-	content: "Added";
+.DiffType.Added {
 	color: #7FFF7F;
 }
 
-div.Changed::before {
-	content: "Changed";
+.DiffType.Changed,
+.DiffType.Tags {
+	color: #FFFF7F;
 }
 
-div.Removed::before {
-	content: "Removed";
+.DiffType.Removed {
 	color: #FF7F7F;
 }
 
-div.Renamed::before {
-	content: "Renamed";
+.DiffType.Renamed {
 	color: #7F7FFF;
 }
 
-div.Merged::before {
-	content: "Merged";
-}
-
-div.Moved::before {
-	content: "Moved";
+.DiffType.Moved {
 	color: #FF7FFF;
 }
 
-span.MergeListInto::before {
-	content: "Into";
-	margin-left: 19px;
-}
-
-div.Merged::before,
-span.MergeListInto::before {
+.DiffType.Merged,
+span.MergeListInto {
 	color: #FF7F3F;
-}
-
-.ChangeTo::before,
-.ChangeFrom::before,
-.MergedInto::before,
-.TagChange.To::before,
-.TagChange.From::before {
-	font-weight: normal;
-}
-
-.ChangeFrom::before,
-.TagChange.From::after,
-.LegacyName.From::after {
-	content: "from";
-}
-
-.ChangeTo::before,
-.TagChange.To::after,
-.LegacyName.To::after {
-	content: "to";
-}
-
-.MergedInto::before {
-	content: "into";
-	margin-left: 48px;
 }
 
 div.ChangeFrom::before {
@@ -107,22 +72,7 @@ div.ChangeTo::before {
 	margin-left: 49px;
 }
 
-div.Changed::before,
-span.TagChange::before {
-	color: #FFFF7F;
-	font-weight: bold !important;
-}
-
-span.TagChange::before {
-	content: "Tags";
-}
-
-span.TagChange.Singular::before {
-	content: "Tag";
-}
-
-span.LegacyName::before {
-	content: "LegacyName";
+span.LegacyName {
 	color: #7F7FFF;
 }
 
@@ -131,19 +81,12 @@ span.WhatChanged {
 	font-weight: normal;
 }
 
-	span.WhatChanged::before {
-		content: "the ";
-		font-style: normal;
-		font-weight: normal;
-	}
-
-	span.WhatChanged::after {
-		content: " of";
-		font-style: normal;
-	}
-
 span.ChangeList::before {
 	margin-left: -10px;
+}
+
+.table td:first-child {
+	text-align: left;
 }
 
 span.Tag,
@@ -168,11 +111,11 @@ span.Security {
 	text-decoration: none !important;
 }
 
-	span.Security.Darken {
-		background-color: #051525;
-		color: #6F7F8F !important;
-		text-decoration: none !important;
-	}
+span.Security.Darken {
+	background-color: #051525;
+	color: #6F7F8F !important;
+	text-decoration: none !important;
+}
 
 span.Serialization {
 	background-color: #3F3F6F;
@@ -207,20 +150,27 @@ span.ParamDefault.String {
 	font-weight: normal;
 }
 
-*.String::after,
-*.String::before {
-	font-weight: normal;
-	content: '"' !important;
-}
-
-*.number,
+*.Int32,
+*.Number,
 *.Value {
 	color: #FF0000;
 	font-weight: normal;
 }
 
-span.ChangeList li {
-	margin-left: 40px;
+div.ChangeList {
+	margin-left: 22px;
+}
+
+span.ChangeListPrefix {
+	display: inline-block;
+	text-align: right;
+	margin-right: 4px;
+	width: 48px;
+}
+
+span.ChangeListItem {
+	margin-left: 4px;
+	margin-right: 4px;
 }
 
 .deprecated *,

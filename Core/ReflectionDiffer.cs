@@ -509,7 +509,7 @@ namespace RobloxApiDumpTool
             {
                 var html = new ReflectionHtml();
                 var diffLookup = diffs.ToDictionary(diff => diff.ToString());
-
+                
                 addLineToResults = new DiffResultLineAdder((line, addBreak) =>
                 {
                     if (addBreak)

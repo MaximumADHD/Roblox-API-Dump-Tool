@@ -7,11 +7,11 @@
 
         private static readonly string[] flagLabels = new string[4]
         {
-            "<🕒> RuntimeOnly",
+            "🚫 None",
 
-            "<💾> SaveOnly", "<📁> LoadOnly",
+            "💾 SaveOnly", "📁 LoadOnly",
 
-            "<💾|📁> Saves|Loads"
+            "💾|📁 Serialized"
         };
 
         public string Describe(bool isDiff = false)

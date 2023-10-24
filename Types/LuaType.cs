@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 
 namespace RobloxApiDumpTool
 {
@@ -75,7 +73,6 @@ namespace RobloxApiDumpTool
             get
             {
                 if (LuauTypes.ContainsKey(AbsoluteName))
-
                     return LuauTypes[AbsoluteName];
 
                 return Name;
@@ -96,6 +93,8 @@ namespace RobloxApiDumpTool
 
             if (Optional && !result.EndsWith("?"))
                 result += "?";
+            else if (!Optional && Name == "Function")
+                result = "(...any) -> ...any";
 
             return result;
         }

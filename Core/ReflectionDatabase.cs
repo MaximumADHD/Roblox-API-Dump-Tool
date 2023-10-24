@@ -73,6 +73,14 @@ namespace RobloxApiDumpTool
                             else if (memberDesc.HasTag("Deprecated"))
                                 membersDeprecated++;
 
+                            if (memberDesc is PropertyDescriptor prop)
+                                if (prop.ValueType.Category == TypeCategory.Class)
+                                    prop.ValueType.Optional = true;
+
+                            if (memberDesc is FunctionDescriptor func)
+                                if (func.ReturnType.Name == "Instance" || func.ReturnType.Name == "RaycastResult")
+                                    func.ReturnType.Optional = true;
+
                             classDesc.Members.Add(memberDesc);
                         }
                     }
