@@ -12,943 +12,105 @@
 </head>
 
 
-<hr id="351"/>
-
-<h2>Version 0.351.0.232950</h2>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Class">
-<span class="DescriptorType Class">Class</span>
-<span class="symbol"> </span>
-<span class="Name">PackageLink</span>
-<span class="symbol"> : </span>
-<span class="Superclass">Instance</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="Tag">[NotCreatable]</span>
-</span>
-<div class="Added">
-<span class="DiffType Added child">Added </span>
-<span class="Property">
-<span class="DescriptorType Property">Property</span>
-<span class="symbol"> </span>
-<span class="Type">number</span>
-<span class="symbol"> </span>
-<span class="ClassName">PackageLink</span>
-<span class="symbol">.</span>
-<span class="Name">PackageId</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="Tag">[ReadOnly]</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added child">Added </span>
-<span class="Property">
-<span class="DescriptorType Property">Property</span>
-<span class="symbol"> </span>
-<span class="Type">number</span>
-<span class="symbol"> </span>
-<span class="ClassName">PackageLink</span>
-<span class="symbol">.</span>
-<span class="Name">VersionId</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="Tag">[ReadOnly]</span>
-<span class="symbol"> </span>
-</span>
-</div>
-</div>
-<br />
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Class">
-<span class="DescriptorType Class">Class</span>
-<span class="symbol"> </span>
-<span class="Name">QWidgetPluginGui</span>
-<span class="symbol"> : </span>
-<span class="Superclass">PluginGui</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="Tag">[NotCreatable]</span>
-<span class="symbol"> </span>
-<span class="Tag">[NotReplicated]</span>
-</span>
-</div>
-<br />
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Property">
-<span class="DescriptorType Property">Property</span>
-<span class="symbol"> </span>
-<span class="Type">string</span>
-<span class="symbol"> </span>
-<span class="ClassName">RenderingTest</span>
-<span class="symbol">.</span>
-<span class="Name">Description</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Property">
-<span class="DescriptorType Property">Property</span>
-<span class="symbol"> </span>
-<span class="Type">boolean</span>
-<span class="symbol"> </span>
-<span class="ClassName">RenderingTest</span>
-<span class="symbol">.</span>
-<span class="Name">ShouldSkip</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Property">
-<span class="DescriptorType Property">Property</span>
-<span class="symbol"> </span>
-<span class="Type">string</span>
-<span class="symbol"> </span>
-<span class="ClassName">RenderingTest</span>
-<span class="symbol">.</span>
-<span class="Name">Ticket</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-<br />
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Function">
-<span class="DescriptorType Function">Function</span>
-<span class="symbol"> </span>
-<span class="ClassName">HttpRbxApiService</span>
-<span class="symbol">:</span>
-<span class="Name">RequestAsync</span>
-<span class="Parameters">
-<span class="symbol">(</span>
-<span class="Parameter">
-<span class="ParamName">requestOptions</span>
-<span class="symbol">: </span>
-<span class="symbol">{ [</span>
-<span class="Type">string</span>
-<span class="symbol">]: </span>
-<span class="Type">any</span>
-<span class="symbol"> }</span>
-</span>
-<span class="symbol">, </span>
-<span class="Parameter">
-<span class="ParamName">priority</span>
-<span class="symbol">: </span>
-<span class="Type">Enum</span>
-<span class="symbol">.</span>
-<span class="Type">ThrottlingPriority</span>
-<span class="symbol">?</span>
-<span class="symbol"> = </span>
-<span class="String">"Default"</span>
-</span>
-<span class="symbol">, </span>
-<span class="Parameter">
-<span class="ParamName">content_type</span>
-<span class="symbol">: </span>
-<span class="Type">Enum</span>
-<span class="symbol">.</span>
-<span class="Type">HttpContentType</span>
-<span class="symbol">?</span>
-<span class="symbol"> = </span>
-<span class="String">"ApplicationJson"</span>
-</span>
-<span class="symbol">, </span>
-<span class="Parameter">
-<span class="ParamName">httpRequestType</span>
-<span class="symbol">: </span>
-<span class="Type">Enum</span>
-<span class="symbol">.</span>
-<span class="Type">HttpRequestType</span>
-<span class="symbol">?</span>
-<span class="symbol"> = </span>
-<span class="String">"Default"</span>
-</span>
-<span class="symbol">, </span>
-<span class="Parameter">
-<span class="ParamName">doNotAllowDiabolicalMode</span>
-<span class="symbol">: </span>
-<span class="Type">boolean</span>
-<span class="symbol">?</span>
-<span class="symbol"> = </span>
-<span class="boolean">false</span>
-</span>
-<span class="symbol">)</span>
-</span>
-<span class="symbol"> -&gt; </span>
-<span class="Type">string</span>
-<span class="symbol"> </span>
-<span class="Security">{RobloxScriptSecurity}</span>
-<span class="symbol"> </span>
-<span class="Tag">[Yields]</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Function">
-<span class="DescriptorType Function">Function</span>
-<span class="symbol"> </span>
-<span class="ClassName">HttpService</span>
-<span class="symbol">:</span>
-<span class="Name">GetHttpEnabled</span>
-<span class="Parameters">
-<span class="symbol">(</span>
-<span class="symbol">)</span>
-</span>
-<span class="symbol"> -&gt; </span>
-<span class="Type">boolean</span>
-<span class="symbol"> </span>
-<span class="Security">{RobloxScriptSecurity}</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Function">
-<span class="DescriptorType Function">Function</span>
-<span class="symbol"> </span>
-<span class="ClassName">HttpService</span>
-<span class="symbol">:</span>
-<span class="Name">SetHttpEnabled</span>
-<span class="Parameters">
-<span class="symbol">(</span>
-<span class="Parameter">
-<span class="ParamName">enabled</span>
-<span class="symbol">: </span>
-<span class="Type">boolean</span>
-</span>
-<span class="symbol">)</span>
-</span>
-<span class="symbol"> -&gt; </span>
-<span class="symbol">()</span>
-<span class="symbol"> </span>
-<span class="Security">{RobloxScriptSecurity}</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Function">
-<span class="DescriptorType Function">Function</span>
-<span class="symbol"> </span>
-<span class="ClassName">Plugin</span>
-<span class="symbol">:</span>
-<span class="Name">CreateQWidgetPluginGui</span>
-<span class="Parameters">
-<span class="symbol">(</span>
-<span class="Parameter">
-<span class="ParamName">pluginGuiId</span>
-<span class="symbol">: </span>
-<span class="Type">string</span>
-</span>
-<span class="symbol">, </span>
-<span class="Parameter">
-<span class="ParamName">pluginGuiOptions</span>
-<span class="symbol">: </span>
-<span class="symbol">{ [</span>
-<span class="Type">string</span>
-<span class="symbol">]: </span>
-<span class="Type">any</span>
-<span class="symbol"> }</span>
-</span>
-<span class="symbol">)</span>
-</span>
-<span class="symbol"> -&gt; </span>
-<span class="Type">Instance</span>
-<span class="symbol"> </span>
-<span class="Security">{RobloxScriptSecurity}</span>
-<span class="symbol"> </span>
-<span class="Tag">[Yields]</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<br />
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">ScriptMatchingWordSelectionBackground</span>
-<span class="symbol"> : </span>
-<span class="Value">45</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<br />
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">superclass</span> of <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">Workspace</span></span><table class="ChangeListTable"><div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"RootInstance"</span></span></div><div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Model"</span></span></div></table></div>
-<br />
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">serialization</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">BasePart</span><span class="symbol">.</span><span class="Name">Elasticity</span></span><table class="ChangeListTable"><div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Serialization">[&lt;💾|📁&gt; Saves|Loads]</span></span></div><div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Serialization">[&lt;📁&gt; LoadOnly]</span></span></div></table></div>
-<br />
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">serialization</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">BasePart</span><span class="symbol">.</span><span class="Name">Friction</span></span><table class="ChangeListTable"><div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Serialization">[&lt;💾|📁&gt; Saves|Loads]</span></span></div><div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Serialization">[&lt;📁&gt; LoadOnly]</span></span></div></table></div>
-<br />
-<div class="Removed">
-<span class="DiffType Removed">Removed </span>
-<span class="Class">
-<span class="DescriptorType Class">Class</span>
-<span class="symbol"> </span>
-<span class="Name">RootInstance</span>
-</span>
-</div>
-<br />
-<div class="Removed">
-<span class="DiffType Removed">Removed </span>
-<span class="Class">
-<span class="DescriptorType Class">Class</span>
-<span class="symbol"> </span>
-<span class="Name">Scale9Frame</span>
-</span>
-<div class="Removed">
-<span class="DiffType Removed child">Removed </span>
-<span class="Property">
-<span class="DescriptorType Property">Property</span>
-<span class="symbol"> </span>
-<span class="ClassName">Scale9Frame</span>
-<span class="symbol">.</span>
-<span class="Name">ScaleEdgeSize</span>
-</span>
-</div>
-<div class="Removed">
-<span class="DiffType Removed child">Removed </span>
-<span class="Property">
-<span class="DescriptorType Property">Property</span>
-<span class="symbol"> </span>
-<span class="ClassName">Scale9Frame</span>
-<span class="symbol">.</span>
-<span class="Name">SlicePrefix</span>
-</span>
-</div>
-</div>
-<br />
-<div class="Removed">
-<span class="DiffType Removed">Removed </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">ScriptMachtingWordSelectionBackground</span>
-</span>
-</div>
-
 <hr id="350"/>
 
 <h2>Version 0.350.0.231118</h2>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Class">
-<span class="DescriptorType Class">Class</span>
-<span class="symbol"> </span>
-<span class="Name">StudioTheme</span>
-<span class="symbol"> : </span>
-<span class="Superclass">Instance</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="Tag">[NotCreatable]</span>
-<span class="symbol"> </span>
-<span class="Tag">[NotReplicated]</span>
-</span>
-<div class="Added">
-<span class="DiffType Added child">Added </span>
-<span class="Function">
-<span class="DescriptorType Function">Function</span>
-<span class="symbol"> </span>
-<span class="ClassName">StudioTheme</span>
-<span class="symbol">:</span>
-<span class="Name">GetColor</span>
-<span class="Parameters">
-<span class="symbol">(</span>
-<span class="Parameter">
-<span class="ParamName">styleguideitem</span>
-<span class="symbol">: </span>
-<span class="Type">Enum</span>
-<span class="symbol">.</span>
-<span class="Type">StudioStyleGuideColor</span>
-</span>
-<span class="symbol">, </span>
-<span class="Parameter">
-<span class="ParamName">modifier</span>
-<span class="symbol">: </span>
-<span class="Type">Enum</span>
-<span class="symbol">.</span>
-<span class="Type">StudioStyleGuideModifier</span>
-<span class="symbol">?</span>
-<span class="symbol"> = </span>
-<span class="String">"Default"</span>
-</span>
-<span class="symbol">)</span>
-</span>
-<span class="symbol"> -&gt; </span>
-<span class="Type">Color3</span>
-<span class="symbol"> </span>
-<span class="Security">{PluginSecurity}</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added child">Added </span>
-<span class="Function">
-<span class="DescriptorType Function">Function</span>
-<span class="symbol"> </span>
-<span class="ClassName">StudioTheme</span>
-<span class="symbol">:</span>
-<span class="Name">GetPath</span>
-<span class="Parameters">
-<span class="symbol">(</span>
-<span class="Parameter">
-<span class="ParamName">assetid</span>
-<span class="symbol">: </span>
-<span class="Type">string</span>
-</span>
-<span class="symbol">, </span>
-<span class="Parameter">
-<span class="ParamName">modifier</span>
-<span class="symbol">: </span>
-<span class="Type">Enum</span>
-<span class="symbol">.</span>
-<span class="Type">StudioStyleGuideModifier</span>
-<span class="symbol">?</span>
-<span class="symbol"> = </span>
-<span class="String">"Default"</span>
-</span>
-<span class="symbol">)</span>
-</span>
-<span class="symbol"> -&gt; </span>
-<span class="Type">string</span>
-<span class="symbol"> </span>
-<span class="Security">{PluginSecurity}</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-</div>
-<br />
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Property">
-<span class="DescriptorType Property">Property</span>
-<span class="symbol"> </span>
-<span class="Type">string</span>
-<span class="symbol"> </span>
-<span class="ClassName">ImageButton</span>
-<span class="symbol">.</span>
-<span class="Name">HoverImage</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Property">
-<span class="DescriptorType Property">Property</span>
-<span class="symbol"> </span>
-<span class="Type">string</span>
-<span class="symbol"> </span>
-<span class="ClassName">ImageButton</span>
-<span class="symbol">.</span>
-<span class="Name">PressedImage</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Property">
-<span class="DescriptorType Property">Property</span>
-<span class="symbol"> </span>
-<span class="Type">Instance</span>
-<span class="symbol"> </span>
-<span class="ClassName">Studio</span>
-<span class="symbol">.</span>
-<span class="Name">Theme</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-<br />
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Function">
-<span class="DescriptorType Function">Function</span>
-<span class="symbol"> </span>
-<span class="ClassName">Studio</span>
-<span class="symbol">:</span>
-<span class="Name">FindTheme</span>
-<span class="Parameters">
-<span class="symbol">(</span>
-<span class="Parameter">
-<span class="ParamName">themeName</span>
-<span class="symbol">: </span>
-<span class="Type">string</span>
-</span>
-<span class="symbol">)</span>
-</span>
-<span class="symbol"> -&gt; </span>
-<span class="Type">Instance</span>
-<span class="symbol"> </span>
-<span class="Security">{PluginSecurity}</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Function">
-<span class="DescriptorType Function">Function</span>
-<span class="symbol"> </span>
-<span class="ClassName">Studio</span>
-<span class="symbol">:</span>
-<span class="Name">GetAvailableThemes</span>
-<span class="Parameters">
-<span class="symbol">(</span>
-<span class="symbol">)</span>
-</span>
-<span class="symbol"> -&gt; </span>
-<span class="symbol">{ </span>
-<span class="Type">any</span>
-<span class="symbol"> }</span>
-<span class="symbol"> </span>
-<span class="Security">{PluginSecurity}</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Function">
-<span class="DescriptorType Function">Function</span>
-<span class="symbol"> </span>
-<span class="ClassName">TeleportService</span>
-<span class="symbol">:</span>
-<span class="Name">GetArrivingTeleportGui</span>
-<span class="Parameters">
-<span class="symbol">(</span>
-<span class="symbol">)</span>
-</span>
-<span class="symbol"> -&gt; </span>
-<span class="Type">Instance</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-<br />
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="Event">
-<span class="DescriptorType Event">Event</span>
-<span class="symbol"> </span>
-<span class="ClassName">Studio</span>
-<span class="symbol">.</span>
-<span class="Name">ThemeChanged</span>
-<span class="Parameters">
-<span class="symbol">(</span>
-<span class="symbol">)</span>
-</span>
-<span class="symbol"> </span>
-<span class="Security">{PluginSecurity}</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</span>
-</div>
-<br />
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">MainBackground</span>
-<span class="symbol"> : </span>
-<span class="Value">0</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">Titlebar</span>
-<span class="symbol"> : </span>
-<span class="Value">1</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">Dropdown</span>
-<span class="symbol"> : </span>
-<span class="Value">2</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">InputFieldBackground</span>
-<span class="symbol"> : </span>
-<span class="Value">15</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">CategoryItem</span>
-<span class="symbol"> : </span>
-<span class="Value">18</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">GameSettingsTableItem</span>
-<span class="symbol"> : </span>
-<span class="Value">19</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">GameSettingsTooltip</span>
-<span class="symbol"> : </span>
-<span class="Value">20</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">ColorPickerFrame</span>
-<span class="symbol"> : </span>
-<span class="Value">23</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">CurrentMarker</span>
-<span class="symbol"> : </span>
-<span class="Value">24</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">Light</span>
-<span class="symbol"> : </span>
-<span class="Value">27</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">Dark</span>
-<span class="symbol"> : </span>
-<span class="Value">28</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">SubText</span>
-<span class="symbol"> : </span>
-<span class="Value">30</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">BrightText</span>
-<span class="symbol"> : </span>
-<span class="Value">32</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">DimmedText</span>
-<span class="symbol"> : </span>
-<span class="Value">33</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">ScriptSideWidget</span>
-<span class="symbol"> : </span>
-<span class="Value">39</span>
-<span class="symbol"> </span>
-</span>
-</div>
-<br />
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="DiffType Tags">Tag </span>
-<span class="Tag">[Settings]</span> to <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">DebugSettings</span></span></div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="DiffType Tags">Tag </span>
-<span class="Tag">[Settings]</span> to <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">GameSettings</span></span></div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="DiffType Tags">Tag </span>
-<span class="Tag">[Settings]</span> to <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">LuaSettings</span></span></div>
-<div class="Added">
-<span class="DiffType Added">Added </span>
-<span class="DiffType Tags">Tag </span>
-<span class="Tag">[Settings]</span> to <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">PhysicsSettings</span></span></div>
-<br />
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Tooltip</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">2</span></span><span class="ChangeTo"> to <span class="Int32">3</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Notification</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">1</span></span><span class="ChangeTo"> to <span class="Int32">4</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScrollBar</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">12</span></span><span class="ChangeTo"> to <span class="Int32">5</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScrollBarBackground</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">13</span></span><span class="ChangeTo"> to <span class="Int32">6</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">TabBar</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">5</span></span><span class="ChangeTo"> to <span class="Int32">7</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Tab</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">6</span></span><span class="ChangeTo"> to <span class="Int32">8</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">RibbonTab</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">8</span></span><span class="ChangeTo"> to <span class="Int32">9</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">RibbonTabTopBar</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">9</span></span><span class="ChangeTo"> to <span class="Int32">10</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Button</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">16</span></span><span class="ChangeTo"> to <span class="Int32">11</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">MainButton</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">17</span></span><span class="ChangeTo"> to <span class="Int32">12</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">RibbonButton</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">18</span></span><span class="ChangeTo"> to <span class="Int32">13</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Item</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">3</span></span><span class="ChangeTo"> to <span class="Int32">16</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">TableItem</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">4</span></span><span class="ChangeTo"> to <span class="Int32">17</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">EmulatorBar</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">10</span></span><span class="ChangeTo"> to <span class="Int32">21</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">EmulatorDropDown</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">11</span></span><span class="ChangeTo"> to <span class="Int32">22</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Border</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">19</span></span><span class="ChangeTo"> to <span class="Int32">25</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Shadow</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">20</span></span><span class="ChangeTo"> to <span class="Int32">26</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">MainText</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">21</span></span><span class="ChangeTo"> to <span class="Int32">29</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">TitlebarText</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">22</span></span><span class="ChangeTo"> to <span class="Int32">31</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">LinkText</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">25</span></span><span class="ChangeTo"> to <span class="Int32">34</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">WarningText</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">26</span></span><span class="ChangeTo"> to <span class="Int32">35</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ErrorText</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">27</span></span><span class="ChangeTo"> to <span class="Int32">36</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">InfoText</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">28</span></span><span class="ChangeTo"> to <span class="Int32">37</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">SensitiveText</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">29</span></span><span class="ChangeTo"> to <span class="Int32">38</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptBackground</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">30</span></span><span class="ChangeTo"> to <span class="Int32">40</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptText</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">31</span></span><span class="ChangeTo"> to <span class="Int32">41</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptSelectionText</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">32</span></span><span class="ChangeTo"> to <span class="Int32">42</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptSelectionBackground</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">33</span></span><span class="ChangeTo"> to <span class="Int32">43</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptFindSelectionBackground</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">34</span></span><span class="ChangeTo"> to <span class="Int32">44</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptMachtingWordSelectionBackground</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">35</span></span><span class="ChangeTo"> to <span class="Int32">45</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptOperator</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">36</span></span><span class="ChangeTo"> to <span class="Int32">46</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptNumber</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">37</span></span><span class="ChangeTo"> to <span class="Int32">47</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptString</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">38</span></span><span class="ChangeTo"> to <span class="Int32">48</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptComment</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">39</span></span><span class="ChangeTo"> to <span class="Int32">49</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptPreprocessor</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">40</span></span><span class="ChangeTo"> to <span class="Int32">50</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptKeyword</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">41</span></span><span class="ChangeTo"> to <span class="Int32">51</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptBuiltInFunction</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">42</span></span><span class="ChangeTo"> to <span class="Int32">52</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptWarning</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">43</span></span><span class="ChangeTo"> to <span class="Int32">53</span></span></span></div>
-<div class="Changed">
-<span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptError</span></span><span class="ChangeListTable"><span class="ChangeFrom"> from <span class="Int32">44</span></span><span class="ChangeTo"> to <span class="Int32">54</span></span></span></div>
-<br />
-<div class="Removed">
-<span class="DiffType Removed">Removed </span>
-<span class="Class">
-<span class="DescriptorType Class">Class</span>
-<span class="symbol"> </span>
-<span class="Name">Theme</span>
-</span>
-</div>
-<br />
-<div class="Removed">
-<span class="DiffType Removed">Removed </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">MainSection</span>
-</span>
-</div>
-<div class="Removed">
-<span class="DiffType Removed">Removed </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">Menu</span>
-</span>
-</div>
-<div class="Removed">
-<span class="DiffType Removed">Removed </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">InputField</span>
-</span>
-</div>
-<div class="Removed">
-<span class="DiffType Removed">Removed </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">HighlightText</span>
-</span>
-</div>
-<div class="Removed">
-<span class="DiffType Removed">Removed </span>
-<span class="EnumItem">
-<span class="DescriptorType EnumItem">EnumItem</span>
-<span class="symbol"> </span>
-<span class="EnumName">StudioStyleGuideColor</span>
-<span class="symbol">.</span>
-<span class="Name">DimmerText</span>
-</span>
-</div>
-<br />
-<div class="Removed">
-<span class="DiffType Removed">Removed </span>
-<span class="DiffType Tags">Tag </span>
-<span class="Tag">[Service]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">DebugSettings</span></span></div>
-<div class="Removed">
-<span class="DiffType Removed">Removed </span>
-<span class="DiffType Tags">Tag </span>
-<span class="Tag">[Service]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">GameSettings</span></span></div>
-<div class="Removed">
-<span class="DiffType Removed">Removed </span>
-<span class="DiffType Tags">Tag </span>
-<span class="Tag">[Service]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">LuaSettings</span></span></div>
-<div class="Removed">
-<span class="DiffType Removed">Removed </span>
-<span class="DiffType Tags">Tag </span>
-<span class="Tag">[Service]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">PhysicsSettings</span></span></div>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">StudioTheme</span><span class="symbol"> : </span><span class="Superclass">Instance</span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[NotCreatable]</span><span class="symbol"> </span><span class="Tag">[NotReplicated]</span></span>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">StudioTheme</span><span class="symbol">:</span><span class="Name">GetColor</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">styleguideitem</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">StudioStyleGuideColor</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">modifier</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">StudioStyleGuideModifier</span><span class="symbol">?</span><span class="symbol"> = </span><span class="String">"Default"</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="Type">Color3</span><span class="symbol"> </span><span class="Security">{PluginSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">StudioTheme</span><span class="symbol">:</span><span class="Name">GetPath</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">assetid</span><span class="symbol">: </span><span class="Type">string</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">modifier</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">StudioStyleGuideModifier</span><span class="symbol">?</span><span class="symbol"> = </span><span class="String">"Default"</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="Type">string</span><span class="symbol"> </span><span class="Security">{PluginSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">ImageButton</span><span class="symbol">.</span><span class="Name">HoverImage</span><span class="symbol">: </span><span class="Type">string</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">ImageButton</span><span class="symbol">.</span><span class="Name">PressedImage</span><span class="symbol">: </span><span class="Type">string</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">Studio</span><span class="symbol">.</span><span class="Name">Theme</span><span class="symbol">: </span><span class="Type">Instance</span><span class="symbol">?</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Studio</span><span class="symbol">:</span><span class="Name">FindTheme</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">themeName</span><span class="symbol">: </span><span class="Type">string</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="Type">Instance</span><span class="symbol">?</span><span class="symbol"> </span><span class="Security">{PluginSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Studio</span><span class="symbol">:</span><span class="Name">GetAvailableThemes</span><span class="Parameters"><span class="symbol">(</span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="symbol">{ </span><span class="Type">any</span><span class="symbol"> }</span><span class="symbol"> </span><span class="Security">{PluginSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">TeleportService</span><span class="symbol">:</span><span class="Name">GetArrivingTeleportGui</span><span class="Parameters"><span class="symbol">(</span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="Type">Instance</span><span class="symbol">?</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Event"><span class="DescriptorType Event">Event</span><span class="symbol"> </span><span class="ClassName">Studio</span><span class="symbol">.</span><span class="Name">ThemeChanged</span><span class="Parameters"><span class="symbol">(</span><span class="symbol">)</span></span><span class="symbol"> </span><span class="Security">{PluginSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">MainBackground</span><span class="symbol"> : </span><span class="Value">0</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Titlebar</span><span class="symbol"> : </span><span class="Value">1</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Dropdown</span><span class="symbol"> : </span><span class="Value">2</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">InputFieldBackground</span><span class="symbol"> : </span><span class="Value">15</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">CategoryItem</span><span class="symbol"> : </span><span class="Value">18</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">GameSettingsTableItem</span><span class="symbol"> : </span><span class="Value">19</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">GameSettingsTooltip</span><span class="symbol"> : </span><span class="Value">20</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ColorPickerFrame</span><span class="symbol"> : </span><span class="Value">23</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">CurrentMarker</span><span class="symbol"> : </span><span class="Value">24</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Light</span><span class="symbol"> : </span><span class="Value">27</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Dark</span><span class="symbol"> : </span><span class="Value">28</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">SubText</span><span class="symbol"> : </span><span class="Value">30</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">BrightText</span><span class="symbol"> : </span><span class="Value">32</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">DimmedText</span><span class="symbol"> : </span><span class="Value">33</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptSideWidget</span><span class="symbol"> : </span><span class="Value">39</span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="DiffType Tags">Tag </span><span class="Tag">[Settings]</span> to <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">DebugSettings</span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="DiffType Tags">Tag </span><span class="Tag">[Settings]</span> to <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">GameSettings</span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="DiffType Tags">Tag </span><span class="Tag">[Settings]</span> to <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">LuaSettings</span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="DiffType Tags">Tag </span><span class="Tag">[Settings]</span> to <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">PhysicsSettings</span></span></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Tooltip</span></span><span class="ChangeFrom"> from <span class="Int32">2</span></span><span class="ChangeTo"> to <span class="Int32">3</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Notification</span></span><span class="ChangeFrom"> from <span class="Int32">1</span></span><span class="ChangeTo"> to <span class="Int32">4</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScrollBar</span></span><span class="ChangeFrom"> from <span class="Int32">12</span></span><span class="ChangeTo"> to <span class="Int32">5</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScrollBarBackground</span></span><span class="ChangeFrom"> from <span class="Int32">13</span></span><span class="ChangeTo"> to <span class="Int32">6</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">TabBar</span></span><span class="ChangeFrom"> from <span class="Int32">5</span></span><span class="ChangeTo"> to <span class="Int32">7</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Tab</span></span><span class="ChangeFrom"> from <span class="Int32">6</span></span><span class="ChangeTo"> to <span class="Int32">8</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">RibbonTab</span></span><span class="ChangeFrom"> from <span class="Int32">8</span></span><span class="ChangeTo"> to <span class="Int32">9</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">RibbonTabTopBar</span></span><span class="ChangeFrom"> from <span class="Int32">9</span></span><span class="ChangeTo"> to <span class="Int32">10</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Button</span></span><span class="ChangeFrom"> from <span class="Int32">16</span></span><span class="ChangeTo"> to <span class="Int32">11</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">MainButton</span></span><span class="ChangeFrom"> from <span class="Int32">17</span></span><span class="ChangeTo"> to <span class="Int32">12</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">RibbonButton</span></span><span class="ChangeFrom"> from <span class="Int32">18</span></span><span class="ChangeTo"> to <span class="Int32">13</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Item</span></span><span class="ChangeFrom"> from <span class="Int32">3</span></span><span class="ChangeTo"> to <span class="Int32">16</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">TableItem</span></span><span class="ChangeFrom"> from <span class="Int32">4</span></span><span class="ChangeTo"> to <span class="Int32">17</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">EmulatorBar</span></span><span class="ChangeFrom"> from <span class="Int32">10</span></span><span class="ChangeTo"> to <span class="Int32">21</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">EmulatorDropDown</span></span><span class="ChangeFrom"> from <span class="Int32">11</span></span><span class="ChangeTo"> to <span class="Int32">22</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Border</span></span><span class="ChangeFrom"> from <span class="Int32">19</span></span><span class="ChangeTo"> to <span class="Int32">25</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Shadow</span></span><span class="ChangeFrom"> from <span class="Int32">20</span></span><span class="ChangeTo"> to <span class="Int32">26</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">MainText</span></span><span class="ChangeFrom"> from <span class="Int32">21</span></span><span class="ChangeTo"> to <span class="Int32">29</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">TitlebarText</span></span><span class="ChangeFrom"> from <span class="Int32">22</span></span><span class="ChangeTo"> to <span class="Int32">31</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">LinkText</span></span><span class="ChangeFrom"> from <span class="Int32">25</span></span><span class="ChangeTo"> to <span class="Int32">34</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">WarningText</span></span><span class="ChangeFrom"> from <span class="Int32">26</span></span><span class="ChangeTo"> to <span class="Int32">35</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ErrorText</span></span><span class="ChangeFrom"> from <span class="Int32">27</span></span><span class="ChangeTo"> to <span class="Int32">36</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">InfoText</span></span><span class="ChangeFrom"> from <span class="Int32">28</span></span><span class="ChangeTo"> to <span class="Int32">37</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">SensitiveText</span></span><span class="ChangeFrom"> from <span class="Int32">29</span></span><span class="ChangeTo"> to <span class="Int32">38</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptBackground</span></span><span class="ChangeFrom"> from <span class="Int32">30</span></span><span class="ChangeTo"> to <span class="Int32">40</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptText</span></span><span class="ChangeFrom"> from <span class="Int32">31</span></span><span class="ChangeTo"> to <span class="Int32">41</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptSelectionText</span></span><span class="ChangeFrom"> from <span class="Int32">32</span></span><span class="ChangeTo"> to <span class="Int32">42</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptSelectionBackground</span></span><span class="ChangeFrom"> from <span class="Int32">33</span></span><span class="ChangeTo"> to <span class="Int32">43</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptFindSelectionBackground</span></span><span class="ChangeFrom"> from <span class="Int32">34</span></span><span class="ChangeTo"> to <span class="Int32">44</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptMachtingWordSelectionBackground</span></span><span class="ChangeFrom"> from <span class="Int32">35</span></span><span class="ChangeTo"> to <span class="Int32">45</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptOperator</span></span><span class="ChangeFrom"> from <span class="Int32">36</span></span><span class="ChangeTo"> to <span class="Int32">46</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptNumber</span></span><span class="ChangeFrom"> from <span class="Int32">37</span></span><span class="ChangeTo"> to <span class="Int32">47</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptString</span></span><span class="ChangeFrom"> from <span class="Int32">38</span></span><span class="ChangeTo"> to <span class="Int32">48</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptComment</span></span><span class="ChangeFrom"> from <span class="Int32">39</span></span><span class="ChangeTo"> to <span class="Int32">49</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptPreprocessor</span></span><span class="ChangeFrom"> from <span class="Int32">40</span></span><span class="ChangeTo"> to <span class="Int32">50</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptKeyword</span></span><span class="ChangeFrom"> from <span class="Int32">41</span></span><span class="ChangeTo"> to <span class="Int32">51</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptBuiltInFunction</span></span><span class="ChangeFrom"> from <span class="Int32">42</span></span><span class="ChangeTo"> to <span class="Int32">52</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptWarning</span></span><span class="ChangeFrom"> from <span class="Int32">43</span></span><span class="ChangeTo"> to <span class="Int32">53</span></span></div>
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">value</span> of <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">ScriptError</span></span><span class="ChangeFrom"> from <span class="Int32">44</span></span><span class="ChangeTo"> to <span class="Int32">54</span></span></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">Theme</span></span></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">MainSection</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">Menu</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">InputField</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">HighlightText</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">StudioStyleGuideColor</span><span class="symbol">.</span><span class="Name">DimmerText</span></span></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[Service]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">DebugSettings</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[Service]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">GameSettings</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[Service]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">LuaSettings</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[Service]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">PhysicsSettings</span></span></div>
 
 <hr id="349"/>
