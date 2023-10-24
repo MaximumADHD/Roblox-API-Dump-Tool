@@ -13357,42 +13357,6 @@
 <div class="Class">
 <span class="DescriptorType Class">Class</span>
 <span class="symbol"> </span>
-<span class="Name">Scale9Frame</span>
-<span class="symbol"> : </span>
-<span class="Superclass">GuiObject</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="Tag">[NotCreatable]</span>
-</div>
-<div class="Property child">
-<span class="DescriptorType Property">Property</span>
-<span class="symbol"> </span>
-<span class="Type">Vector2int16</span>
-<span class="symbol"> </span>
-<span class="ClassName">Scale9Frame</span>
-<span class="symbol">.</span>
-<span class="Name">ScaleEdgeSize</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</div>
-<div class="Property child">
-<span class="DescriptorType Property">Property</span>
-<span class="symbol"> </span>
-<span class="Type">string</span>
-<span class="symbol"> </span>
-<span class="ClassName">Scale9Frame</span>
-<span class="symbol">.</span>
-<span class="Name">SlicePrefix</span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="symbol"> </span>
-</div>
-<div class="Class">
-<span class="DescriptorType Class">Class</span>
-<span class="symbol"> </span>
 <span class="Name">ScrollingFrame</span>
 <span class="symbol"> : </span>
 <span class="Superclass">GuiObject</span>
@@ -14433,6 +14397,18 @@
 <span class="Security">{PluginSecurity}</span>
 <span class="symbol"> </span>
 <span class="symbol"> </span>
+</div>
+<div class="Class">
+<span class="DescriptorType Class">Class</span>
+<span class="symbol"> </span>
+<span class="Name">QWidgetPluginGui</span>
+<span class="symbol"> : </span>
+<span class="Superclass">PluginGui</span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+<span class="Tag">[NotCreatable]</span>
+<span class="symbol"> </span>
+<span class="Tag">[NotReplicated]</span>
 </div>
 <div class="Class">
 <span class="DescriptorType Class">Class</span>
@@ -17767,6 +17743,75 @@
 <span class="Tag">[Yields]</span>
 <span class="symbol"> </span>
 </div>
+<div class="Function child">
+<span class="DescriptorType Function">Function</span>
+<span class="symbol"> </span>
+<span class="ClassName">HttpRbxApiService</span>
+<span class="symbol">:</span>
+<span class="Name">RequestAsync</span>
+<span class="Parameters">
+<span class="symbol">(</span>
+<span class="Parameter">
+<span class="ParamName">requestOptions</span>
+<span class="symbol">: </span>
+<span class="symbol">{ [</span>
+<span class="Type">string</span>
+<span class="symbol">]: </span>
+<span class="Type">any</span>
+<span class="symbol"> }</span>
+</span>
+<span class="symbol">, </span>
+<span class="Parameter">
+<span class="ParamName">priority</span>
+<span class="symbol">: </span>
+<span class="Type">Enum</span>
+<span class="symbol">.</span>
+<span class="Type">ThrottlingPriority</span>
+<span class="symbol">?</span>
+<span class="symbol"> = </span>
+<span class="String">"Default"</span>
+</span>
+<span class="symbol">, </span>
+<span class="Parameter">
+<span class="ParamName">content_type</span>
+<span class="symbol">: </span>
+<span class="Type">Enum</span>
+<span class="symbol">.</span>
+<span class="Type">HttpContentType</span>
+<span class="symbol">?</span>
+<span class="symbol"> = </span>
+<span class="String">"ApplicationJson"</span>
+</span>
+<span class="symbol">, </span>
+<span class="Parameter">
+<span class="ParamName">httpRequestType</span>
+<span class="symbol">: </span>
+<span class="Type">Enum</span>
+<span class="symbol">.</span>
+<span class="Type">HttpRequestType</span>
+<span class="symbol">?</span>
+<span class="symbol"> = </span>
+<span class="String">"Default"</span>
+</span>
+<span class="symbol">, </span>
+<span class="Parameter">
+<span class="ParamName">doNotAllowDiabolicalMode</span>
+<span class="symbol">: </span>
+<span class="Type">boolean</span>
+<span class="symbol">?</span>
+<span class="symbol"> = </span>
+<span class="boolean">false</span>
+</span>
+<span class="symbol">)</span>
+</span>
+<span class="symbol"> -&gt; </span>
+<span class="Type">string</span>
+<span class="symbol"> </span>
+<span class="Security">{RobloxScriptSecurity}</span>
+<span class="symbol"> </span>
+<span class="Tag">[Yields]</span>
+<span class="symbol"> </span>
+</div>
 <div class="Class">
 <span class="DescriptorType Class">Class</span>
 <span class="symbol"> </span>
@@ -17852,6 +17897,23 @@
 <span class="symbol"> </span>
 <span class="symbol"> </span>
 <span class="Tag">[Yields]</span>
+<span class="symbol"> </span>
+</div>
+<div class="Function child">
+<span class="DescriptorType Function">Function</span>
+<span class="symbol"> </span>
+<span class="ClassName">HttpService</span>
+<span class="symbol">:</span>
+<span class="Name">GetHttpEnabled</span>
+<span class="Parameters">
+<span class="symbol">(</span>
+<span class="symbol">)</span>
+</span>
+<span class="symbol"> -&gt; </span>
+<span class="Type">boolean</span>
+<span class="symbol"> </span>
+<span class="Security">{RobloxScriptSecurity}</span>
+<span class="symbol"> </span>
 <span class="symbol"> </span>
 </div>
 <div class="Function child">
@@ -17978,6 +18040,28 @@
 <span class="symbol"> </span>
 <span class="symbol"> </span>
 <span class="Tag">[Yields]</span>
+<span class="symbol"> </span>
+</div>
+<div class="Function child">
+<span class="DescriptorType Function">Function</span>
+<span class="symbol"> </span>
+<span class="ClassName">HttpService</span>
+<span class="symbol">:</span>
+<span class="Name">SetHttpEnabled</span>
+<span class="Parameters">
+<span class="symbol">(</span>
+<span class="Parameter">
+<span class="ParamName">enabled</span>
+<span class="symbol">: </span>
+<span class="Type">boolean</span>
+</span>
+<span class="symbol">)</span>
+</span>
+<span class="symbol"> -&gt; </span>
+<span class="symbol">()</span>
+<span class="symbol"> </span>
+<span class="Security">{RobloxScriptSecurity}</span>
+<span class="symbol"> </span>
 <span class="symbol"> </span>
 </div>
 <div class="Function child">
@@ -25415,6 +25499,7 @@
 <span class="Name">Elasticity</span>
 <span class="symbol"> </span>
 <span class="symbol"> </span>
+<span class="Serialization">[&lt;📁&gt; LoadOnly]</span>
 <span class="symbol"> </span>
 <span class="Tag">[Deprecated]</span>
 <span class="symbol"> </span>
@@ -25433,6 +25518,7 @@
 <span class="Name">Friction</span>
 <span class="symbol"> </span>
 <span class="symbol"> </span>
+<span class="Serialization">[&lt;📁&gt; LoadOnly]</span>
 <span class="symbol"> </span>
 <span class="Tag">[Deprecated]</span>
 <span class="symbol"> </span>
@@ -28142,15 +28228,15 @@
 <span class="Tag">[Deprecated]</span>
 <span class="symbol"> </span>
 </div>
-<div class="Class">
+<div class="Class deprecated">
 <span class="DescriptorType Class">Class</span>
 <span class="symbol"> </span>
-<span class="Name">RootInstance</span>
+<span class="Name">Status</span>
 <span class="symbol"> : </span>
 <span class="Superclass">Model</span>
 <span class="symbol"> </span>
 <span class="symbol"> </span>
-<span class="Tag">[NotBrowsable]</span>
+<span class="Tag">[Deprecated]</span>
 <span class="symbol"> </span>
 <span class="Tag">[NotCreatable]</span>
 </div>
@@ -28159,7 +28245,7 @@
 <span class="symbol"> </span>
 <span class="Name">Workspace</span>
 <span class="symbol"> : </span>
-<span class="Superclass">RootInstance</span>
+<span class="Superclass">Model</span>
 <span class="symbol"> </span>
 <span class="symbol"> </span>
 <span class="Tag">[NotCreatable]</span>
@@ -28938,17 +29024,43 @@
 <span class="symbol"> </span>
 <span class="symbol"> </span>
 </div>
-<div class="Class deprecated">
+<div class="Class">
 <span class="DescriptorType Class">Class</span>
 <span class="symbol"> </span>
-<span class="Name">Status</span>
+<span class="Name">PackageLink</span>
 <span class="symbol"> : </span>
-<span class="Superclass">Model</span>
+<span class="Superclass">Instance</span>
 <span class="symbol"> </span>
-<span class="symbol"> </span>
-<span class="Tag">[Deprecated]</span>
 <span class="symbol"> </span>
 <span class="Tag">[NotCreatable]</span>
+</div>
+<div class="Property child">
+<span class="DescriptorType Property">Property</span>
+<span class="symbol"> </span>
+<span class="Type">number</span>
+<span class="symbol"> </span>
+<span class="ClassName">PackageLink</span>
+<span class="symbol">.</span>
+<span class="Name">PackageId</span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+<span class="Tag">[ReadOnly]</span>
+<span class="symbol"> </span>
+</div>
+<div class="Property child">
+<span class="DescriptorType Property">Property</span>
+<span class="symbol"> </span>
+<span class="Type">number</span>
+<span class="symbol"> </span>
+<span class="ClassName">PackageLink</span>
+<span class="symbol">.</span>
+<span class="Name">VersionId</span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+<span class="Tag">[ReadOnly]</span>
+<span class="symbol"> </span>
 </div>
 <div class="Class">
 <span class="DescriptorType Class">Class</span>
@@ -33003,6 +33115,39 @@
 <span class="symbol"> </span>
 <span class="ClassName">Plugin</span>
 <span class="symbol">:</span>
+<span class="Name">CreateQWidgetPluginGui</span>
+<span class="Parameters">
+<span class="symbol">(</span>
+<span class="Parameter">
+<span class="ParamName">pluginGuiId</span>
+<span class="symbol">: </span>
+<span class="Type">string</span>
+</span>
+<span class="symbol">, </span>
+<span class="Parameter">
+<span class="ParamName">pluginGuiOptions</span>
+<span class="symbol">: </span>
+<span class="symbol">{ [</span>
+<span class="Type">string</span>
+<span class="symbol">]: </span>
+<span class="Type">any</span>
+<span class="symbol"> }</span>
+</span>
+<span class="symbol">)</span>
+</span>
+<span class="symbol"> -&gt; </span>
+<span class="Type">Instance</span>
+<span class="symbol"> </span>
+<span class="Security">{RobloxScriptSecurity}</span>
+<span class="symbol"> </span>
+<span class="Tag">[Yields]</span>
+<span class="symbol"> </span>
+</div>
+<div class="Function child">
+<span class="DescriptorType Function">Function</span>
+<span class="symbol"> </span>
+<span class="ClassName">Plugin</span>
+<span class="symbol">:</span>
 <span class="Name">CreateToolbar</span>
 <span class="Parameters">
 <span class="symbol">(</span>
@@ -34999,6 +35144,19 @@
 <div class="Property child">
 <span class="DescriptorType Property">Property</span>
 <span class="symbol"> </span>
+<span class="Type">string</span>
+<span class="symbol"> </span>
+<span class="ClassName">RenderingTest</span>
+<span class="symbol">.</span>
+<span class="Name">Description</span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+</div>
+<div class="Property child">
+<span class="DescriptorType Property">Property</span>
+<span class="symbol"> </span>
 <span class="Type">number</span>
 <span class="symbol"> </span>
 <span class="ClassName">RenderingTest</span>
@@ -35047,6 +35205,32 @@
 <span class="ClassName">RenderingTest</span>
 <span class="symbol">.</span>
 <span class="Name">QualityLevel</span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+</div>
+<div class="Property child">
+<span class="DescriptorType Property">Property</span>
+<span class="symbol"> </span>
+<span class="Type">boolean</span>
+<span class="symbol"> </span>
+<span class="ClassName">RenderingTest</span>
+<span class="symbol">.</span>
+<span class="Name">ShouldSkip</span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+<span class="symbol"> </span>
+</div>
+<div class="Property child">
+<span class="DescriptorType Property">Property</span>
+<span class="symbol"> </span>
+<span class="Type">string</span>
+<span class="symbol"> </span>
+<span class="ClassName">RenderingTest</span>
+<span class="symbol">.</span>
+<span class="Name">Ticket</span>
 <span class="symbol"> </span>
 <span class="symbol"> </span>
 <span class="symbol"> </span>
@@ -60061,7 +60245,7 @@
 <span class="symbol"> </span>
 <span class="EnumName">StudioStyleGuideColor</span>
 <span class="symbol">.</span>
-<span class="Name">ScriptMachtingWordSelectionBackground</span>
+<span class="Name">ScriptMatchingWordSelectionBackground</span>
 <span class="symbol"> : </span>
 <span class="Value">45</span>
 <span class="symbol"> </span>
