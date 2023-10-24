@@ -12,6 +12,60 @@
 </head>
 
 
+<hr id="375"/>
+
+<h2>Version 0.375.0.284048</h2>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">Humanoid</span><span class="symbol">.</span><span class="Name">JumpHeight</span><span class="symbol">: </span><span class="Type">number</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">Humanoid</span><span class="symbol">.</span><span class="Name">UseJumpPower</span><span class="symbol">: </span><span class="Type">boolean</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">StarterPlayer</span><span class="symbol">.</span><span class="Name">CharacterJumpHeight</span><span class="symbol">: </span><span class="Type">number</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">StarterPlayer</span><span class="symbol">.</span><span class="Name">CharacterJumpPower</span><span class="symbol">: </span><span class="Type">number</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">StarterPlayer</span><span class="symbol">.</span><span class="Name">CharacterMaxSlopeAngle</span><span class="symbol">: </span><span class="Type">number</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">StarterPlayer</span><span class="symbol">.</span><span class="Name">CharacterUseJumpPower</span><span class="symbol">: </span><span class="Type">boolean</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">StarterPlayer</span><span class="symbol">.</span><span class="Name">CharacterWalkSpeed</span><span class="symbol">: </span><span class="Type">number</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">AssetService</span><span class="symbol">:</span><span class="Name">GetBundleDetailsSync</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">bundleId</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="symbol">{ [</span><span class="Type">string</span><span class="symbol">]: </span><span class="Type">any</span><span class="symbol"> }</span><span class="symbol"> </span><span class="Security">{RobloxScriptSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">DataModel</span><span class="symbol">:</span><span class="Name">GetObjectsList</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">urls</span><span class="symbol">: </span><span class="symbol">{ </span><span class="Type">any</span><span class="symbol"> }</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="symbol">{ </span><span class="Type">any</span><span class="symbol"> }</span><span class="symbol"> </span><span class="Security">{RobloxScriptSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">StudioService</span><span class="symbol">:</span><span class="Name">GetClassIcon</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">className</span><span class="symbol">: </span><span class="Type">string</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="symbol">{ [</span><span class="Type">string</span><span class="symbol">]: </span><span class="Type">any</span><span class="symbol"> }</span><span class="symbol"> </span><span class="Security">{PluginSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Workspace</span><span class="symbol">:</span><span class="Name">CalculateJumpPower</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">gravity</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">jumpHeight</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="Type">number</span><span class="symbol"> </span><span class="Security">{RobloxScriptSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="DiffType Tags">Tag </span><span class="Tag">[NotReplicated]</span> to <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">PackageLink</span><span class="symbol">.</span><span class="Name">VersionNumber</span></span></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">superclass</span> of <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">Backpack</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"GuiItem"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Instance"</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">superclass</span> of <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">BackpackItem</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"GuiItem"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Instance"</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">superclass</span> of <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">Hopper</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"GuiItem"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Instance"</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">superclass</span> of <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">StarterPack</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"GuiItem"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Instance"</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">write permissions and serialization</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">PackageLink</span><span class="symbol">.</span><span class="Name">VersionNumber</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security darken">{✏️None}</span></span><span class="ChangeListItem"><span class="Serialization">[💾SaveOnly]</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{✏️NotAccessibleSecurity}</span></span><span class="ChangeListItem"><span class="Serialization">[📁LoadOnly]</span></span></div></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">GuiItem</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">ButtonBindingWidget</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">GuiRoot</span></span></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[ReadOnly]</span> from <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">PackageLink</span><span class="symbol">.</span><span class="Name">VersionNumber</span></span></div>
+
 <hr id="374"/>
 
 <h2>Version 0.374.0.282978</h2>
