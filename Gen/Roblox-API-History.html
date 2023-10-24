@@ -14,6 +14,74 @@
 </head>
 
 
+<hr id="524"/>
+
+<h2>Version 0.524.0.5240408</h2>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">GuiObject</span><span class="symbol">.</span><span class="Name">SelectionOrder</span><span class="symbol">: </span><span class="Type">number</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[NotBrowsable]</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">ImporterMeshSettings</span><span class="symbol">.</span><span class="Name">Manifold</span><span class="symbol">: </span><span class="Type">boolean</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[ReadOnly]</span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Humanoid</span><span class="symbol">:</span><span class="Name">ApplyDescriptionReset</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">humanoidDescription</span><span class="symbol">: </span><span class="Type">HumanoidDescription</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">assetTypeVerification</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">AssetTypeVerification</span><span class="symbol">?</span><span class="symbol"> = </span><span class="String">"Default"</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="symbol">()</span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[Yields]</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">MaterialService</span><span class="symbol">:</span><span class="Name">GetOverrideStatus</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">material</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">Material</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">PropertyStatus</span><span class="symbol"> </span><span class="Security">{RobloxScriptSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Event"><span class="DescriptorType Event">Event</span><span class="symbol"> </span><span class="ClassName">MaterialService</span><span class="symbol">.</span><span class="Name">OverrideStatusChanged</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">material</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">Material</span></span><span class="symbol">)</span></span><span class="symbol"> </span><span class="Security">{RobloxScriptSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AccessoryType</span><span class="symbol">.</span><span class="Name">Eyebrow</span><span class="symbol"> : </span><span class="Value">18</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AccessoryType</span><span class="symbol">.</span><span class="Name">Eyelash</span><span class="symbol"> : </span><span class="Value">19</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AssetType</span><span class="symbol">.</span><span class="Name">EyebrowAccessory</span><span class="symbol"> : </span><span class="Value">76</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AssetType</span><span class="symbol">.</span><span class="Name">EyelashAccessory</span><span class="symbol"> : </span><span class="Value">77</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AvatarAssetType</span><span class="symbol">.</span><span class="Name">EyebrowAccessory</span><span class="symbol"> : </span><span class="Value">76</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AvatarAssetType</span><span class="symbol">.</span><span class="Name">EyelashAccessory</span><span class="symbol"> : </span><span class="Value">77</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">BundleType</span><span class="symbol">.</span><span class="Name">Shoes</span><span class="symbol"> : </span><span class="Value">3</span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="DiffType Tags">Tag </span><span class="Tag">[NotReplicated]</span> to <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">MaterialService</span><span class="symbol">.</span><span class="Name">Use2022Materials</span></span></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">category</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">GuiObject</span><span class="symbol">.</span><span class="Name">NextSelectionDown</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Behavior"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Selection"</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">category</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">GuiObject</span><span class="symbol">.</span><span class="Name">NextSelectionLeft</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Behavior"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Selection"</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">category</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">GuiObject</span><span class="symbol">.</span><span class="Name">NextSelectionRight</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Behavior"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Selection"</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">category</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">GuiObject</span><span class="symbol">.</span><span class="Name">NextSelectionUp</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Behavior"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Selection"</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">category</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">GuiObject</span><span class="symbol">.</span><span class="Name">Selectable</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Data"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Selection"</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">serialization</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">MaterialService</span><span class="symbol">.</span><span class="Name">Use2022Materials</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Serialization">[💾|📁 Serialized]</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Serialization">[📁 LoadOnly]</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">parameters</span> of <span class="Callback"><span class="DescriptorType Callback">Callback</span><span class="symbol"> </span><span class="ClassName">RemoteFunction</span><span class="symbol">.</span><span class="Name">OnServerInvoke</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">player</span><span class="symbol">: </span><span class="Type">Instance</span></span><span class="symbol">, </span><span class="Parameter"><span class="symbol">...: </span><span class="Type">any</span></span><span class="symbol">)</span></span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">player</span><span class="symbol">: </span><span class="Type">Player</span></span><span class="symbol">, </span><span class="Parameter"><span class="symbol">...: </span><span class="Type">any</span></span><span class="symbol">)</span></span></span></div></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">StudioService</span><span class="symbol">:</span><span class="Name">SerializeInstances</span></span></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[Deprecated]</span> from <span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">Technology</span><span class="symbol">.</span><span class="Name">Future</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[NotBrowsable]</span> from <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">VoiceChatService</span><span class="symbol">.</span><span class="Name">EnableDefaultVoice</span></span></div>
+
 <hr id="523"/>
 
 <h2>Version 0.523.0.5230389</h2>
