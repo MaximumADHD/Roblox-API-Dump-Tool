@@ -12,6 +12,74 @@
 </head>
 
 
+<hr id="421"/>
+
+<h2>Version 0.421.0.385673</h2>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">HttpRbxApiService</span><span class="symbol">:</span><span class="Name">RequestLimitedAsync</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">requestOptions</span><span class="symbol">: </span><span class="symbol">{ [</span><span class="Type">string</span><span class="symbol">]: </span><span class="Type">any</span><span class="symbol"> }</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">priority</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">ThrottlingPriority</span><span class="symbol">?</span><span class="symbol"> = </span><span class="String">"Default"</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">content_type</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">HttpContentType</span><span class="symbol">?</span><span class="symbol"> = </span><span class="String">"ApplicationJson"</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">httpRequestType</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">HttpRequestType</span><span class="symbol">?</span><span class="symbol"> = </span><span class="String">"Default"</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="Type">string</span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[Yields]</span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">DataModelSession</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">MultipleDocumentInterfaceInstance</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">.</span><span class="Name">HostDataModelType</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">.</span><span class="Name">HostDataModelTypeIsCurrent</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">.</span><span class="Name">MultipleDocumentInterfaceInstance</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">write permissions</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">Workspace</span><span class="symbol">.</span><span class="Name">StreamingEnabled</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security darken">{✏️None}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{✏️PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">:</span><span class="Name">GetItem</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">:</span><span class="Name">Invoke</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">:</span><span class="Name">OnInvoke</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">:</span><span class="Name">OnSetItem</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">:</span><span class="Name">SetItem</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Enum"><span class="DescriptorType Enum">Enum</span><span class="symbol"> </span><span class="Name">DateTimeKind</span></span>
+<div class="Removed"><span class="DiffType Removed child">Removed </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">DateTimeKind</span><span class="symbol">.</span><span class="Name">Utc</span></span></div>
+<div class="Removed"><span class="DiffType Removed child">Removed </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">DateTimeKind</span><span class="symbol">.</span><span class="Name">Local</span></span></div></div>
+<br/>
+
+
 <hr id="420"/>
 
 <h2>Version 0.420.0.383960</h2>
