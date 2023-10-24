@@ -14,6 +14,47 @@
 </head>
 
 
+<hr id="533"/>
+
+<h2>Version 0.533.0.5330256</h2>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">TeamCreateService</span><span class="symbol"> : </span><span class="Superclass">Instance</span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[NotCreatable]</span><span class="symbol"> </span><span class="Tag">[NotReplicated]</span><span class="symbol"> </span><span class="Tag">[Service]</span></span>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="Event"><span class="DescriptorType Event">Event</span><span class="symbol"> </span><span class="ClassName">TeamCreateService</span><span class="symbol">.</span><span class="Name">ToggleManageCollaborators</span><span class="Parameters"><span class="symbol">(</span><span class="symbol">)</span></span><span class="symbol"> </span><span class="Security">{RobloxScriptSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">Studio</span><span class="symbol">.</span><span class="Name">Camera Pan Speed</span><span class="symbol">: </span><span class="Type">number</span><span class="symbol"> </span><span class="Security">{RobloxScriptSecurity}</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">parameters</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">ScriptDocument</span><span class="symbol">:</span><span class="Name">EditTextAsync</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">newText</span><span class="symbol">: </span><span class="Type">string</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">startLine</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">startCharacter</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">endLine</span><span class="symbol">: </span><span class="Type">number</span><span class="symbol">?</span><span class="symbol"> = </span><span class="symbol">-</span><span class="number">1</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">endCharacter</span><span class="symbol">: </span><span class="Type">number</span><span class="symbol">?</span><span class="symbol"> = </span><span class="symbol">-</span><span class="number">1</span></span><span class="symbol">)</span></span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">newText</span><span class="symbol">: </span><span class="Type">string</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">startLine</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">startCharacter</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">endLine</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">endCharacter</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">)</span></span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">thread safety</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Players</span><span class="symbol">:</span><span class="Name">GetPlayers</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="ThreadSafety">{🧬Unsafe}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="ThreadSafety">{🧬Safe}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">thread safety</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Team</span><span class="symbol">:</span><span class="Name">GetPlayers</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="ThreadSafety">{🧬Unsafe}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="ThreadSafety">{🧬Safe}</span></span></div></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">RigidConstraint</span><span class="symbol">.</span><span class="Name">Broken</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">RigidConstraint</span><span class="symbol">.</span><span class="Name">DestructionEnabled</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">RigidConstraint</span><span class="symbol">.</span><span class="Name">DestructionForce</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">RigidConstraint</span><span class="symbol">.</span><span class="Name">DestructionTorque</span></span></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[NotBrowsable]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">FaceControls</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[NotBrowsable]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">PathfindingLink</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[NotBrowsable]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">TextChannel</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[NotBrowsable]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">TextChatCommand</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[NotBrowsable]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">TextChatService</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[NotBrowsable]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">TextSource</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[NotBrowsable]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">ChatInputBarConfiguration</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[NotBrowsable]</span> from <span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">ChatWindowConfiguration</span></span></div>
+
 <hr id="532"/>
 
 <h2>Version 0.532.0.5320475</h2>
