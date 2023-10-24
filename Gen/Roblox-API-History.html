@@ -14,6 +14,82 @@
 </head>
 
 
+<hr id="512"/>
+
+<h2>Version 0.512.0.5120419</h2>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">LSPService</span><span class="symbol"> : </span><span class="Superclass">Instance</span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[NotReplicated]</span><span class="symbol"> </span><span class="Tag">[Service]</span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">MaterialService</span><span class="symbol">.</span><span class="Name">TerrainSlate</span><span class="symbol">: </span><span class="Type">MaterialVariant</span><span class="symbol">?</span><span class="symbol"> </span><span class="Security">{RobloxSecurity}</span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[NotScriptable]</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">MaterialService</span><span class="symbol">.</span><span class="Name">TerrainWoodPlanks</span><span class="symbol">: </span><span class="Type">MaterialVariant</span><span class="symbol">?</span><span class="symbol"> </span><span class="Security">{RobloxSecurity}</span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[NotScriptable]</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">Workspace</span><span class="symbol">.</span><span class="Name">GlobalWind</span><span class="symbol">: </span><span class="Type">Vector3</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">GamepadService</span><span class="symbol">:</span><span class="Name">DisableGamepadCursor</span><span class="Parameters"><span class="symbol">(</span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="symbol">()</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">GamepadService</span><span class="symbol">:</span><span class="Name">EnableGamepadCursor</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">guiObject</span><span class="symbol">: </span><span class="Type">Instance</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="symbol">()</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">VoiceChatInternal</span><span class="symbol">:</span><span class="Name">SubscribeRetry</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">userId</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="Type">boolean</span><span class="symbol"> </span><span class="Security">{RobloxScriptSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Event"><span class="DescriptorType Event">Event</span><span class="symbol"> </span><span class="ClassName">ScriptChangeService</span><span class="symbol">.</span><span class="Name">ScriptSourceEdited</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">script</span><span class="symbol">: </span><span class="Type">LuaSourceContainer</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">edits</span><span class="symbol">: </span><span class="symbol">{ </span><span class="Type">any</span><span class="symbol"> }</span></span><span class="symbol">)</span></span><span class="symbol"> </span><span class="Security">{RobloxScriptSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="DiffType Tags">Tag </span><span class="Tag">[Deprecated]</span> to <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">WorldRoot</span><span class="symbol">:</span><span class="Name">FindPartsInRegion3</span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="DiffType Tags">Tag </span><span class="Tag">[Deprecated]</span> to <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">WorldRoot</span><span class="symbol">:</span><span class="Name">FindPartsInRegion3WithIgnoreList</span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="DiffType Tags">Tag </span><span class="Tag">[Deprecated]</span> to <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">WorldRoot</span><span class="symbol">:</span><span class="Name">FindPartsInRegion3WithWhiteList</span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="DiffType Tags">Tag </span><span class="Tag">[Deprecated]</span> to <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">WorldRoot</span><span class="symbol">:</span><span class="Name">IsRegion3Empty</span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="DiffType Tags">Tag </span><span class="Tag">[Deprecated]</span> to <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">WorldRoot</span><span class="symbol">:</span><span class="Name">IsRegion3EmptyWithIgnoreList</span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="DiffType Tags">Tag </span><span class="Tag">[NotReplicated]</span> to <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">MetaBreakpoint</span><span class="symbol">.</span><span class="Name">Condition</span></span></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">category</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">MaterialVariant</span><span class="symbol">.</span><span class="Name">StudsPerTile</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Appearance For Part"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Appearance"</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">read permissions, serialization and category</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">GamepadService</span><span class="symbol">.</span><span class="Name">GamepadCursorEnabled</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span><span class="ChangeListItem"><span class="Serialization">[🚫 None]</span></span><span class="ChangeListItem"><span class="String">"State"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security darken">{None}</span></span><span class="ChangeListItem"><span class="Serialization">[💾|📁 Serialized]</span></span><span class="ChangeListItem"><span class="String">"Data"</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">serialization</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">MetaBreakpoint</span><span class="symbol">.</span><span class="Name">Condition</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Serialization">[💾 SaveOnly]</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Serialization">[💾|📁 Serialized]</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">thread safety</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">WorldRoot</span><span class="symbol">:</span><span class="Name">FindPartsInRegion3</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="ThreadSafety">{🧬Safe}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="ThreadSafety">{🧬Unsafe}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">thread safety</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">WorldRoot</span><span class="symbol">:</span><span class="Name">GetPartBoundsInBox</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="ThreadSafety">{🧬Unsafe}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="ThreadSafety">{🧬Safe}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">thread safety</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">WorldRoot</span><span class="symbol">:</span><span class="Name">GetPartBoundsInRadius</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="ThreadSafety">{🧬Unsafe}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="ThreadSafety">{🧬Safe}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">thread safety</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">WorldRoot</span><span class="symbol">:</span><span class="Name">GetPartsInPart</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="ThreadSafety">{🧬Unsafe}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="ThreadSafety">{🧬Safe}</span></span></div></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">CSGCacheService</span></span></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">AvatarEditorService</span><span class="symbol">:</span><span class="Name">PerformCreateOutfit</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">AvatarEditorService</span><span class="symbol">:</span><span class="Name">PerformSaveAvatarNew</span></span></div>
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">MetaBreakpoint</span><span class="symbol">:</span><span class="Name">SetCondition</span></span></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[ReadOnly]</span> from <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">MetaBreakpoint</span><span class="symbol">.</span><span class="Name">Condition</span></span></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tags </span><span class="Tag">[Hidden]</span><span class="symbol"> </span><span class="Tag">[NotReplicated]</span> from <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">GamepadService</span><span class="symbol">.</span><span class="Name">GamepadCursorEnabled</span></span></div>
+
 <hr id="511"/>
 
 <h2>Version 0.511.0.5110267</h2>
