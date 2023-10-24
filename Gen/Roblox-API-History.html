@@ -12,6 +12,36 @@
 </head>
 
 
+<hr id="376"/>
+
+<h2>Version 0.376.0.286907</h2>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">PackageService</span><span class="symbol"> : </span><span class="Superclass">Instance</span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[NotCreatable]</span><span class="symbol"> </span><span class="Tag">[NotReplicated]</span><span class="symbol"> </span><span class="Tag">[Service]</span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">Humanoid</span><span class="symbol">.</span><span class="Name">CollisionType</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">HumanoidCollisionType</span><span class="symbol"> </span><span class="Security">{✏️PluginSecurity}</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">MeshContentProvider</span><span class="symbol">:</span><span class="Name">GetContentMemoryData</span><span class="Parameters"><span class="symbol">(</span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="symbol">{ [</span><span class="Type">string</span><span class="symbol">]: </span><span class="Type">any</span><span class="symbol"> }</span><span class="symbol"> </span><span class="Security">{RobloxScriptSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">TweenService</span><span class="symbol">:</span><span class="Name">GetValue</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">alpha</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">easingStyle</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">EasingStyle</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">easingDirection</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">EasingDirection</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="Type">number</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Enum"><span class="DescriptorType Enum">Enum</span><span class="symbol"> </span><span class="Name">HumanoidCollisionType</span><span class="symbol"> </span></span>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">HumanoidCollisionType</span><span class="symbol">.</span><span class="Name">OuterBox</span><span class="symbol"> : </span><span class="Value">0</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">HumanoidCollisionType</span><span class="symbol">.</span><span class="Name">InnerBox</span><span class="symbol"> : </span><span class="Value">1</span><span class="symbol"> </span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">parameters</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">LocalizationService</span><span class="symbol">:</span><span class="Name">StartTextScraper</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="symbol">)</span></span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">enforceRequirements</span><span class="symbol">: </span><span class="Type">boolean</span><span class="symbol">?</span><span class="symbol"> = </span><span class="boolean">false</span></span><span class="symbol">)</span></span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">parameters</span> of <span class="Event"><span class="DescriptorType Event">Event</span><span class="symbol"> </span><span class="ClassName">NotificationService</span><span class="symbol">.</span><span class="Name">RobloxConnectionChanged</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">connectionName</span><span class="symbol">: </span><span class="Type">string</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">connectionState</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">ConnectionState</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">sequenceNumber</span><span class="symbol">: </span><span class="Type">string</span></span><span class="symbol">)</span></span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">connectionName</span><span class="symbol">: </span><span class="Type">string</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">connectionState</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">ConnectionState</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">sequenceNumber</span><span class="symbol">: </span><span class="Type">string</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">namespaceSequenceNumbers</span><span class="symbol">: </span><span class="Type">string</span></span><span class="symbol">)</span></span></span></div></div>
+<br/>
+
+
 <hr id="375"/>
 
 <h2>Version 0.375.0.284048</h2>
