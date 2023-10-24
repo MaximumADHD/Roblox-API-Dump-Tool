@@ -12,6 +12,40 @@
 </head>
 
 
+<hr id="386"/>
+
+<h2>Version 0.386.0.304821</h2>
+
+<div class="Renamed"><span class="DiffType Renamed">Renamed </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">AnalyticsService</span></span><span class="ChangeTo"> to <span class="String">"RbxAnalyticsService"</span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Enum"><span class="DescriptorType Enum">Enum</span><span class="symbol"> </span><span class="Name">AssetFetchStatus</span><span class="symbol"> </span></span>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AssetFetchStatus</span><span class="symbol">.</span><span class="Name">Success</span><span class="symbol"> : </span><span class="Value">0</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AssetFetchStatus</span><span class="symbol">.</span><span class="Name">Failure</span><span class="symbol"> : </span><span class="Value">1</span><span class="symbol"> </span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">category</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">MeshPart</span><span class="symbol">.</span><span class="Name">RenderFidelity</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Behavior"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Appearance"</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">category</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">PartOperation</span><span class="symbol">.</span><span class="Name">RenderFidelity</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Behavior"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Appearance"</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">write permissions and serialization</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">Player</span><span class="symbol">.</span><span class="Name">GameplayPaused</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security darken">{✏️None}</span></span><span class="ChangeListItem"><span class="Serialization">[💾SaveOnly]</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{✏️NotAccessibleSecurity}</span></span><span class="ChangeListItem"><span class="Serialization">[💾|📁Serialized]</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">parameters</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">ContentProvider</span><span class="symbol">:</span><span class="Name">PreloadAsync</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">contentIdList</span><span class="symbol">: </span><span class="symbol">{ </span><span class="Type">any</span><span class="symbol"> }</span></span><span class="symbol">)</span></span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">contentIdList</span><span class="symbol">: </span><span class="symbol">{ </span><span class="Type">any</span><span class="symbol"> }</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">callbackFunction</span><span class="symbol">: </span><span class="symbol">(</span><span class="symbol">(...</span><span class="Type">any</span><span class="symbol">) -&gt; ...</span><span class="Type">any</span><span class="symbol">)</span><span class="symbol">?</span></span><span class="symbol">)</span></span></span></div></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="DiffType Tags">Tag </span><span class="Tag">[ReadOnly]</span> from <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">Player</span><span class="symbol">.</span><span class="Name">GameplayPaused</span></span></div>
+
 <hr id="385"/>
 
 <h2>Version 0.385.0.303034</h2>
