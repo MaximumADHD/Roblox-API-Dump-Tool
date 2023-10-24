@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RobloxApiDumpTool
@@ -6,30 +7,16 @@ namespace RobloxApiDumpTool
     public class DiffChangeList : List<object>
     {
         public string Name { get; private set; }
+        public string Prefix { get; private set; }
 
-        public DiffChangeList(string name = "ChangeList")
+        public DiffChangeList(string name = "ChangeList", string prefix = "")
         {
             Name = name;
-        }
-
-        private void PreformatList()
-        {
-            object lastChange = null;
-
-            foreach (object change in this)
-            {
-                if (lastChange is Parameters)
-                    if (change is LuaType type)
-                        type.IsReturnType = true;
-
-                lastChange = change;
-            }
+            Prefix = prefix;
         }
 
         public string ListElements(string separator, string prefix = "")
         {
-            PreformatList();
-
             string[] elements = this
                 .Select(elem => prefix + elem.ToString())
                 .ToArray();
@@ -42,51 +29,27 @@ namespace RobloxApiDumpTool
             return ListElements(" ");
         }
 
-        public void WriteHtml(ReflectionDumper buffer, bool multiline = false, int extraTabs = 0, Descriptor.HtmlConfig config = null)
+        public void WriteHtml(ReflectionHtml html, bool multiline = false)
         {
-            if (config == null)
-                config = new Descriptor.HtmlConfig();
-
-            int numTabs;
-
-            if (multiline)
-            {
-                buffer.OpenClassTag(Name, extraTabs + 1, "div");
-                buffer.NextLine();
-
-                buffer.OpenClassTag("ChangeList", extraTabs + 2);
-                numTabs = 3;
-            }
-            else
-            {
-                buffer.OpenClassTag(Name, extraTabs + 1);
-                numTabs = 2;
-            }
-
-            numTabs += extraTabs;
-
-            if (config.NumTabs == 0)
-                config.NumTabs = numTabs;
-
-            buffer.NextLine();
-            PreformatList();
-
-            foreach (object change in this)
+            var writeCell = new Action<object, object>((change, prevChange) =>
             {
                 if (change is Parameters)
                 {
                     var parameters = change as Parameters;
-                    parameters.WriteHtml(buffer, numTabs, true);
+                    parameters.WriteHtml(html, true);
                 }
                 else if (change is LuaType)
                 {
+                    if (prevChange is Parameters)
+                        html.Symbol("-> ");
+
                     var type = change as LuaType;
-                    type.WriteHtml(buffer, numTabs);
+                    type.WriteHtml(html);
                 }
                 else if (change is Descriptor)
                 {
                     var desc = change as Descriptor;
-                    desc.WriteHtml(buffer, config);
+                    desc.WriteHtml(html);
                 }
                 else
                 {
@@ -118,16 +81,58 @@ namespace RobloxApiDumpTool
                     if (tagClass == "Security" && value.Contains("None"))
                         tagClass += " darken";
 
-                    buffer.WriteElement(tagClass, value, numTabs);
-                }
-            }
+                    if (tagClass == "String")
+                    {
+                        html.String(value);
+                        return;
+                    }
 
-            buffer.CloseClassTag(numTabs - 1);
+                    html.Span(tagClass, value);
+                }
+            });
+
+            var buildChangeList = new Action(() =>
+            {
+                object prevChange = null;
+
+                if (multiline)
+                {
+                    html.OpenStack("span", "ChangeListPrefix", () =>
+                    {
+                        html.Text(Prefix);
+                        html.Symbol(": ");
+                    });
+                }
+                else
+                {
+                    html.Text($" {Prefix.Trim()} ");
+                }
+                
+                foreach (object change in this)
+                {
+                    var writeItem = new Action(() =>
+                    {
+                        writeCell(change, prevChange);
+                        prevChange = change;
+                    });
+
+                    if (multiline)
+                    {
+                        html.OpenStack("span", "ChangeListItem", writeItem);
+                        continue;
+                    }
+
+                    writeItem();
+                }
+            });
 
             if (multiline)
             {
-                buffer.CloseClassTag(1, "div");
+                html.OpenStack("div", "ChangeList", buildChangeList);
+                return;
             }
+            
+            html.OpenSpan(Name, buildChangeList);
         }
     }
 }

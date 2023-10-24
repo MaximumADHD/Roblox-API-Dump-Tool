@@ -3,11 +3,12 @@ using System.Linq;
 
 namespace RobloxApiDumpTool
 {
-    public class Tags : HashSet<string>
+    public class Tags : List<string>
     {
         public Tags(IEnumerable<string> tags = null)
         {
             tags?.ToList().ForEach(tag => Add(tag));
+            Sort();
         }
 
         public void ClearBadData()
@@ -27,12 +28,10 @@ namespace RobloxApiDumpTool
             }
         }
 
-        public new bool Add(string value)
+        public new void Add(string value)
         {
-            bool result = base.Add(value);
+            base.Add(value);
             ClearBadData();
-
-            return result;
         }
 
         public override string ToString()
@@ -61,11 +60,18 @@ namespace RobloxApiDumpTool
             }
         }
 
-        public void WriteHtml(ReflectionDumper buffer, int numTabs = 0)
+        public void WriteHtml(ReflectionHtml html)
         {
             ClearBadData();
-            var tags = this.ToList();
-            tags.ForEach(tag => buffer.WriteElement("Tag", $"[{tag}]", numTabs));
+            Sort();
+            
+            for (int i = 0; i < Count; i++)
+            {
+                if (i > 0)
+                    html.Symbol(" ");
+
+                html.Span("Tag", $"[{this[i]}]");
+            }
         }
     }
 }

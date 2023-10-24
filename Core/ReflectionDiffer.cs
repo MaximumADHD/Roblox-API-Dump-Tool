@@ -507,33 +507,29 @@ namespace RobloxApiDumpTool
 
             if (currentFormat == "html")
             {
-                var htmlDumper = new ReflectionDumper();
+                var html = new ReflectionHtml();
                 var diffLookup = diffs.ToDictionary(diff => diff.ToString());
-
+                
                 addLineToResults = new DiffResultLineAdder((line, addBreak) =>
                 {
                     if (addBreak)
-                    {
-                        htmlDumper.Write(HTML_BREAK);
-                        htmlDumper.NextLine();
-                    }
-
+                        html.Break();
+                    
                     if (diffLookup.ContainsKey(line))
                     {
                         Diff diff = diffLookup[line];
-                        diff.WriteDiffHtml(htmlDumper);
+                        diff.WriteHtml(html);
                     }
-                    
-                    if (line.EndsWith(NL))
-                    {
-                        htmlDumper.Write(HTML_BREAK);
-                        htmlDumper.NextLine();
-                    }
+
+                    if (!line.EndsWith(NL))
+                        return;
+
+                    html.Break();
                 });
 
                 finalizeResults = new DiffResultFinalizer(() =>
                 {
-                    string result = htmlDumper.ExportResults();
+                    string result = html.ToString();
 
                     if (postProcess)
                         result = ApiDumpTool.PostProcessHtml(result);
@@ -543,11 +539,8 @@ namespace RobloxApiDumpTool
 
                 if (newApi.Channel != ReflectionDatabase.UNKNOWN)
                 {
-                    htmlDumper.OpenHtmlTag("h2");
-                    htmlDumper.Write("Version " + newApi.Version);
-
-                    htmlDumper.CloseHtmlTag("h2");
-                    htmlDumper.NextLine(2);
+                    var header = html.CreateElement("h2");
+                    header.InnerText = $"Version {newApi.Version}";
                 }
             }
             else

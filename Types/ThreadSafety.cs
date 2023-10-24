@@ -67,7 +67,7 @@ namespace RobloxApiDumpTool
                 }
             }
 
-            if (empty)
+            if (empty || name == "Unknown")
                 return "";
             else if (name.StartsWith("Read", StringComparison.InvariantCulture))
                 name = "Safe";

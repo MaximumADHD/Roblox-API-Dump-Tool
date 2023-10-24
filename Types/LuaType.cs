@@ -1,4 +1,6 @@
-﻿namespace RobloxApiDumpTool
+﻿using System.Collections.Generic;
+
+namespace RobloxApiDumpTool
 {
     public enum TypeCategory
     {
@@ -14,47 +16,162 @@
         public string Name;
         public TypeCategory Category;
 
-        public bool IsReturnType = false;
         public override string ToString() => GetSignature();
 
-        public string GetSignature(bool ignoreReturnType = false)
+        private static IReadOnlyDictionary<string, string> LuauTypes = new Dictionary<string, string>()
+        {
+            { "Dictionary", "{ [string]: any }" },
+            { "Map", "{ [string]: any }" },
+            { "Array", "{ any }" },
+
+            { "Objects", "{ Instance }" },
+            { "Tuple", "...any" },
+            { "Function", "((...any) -> ...any)" },
+            { "OptionalCoordinateFrame", "CFrame?" },
+            { "CoordinateFrame", "CFrame" },
+
+            { "Content", "string" },
+            { "ProtectedString", "string" },
+
+            { "null", "()" },
+            { "void", "()" },
+
+            { "int", "number" },
+            { "int64", "number" },
+            { "float", "number" },
+            { "double", "number" },
+
+            { "bool", "boolean" },
+            { "Variant", "any" },
+        };
+
+        public bool Optional
+        {
+            get => Name.EndsWith("?") || LuauType.EndsWith("?");
+
+            set
+            {
+                if (value)
+                {
+                    if (Name.EndsWith("?"))
+                        return;
+
+                    Name += "?";
+                }
+                else
+                {
+                    if (!Name.EndsWith("?"))
+                        return;
+
+                    Name = AbsoluteName;
+                }
+            }
+        }
+
+        public string LuauType
+        {
+            get
+            {
+                if (LuauTypes.ContainsKey(AbsoluteName))
+                    return LuauTypes[AbsoluteName];
+
+                return Name;
+            }
+        }
+
+        public string AbsoluteName => Name.Replace("?", "");
+        public string AbsoluteLuauType => LuauType.Replace("?", "");
+
+        public string GetSignature()
         {
             string result;
 
-            if (Name == "null")
-                result = "void";
-            else if (Category != TypeCategory.Enum)
-                result = Name;
-            else
+            if (Category == TypeCategory.Enum)
                 result = $"{Category}.{Name}";
+            else
+                result = LuauType;
 
-            if (IsReturnType && !ignoreReturnType)
-                result = "-> " + result;
+            if (Optional && !result.EndsWith("?"))
+                result += "?";
+            else if (!Optional && Name == "Function")
+                result = "(...any) -> ...any";
 
             return result;
         }
 
-        public void WriteHtml(ReflectionDumper buffer, int numTabs = 0)
+        public void WriteHtml(ReflectionHtml html)
         {
-            string typeVal = GetSignature(true);
-
-            if (typeVal.StartsWith("Enum."))
+            if (Category == TypeCategory.Enum)
             {
-                buffer.OpenClassTag("EnumName Type", numTabs);
-                buffer.Write("Enum");
-                buffer.CloseClassTag();
-
-                typeVal = typeVal.Substring(5);
+                html.Span("Type", "Enum");
+                html.Symbol(".");
             }
 
-            string typeTag = "Type";
+            switch (AbsoluteName)
+            {
+                case "Array":
+                {
+                    html.Symbol("{ ");
+                    html.Span("Type", "any");
+                    html.Symbol(" }");
+                    break;
+                }
+                case "Dictionary":
+                case "Map":
+                {
+                    html.Symbol("{ [");
+                    html.Span("Type", "string");
+                    html.Symbol("]: ");
+                    html.Span("Type", "any");
+                    html.Symbol(" }");
+                    break;
+                }
+                case "Objects":
+                {
+                    html.Symbol("{ ");
+                    html.Span("Type", "Instance");
+                    html.Symbol(" }");
+                    break;
+                }
+                case "Tuple":
+                {
+                    html.Symbol("...");
+                    html.Span("Type", "any");
+                    break;
+                }
+                case "Function":
+                {
+                    if (Optional)
+                        html.Symbol("(");
 
-            if (IsReturnType)
-                typeTag += " WithReturn";
+                    html.Symbol("(...");
+                    html.Span("Type", "any");
 
-            buffer.OpenClassTag(typeTag, numTabs);
-            buffer.Write(typeVal);
-            buffer.CloseClassTag();
+                    html.Symbol(") -> ...");
+                    html.Span("Type", "any");
+
+                    if (Optional)
+                        html.Symbol(")");
+
+                    break;
+                }
+                case "null":
+                case "void":
+                {
+                    html.Symbol("()");
+                    break;
+                }
+                default:
+                {
+                    html.Span("Type", AbsoluteLuauType);
+                    break;
+                }
+            }
+
+            if (!Optional)
+                return;
+
+            html.Symbol("?");
         }
     }
 }

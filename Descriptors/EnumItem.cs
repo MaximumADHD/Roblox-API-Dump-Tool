@@ -10,7 +10,7 @@ namespace RobloxApiDumpTool
 
         public override string GetSchema(bool detailed = false)
         {
-            string schema = "{EnumName}.{Name}";
+            string schema = "{DescriptorType} {EnumName}.{Name}";
 
             if (detailed)
                 schema += " : {Value} {Tags}";

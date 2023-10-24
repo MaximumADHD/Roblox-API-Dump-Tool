@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RobloxApiDumpTool
 {
-    public struct Parameter
+    public class Parameter
     {
         private const string quote = "\"";
 
@@ -11,18 +12,28 @@ namespace RobloxApiDumpTool
         public string Name;
         public string Default;
 
+        private static IReadOnlyDictionary<string, string> Defaults = new Dictionary<string, string>()
+        {
+            { "CFrame", "identity" },
+            { "Vector2", "zero" },
+            { "Vector3", "zero" },
+        };
+
         public override string ToString()
         {
-            string result = $"{Type} {Name}";
+            if (Default != null && !Type.Name.EndsWith("?"))
+                Type.Name += "?";
+
+            string result = $"{Name}: {Type}";
             string category = $"{Type.Category}";
 
             if (Default != null)
             {
-                if ((Type.Name == "string" || category == "Enum"))
+                if (Type.AbsoluteName == "string" || category == "Enum")
                     if (!Default.StartsWith(quote) && !Default.EndsWith(quote))
                         Default = quote + Default + quote;
 
-                if (Type.Category == TypeCategory.DataType && Type.Name != "Function")
+                if (Type.Category == TypeCategory.DataType && Type.AbsoluteName != "Function")
                     Default = $"{Type.Name}.new()";
 
                 if (Default.Length == 0)
@@ -34,48 +45,88 @@ namespace RobloxApiDumpTool
             return result;
         }
 
-        public void WriteHtml(ReflectionDumper buffer, int numTabs = 0)
+        public void WriteHtml(ReflectionHtml html)
         {
-            buffer.OpenClassTag("Parameter", numTabs);
-            buffer.NextLine();
+            string name = Name;
+            LuaType luaType = Type;
+            string paramDef = Default;
 
-            // Write Type
-            Type.WriteHtml(buffer, numTabs + 1);
+            if (paramDef != null && !luaType.Name.EndsWith("?"))
+                luaType.Name += "?";
 
-            // Write Name
-            string nameLbl = "ParamName";
-            if (Default != null)
-                nameLbl += " default";
-
-            buffer.WriteElement(nameLbl, Name, numTabs + 1);
-
-            // Write Default
-            if (Default != null)
+            html.OpenSpan("Parameter", () =>
             {
-                string typeLbl = Type.GetSignature();
-                string typeName;
-
-                if (typeLbl.Contains("<") && typeLbl.EndsWith(">"))
-                    typeName = $"{Type.Category}";
-                else
-                    typeName = Type.Name;
-
-                if (Type.Category == TypeCategory.DataType && typeName != "Function")
+                if (luaType.Name == "Tuple")
                 {
-                    buffer.WriteElement("ClassName Type", typeName, numTabs + 1);
-                    buffer.WriteElement("Name", "new", numTabs + 1);
-                    buffer.WriteElement("Parameters", null, numTabs + 1);
+                    html.Symbol("...: ");
+                    html.Span("Type", "any");
                 }
                 else
                 {
-                    if (Type.Category == TypeCategory.Enum)
-                        typeName = "String";
-
-                    buffer.WriteElement("ParamDefault " + typeName, Default, numTabs + 1);
+                    html.Span("ParamName", name);
+                    html.Symbol(": ");
+                    luaType.WriteHtml(html);
                 }
-            }
+                
+                // Write Default
+                if (paramDef != null && paramDef != "nil")
+                {
+                    string typeLbl = luaType.GetSignature();
+                    string typeName = luaType.AbsoluteName;
+                    html.Symbol(" = ");
 
-            buffer.CloseClassTag(numTabs);
+                    if (luaType.Category == TypeCategory.DataType && typeName != "Function")
+                    {
+                        html.Span("Type", typeName);
+                        html.Symbol(".");
+
+                        if (Defaults.ContainsKey(typeName))
+                        {
+                            string def = Defaults[typeName];
+                            html.Span("Name", def);
+                        }
+                        else
+                        {
+                            html.Span("Name", "new");
+                            html.Symbol("()");
+                        }
+                    }
+                    else
+                    {
+                        if (luaType.Category == TypeCategory.Enum)
+                        {
+                            html.String(paramDef);
+                            return;
+                        }
+
+                        typeName = luaType.AbsoluteName;
+
+                        if (luaType.AbsoluteLuauType == "number")
+                        {
+                            typeName = "number";
+
+                            if (paramDef.StartsWith("-"))
+                            {
+                                html.Symbol("-");
+                                paramDef = paramDef.Substring(1);
+                            }
+                        }
+
+                        if (typeName.ToLowerInvariant() == "string")
+                        {
+                            html.String(paramDef);
+                            return;
+                        }
+                        else if (typeName == "Array" || typeName == "Dictionary")
+                        {
+                            html.Symbol(paramDef);
+                            return;
+                        }
+
+                        html.Span(luaType.AbsoluteLuauType, paramDef);
+                    }
+                }
+            });
         }
     }
 
@@ -87,27 +138,30 @@ namespace RobloxApiDumpTool
             return '(' + string.Join(", ", parameters) + ')';
         }
 
-        public void WriteHtml(ReflectionDumper buffer, int numTabs = 0, bool diffMode = false)
+        public void WriteHtml(ReflectionHtml html, bool diffMode = false)
         {
             string paramsTag = "Parameters";
+            IEnumerable<Parameter> parameters = this;
 
             if (diffMode)
                 paramsTag += " change";
 
-            int closingTabs = 0;
-            buffer.OpenClassTag(paramsTag, numTabs);
-
-            if (Count > 0)
+            html.OpenSpan(paramsTag, () =>
             {
-                buffer.NextLine();
+                html.Symbol("(");
 
-                foreach (Parameter parameter in this)
-                    parameter.WriteHtml(buffer, numTabs + 1);
+                for (int i = 0; i < Count; i++)
+                {
+                    var param = this[i];
 
-                closingTabs = numTabs;
-            }
+                    if (i > 0)
+                        html.Symbol(", ");
 
-            buffer.CloseClassTag(closingTabs);
+                    param.WriteHtml(html);
+                }
+
+                html.Symbol(")");
+            });
         }
     }
 }

@@ -21,7 +21,7 @@ namespace RobloxApiDumpTool
 
         public override string GetSchema(bool detailed = true)
         {
-            return "{ClassName}.{Name}";
+            return "{DescriptorType} {ClassName}.{Name}";
         }
 
         public override Dictionary<string, object> GetTokens(bool detailed = false)

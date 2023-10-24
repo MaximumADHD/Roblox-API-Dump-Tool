@@ -69,6 +69,7 @@
     <Compile Include="Core\ReflectionDiffer.cs" />
     <Compile Include="Core\ReflectionDumper.cs" />
     <Compile Include="Core\ReflectionHistory.cs" />
+    <Compile Include="Core\ReflectionHtml.cs" />
     <Compile Include="Descriptors\Callback.cs" />
     <Compile Include="Descriptors\Class.cs" />
     <Compile Include="Descriptors\Descriptor.cs" />
@@ -84,7 +85,6 @@
     <Compile Include="Differ\Modifiers\MergeDiffChanges.cs" />
     <Compile Include="Differ\Modifiers\MergeRenamedClasses.cs" />
     <Compile Include="Differ\Modifiers\MergeSecurityChanges.cs" />
-    <Compile Include="Differ\Modifiers\MoveMemberToNewClass.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
