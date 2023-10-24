@@ -12,6 +12,81 @@
 </head>
 
 
+<hr id="400"/>
+
+<h2>Version 0.400.0.336387</h2>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">StandalonePluginScripts</span><span class="symbol"> : </span><span class="Superclass">Instance</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">StudioService</span><span class="symbol">.</span><span class="Name">GridSize</span><span class="symbol">: </span><span class="Type">number</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[ReadOnly]</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">StudioService</span><span class="symbol">.</span><span class="Name">RotateIncrement</span><span class="symbol">: </span><span class="Type">number</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[ReadOnly]</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">StudioService</span><span class="symbol">.</span><span class="Name">UseLocalSpace</span><span class="symbol">: </span><span class="Type">boolean</span><span class="symbol"> </span><span class="symbol"> </span><span class="Serialization">[📁LoadOnly]</span><span class="symbol"> </span><span class="Tag">[NotReplicated]</span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Terrain</span><span class="symbol">:</span><span class="Name">ReplaceMaterial</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">region</span><span class="symbol">: </span><span class="Type">Region3</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">resolution</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">sourceMaterial</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">Material</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">targetMaterial</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">Material</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="symbol">()</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Event"><span class="DescriptorType Event">Event</span><span class="symbol"> </span><span class="ClassName">StudioService</span><span class="symbol">.</span><span class="Name">PlacePublishedToRoblox</span><span class="Parameters"><span class="symbol">(</span><span class="symbol">)</span></span><span class="symbol"> </span><span class="Security">{RobloxScriptSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">.</span><span class="Name">HostDataModelType</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">:</span><span class="Name">Bind</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">:</span><span class="Name">BindAndFire</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">:</span><span class="Name">Fire</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">:</span><span class="Name">GetItem</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">:</span><span class="Name">HasItem</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">:</span><span class="Name">RemoveItem</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">security</span> of <span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">Plugin</span><span class="symbol">:</span><span class="Name">SetItem</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{RobloxScriptSecurity}</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Security">{PluginSecurity}</span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">parameters</span> of <span class="Event"><span class="DescriptorType Event">Event</span><span class="symbol"> </span><span class="ClassName">DataModelSession</span><span class="symbol">.</span><span class="Name">CurrentGameStateTypeAboutToChange</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">gameStateType</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">)</span></span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">gameStateType</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">StudioDataModelType</span></span><span class="symbol">)</span></span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">parameters</span> of <span class="Event"><span class="DescriptorType Event">Event</span><span class="symbol"> </span><span class="ClassName">DataModelSession</span><span class="symbol">.</span><span class="Name">DataModelCreated</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">gameStateType</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">)</span></span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">gameStateType</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">StudioDataModelType</span></span><span class="symbol">)</span></span></span></div></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">parameters</span> of <span class="Event"><span class="DescriptorType Event">Event</span><span class="symbol"> </span><span class="ClassName">DataModelSession</span><span class="symbol">.</span><span class="Name">DataModelWillBeDestroyed</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">gameStateType</span><span class="symbol">: </span><span class="Type">number</span></span><span class="symbol">)</span></span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="Parameters change"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">gameStateType</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">StudioDataModelType</span></span><span class="symbol">)</span></span></span></div></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">ScriptContext</span><span class="symbol">:</span><span class="Name">SetCoverageFilter</span></span></div>
+
 <hr id="399"/>
 
 <h2>Version 0.399.0.334382</h2>
