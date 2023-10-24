@@ -14,6 +14,45 @@
 </head>
 
 
+<hr id="461"/>
+
+<h2>Version 0.461.0.416397</h2>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">DataStoreKeyInfo</span><span class="symbol"> : </span><span class="Superclass">Instance</span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[NotCreatable]</span><span class="symbol"> </span><span class="Tag">[NotReplicated]</span></span>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">DataStoreKeyInfo</span><span class="symbol">.</span><span class="Name">KeyName</span><span class="symbol">: </span><span class="Type">string</span><span class="symbol"> </span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[ReadOnly]</span><span class="symbol"> </span></span></div></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">DataStore</span><span class="symbol"> : </span><span class="Superclass">GlobalDataStore</span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[NotCreatable]</span><span class="symbol"> </span><span class="Tag">[NotReplicated]</span></span>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">DataStore</span><span class="symbol">:</span><span class="Name">ListKeysAsync</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">prefix</span><span class="symbol">: </span><span class="Type">string</span><span class="symbol">?</span><span class="symbol"> = </span><span class="String">""</span></span><span class="symbol">, </span><span class="Parameter"><span class="ParamName">pageSize</span><span class="symbol">: </span><span class="Type">number</span><span class="symbol">?</span><span class="symbol"> = </span><span class="number">0</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="Type">Instance</span><span class="symbol">?</span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[Yields]</span><span class="symbol"> </span></span></div></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Class"><span class="DescriptorType Class">Class</span><span class="symbol"> </span><span class="Name">DataStoreKeyPages</span><span class="symbol"> : </span><span class="Superclass">Pages</span><span class="symbol"> </span><span class="symbol"> </span><span class="Tag">[NotCreatable]</span><span class="symbol"> </span><span class="Tag">[NotReplicated]</span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">AssetManagerService</span><span class="symbol">:</span><span class="Name">InsertMeshesWithLocation</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">aliasNames</span><span class="symbol">: </span><span class="symbol">{ </span><span class="Type">any</span><span class="symbol"> }</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="symbol">()</span><span class="symbol"> </span><span class="Security">{RobloxScriptSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added">Added </span><span class="Function"><span class="DescriptorType Function">Function</span><span class="symbol"> </span><span class="ClassName">NotificationService</span><span class="symbol">:</span><span class="Name">SwitchedToAppShellFeature</span><span class="Parameters"><span class="symbol">(</span><span class="Parameter"><span class="ParamName">appShellFeature</span><span class="symbol">: </span><span class="Type">Enum</span><span class="symbol">.</span><span class="Type">AppShellFeature</span></span><span class="symbol">)</span></span><span class="symbol"> -&gt; </span><span class="symbol">()</span><span class="symbol"> </span><span class="Security">{RobloxScriptSecurity}</span><span class="symbol"> </span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="Enum"><span class="DescriptorType Enum">Enum</span><span class="symbol"> </span><span class="Name">AppShellFeature</span><span class="symbol"> </span></span>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AppShellFeature</span><span class="symbol">.</span><span class="Name">None</span><span class="symbol"> : </span><span class="Value">0</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AppShellFeature</span><span class="symbol">.</span><span class="Name">Chat</span><span class="symbol"> : </span><span class="Value">1</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AppShellFeature</span><span class="symbol">.</span><span class="Name">AvatarEditor</span><span class="symbol"> : </span><span class="Value">2</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AppShellFeature</span><span class="symbol">.</span><span class="Name">GamePage</span><span class="symbol"> : </span><span class="Value">3</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AppShellFeature</span><span class="symbol">.</span><span class="Name">HomePage</span><span class="symbol"> : </span><span class="Value">4</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AppShellFeature</span><span class="symbol">.</span><span class="Name">More</span><span class="symbol"> : </span><span class="Value">5</span><span class="symbol"> </span></span></div>
+<div class="Added"><span class="DiffType Added child">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AppShellFeature</span><span class="symbol">.</span><span class="Name">Landing</span><span class="symbol"> : </span><span class="Value">6</span><span class="symbol"> </span></span></div></div>
+<br/>
+
+<div class="Added"><span class="DiffType Added">Added </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AnalyticsLogLevel</span><span class="symbol">.</span><span class="Name">Information</span><span class="symbol"> : </span><span class="Value">2</span><span class="symbol"> </span></span></div>
+<br/>
+
+<div class="Changed"><span class="DiffType Changed">Changed </span> the <span class="WhatChanged">category</span> of <span class="Property"><span class="DescriptorType Property">Property</span><span class="symbol"> </span><span class="ClassName">BasePart</span><span class="symbol">.</span><span class="Name">CanTouch</span></span>
+<div class="ChangeList"><span class="ChangeListPrefix">from<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Data"</span></span></div>
+<div class="ChangeList"><span class="ChangeListPrefix">  to<span class="symbol">: </span></span><span class="ChangeListItem"><span class="String">"Behavior"</span></span></div></div>
+<br/>
+
+<div class="Removed"><span class="DiffType Removed">Removed </span><span class="EnumItem"><span class="DescriptorType EnumItem">EnumItem</span><span class="symbol"> </span><span class="EnumName">AnalyticsLogLevel</span><span class="symbol">.</span><span class="Name">Infomation</span></span></div>
+
 <hr id="460"/>
 
 <h2>Version 0.460.0.416222</h2>
