@@ -44,17 +44,17 @@
             // 
             this.channel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.channel.Enabled = false;
             this.channel.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.channel.FormattingEnabled = true;
             this.channel.Items.AddRange(new object[] {
-            "LIVE",
-            "zCanary",
-            "zIntegration"});
+            "LIVE"});
             this.channel.Location = new System.Drawing.Point(10, 87);
             this.channel.Margin = new System.Windows.Forms.Padding(20, 3, 20, 5);
             this.channel.Name = "channel";
             this.channel.Size = new System.Drawing.Size(218, 21);
             this.channel.TabIndex = 0;
+            this.channel.Text = "LIVE";
             this.channel.SelectedIndexChanged += new System.EventHandler(this.channel_SelectedIndexChanged);
             this.channel.KeyDown += new System.Windows.Forms.KeyEventHandler(this.channel_KeyDown);
             // 
@@ -120,7 +120,9 @@
             // channelLbl
             // 
             this.channelLbl.AutoSize = true;
+            this.channelLbl.Enabled = false;
             this.channelLbl.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.channelLbl.ForeColor = System.Drawing.SystemColors.WindowText;
             this.channelLbl.Location = new System.Drawing.Point(7, 71);
             this.channelLbl.Name = "channelLbl";
             this.channelLbl.Size = new System.Drawing.Size(55, 13);
