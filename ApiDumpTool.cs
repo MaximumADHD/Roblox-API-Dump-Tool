@@ -52,8 +52,7 @@ namespace RobloxApiDumpTool
 
         private Channel getChannel()
         {
-            return "LIVE";
-            // return getSelectedItem(channel);
+            return getSelectedItem(channel);
         }
 
         private string getApiDumpFormat()
