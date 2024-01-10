@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace RobloxApiDumpTool
 {
@@ -15,6 +16,7 @@ namespace RobloxApiDumpTool
     {
         public string Name;
         public TypeCategory Category;
+        public LuaType[] SubTypes = new LuaType[0];
 
         public override string ToString() => GetSignature();
 
@@ -25,7 +27,6 @@ namespace RobloxApiDumpTool
             { "Array", "{ any }" },
 
             { "Objects", "{ Instance }" },
-            { "Tuple", "...any" },
             { "Function", "((...any) -> ...any)" },
             { "OptionalCoordinateFrame", "CFrame?" },
             { "CoordinateFrame", "CFrame" },
@@ -74,6 +75,19 @@ namespace RobloxApiDumpTool
             {
                 if (LuauTypes.ContainsKey(AbsoluteName))
                     return LuauTypes[AbsoluteName];
+
+                if (AbsoluteName == "Tuple")
+                {
+                    string typeName = "...any";
+
+                    if (SubTypes.Any())
+                    {
+                        var names = SubTypes.Select(type => type.AbsoluteLuauType);
+                        typeName = $"({string.Join(", ", names)})";
+                    }
+
+                    return typeName;
+                }
 
                 return Name;
             }
@@ -135,8 +149,28 @@ namespace RobloxApiDumpTool
                 }
                 case "Tuple":
                 {
-                    html.Symbol("...");
-                    html.Span("Type", "any");
+                    if (SubTypes.Any())
+                    {
+                        html.Symbol("(");
+
+                        for (int i = 0; i < SubTypes.Length; i++)
+                        {
+                            var subType = SubTypes[i];
+
+                            if (i > 0)
+                                html.Symbol(", ");
+
+                            subType.WriteHtml(html);
+                        }
+
+                        html.Symbol(")");
+                    }
+                    else
+                    {
+                        html.Symbol("...");
+                        html.Span("Type", "any");
+                    }
+
                     break;
                 }
                 case "Function":
