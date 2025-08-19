@@ -61,7 +61,7 @@ namespace RobloxApiDumpTool
 
         static Dictionary<string, string> ReadArgs(params string[] args)
         {
-            if (args.Length < 2)
+            if (args.Length < 1)
                 return null;
 
             var argMap = new Dictionary<string, string>();

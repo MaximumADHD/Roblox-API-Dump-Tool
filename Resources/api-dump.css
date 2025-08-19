@@ -92,6 +92,7 @@ span.ChangeList::before {
 span.Tag,
 span.Security,
 span.ThreadSafety,
+span.Capabilities,
 span.Serialization {
 	font-weight: bold !important;
 	font-size: 12px !important;
@@ -111,9 +112,21 @@ span.Security {
 	text-decoration: none !important;
 }
 
+span.Capabilities {
+	background-color: #003F1F;
+	color: #00FF7F !important;
+	text-decoration: none !important;
+}
+
 span.Security.Darken {
 	background-color: #051525;
 	color: #6F7F8F !important;
+	text-decoration: none !important;
+}
+
+span.Capabilities.Darken {
+	background-color: #051525;
+	color: #FF7F00 !important;
 	text-decoration: none !important;
 }
 

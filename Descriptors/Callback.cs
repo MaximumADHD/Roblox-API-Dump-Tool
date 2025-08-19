@@ -1,17 +1,19 @@
-﻿namespace RobloxApiDumpTool
+﻿using System.Collections.Generic;
+
+namespace RobloxApiDumpTool
 {
     public sealed class CallbackDescriptor : MemberDescriptor
     {
+        public Security Security;
         public LuaType ReturnType;
         public Parameters Parameters;
-        public Security Security;
 
         public override string GetSchema(bool detailed = true)
         {
             string schema = base.GetSchema();
 
             if (detailed)
-                schema += "{Parameters} -> {ReturnType} {Security} {Tags} {ThreadSafety}";
+                schema += "{Parameters} -> {ReturnType} {Capabilities} {Security} {Tags} {ThreadSafety}";
 
             return schema;
         }

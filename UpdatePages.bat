@@ -1,18 +1,13 @@
 @ echo off
+set /p rbx_api_version=Which version of Roblox? (Empty = Latest) 
 
-echo Updating LatestChanges.md...
-RobloxAPIDumpTool.exe -difflog -out %~dp0..\maximumadhd.github.io\LatestChanges.md
-
-if %errorlevel% EQU 0 (
-	echo Patched!
+if defined rbx_api_version (
+	echo Updating GitHub Pages to version %rbx_api_version%...
+	RobloxAPIDumpTool.exe -full -updatePages %~dp0..\maximumadhd.github.io -version %rbx_api_version%
 ) else (
-	echo Failed :(
-	pause
-	exit /b %errorlevel%
+	echo Updating GitHub Pages to latest version...
+	RobloxAPIDumpTool.exe -full -updatePages %~dp0..\maximumadhd.github.io
 )
-
-echo Updating GitHub Pages...
-RobloxAPIDumpTool.exe -updatePages %~dp0..\maximumadhd.github.io
 
 if %errorlevel% EQU 0 (
 	echo Done!

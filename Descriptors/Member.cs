@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -17,7 +20,17 @@ namespace RobloxApiDumpTool
     {
         public ClassDescriptor Class;
         public MemberType MemberType;
+
+        [JsonIgnore]
+        public Capabilities Capabilities;
         public ThreadSafety ThreadSafety = ThreadSafetyType.Unknown;
+
+        [JsonProperty("Capabilities")]
+        internal JToken CapabilitiesInternal
+        {
+            get => null;
+            set => Capabilities = new Capabilities(value);
+        }
 
         public override string GetSchema(bool detailed = true)
         {
@@ -29,6 +42,7 @@ namespace RobloxApiDumpTool
             var tokens = base.GetTokens(detailed);
             tokens.Add("ClassName", Class.Name);
             tokens.Add("ThreadSafety", ThreadSafety.Describe(MemberType));
+            tokens.Add("Capabilities", Capabilities.Describe(false));
 
             Type type = GetType();
 

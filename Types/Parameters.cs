@@ -12,13 +12,6 @@ namespace RobloxApiDumpTool
         public string Name;
         public string Default;
 
-        private static IReadOnlyDictionary<string, string> Defaults = new Dictionary<string, string>()
-        {
-            { "CFrame", "identity" },
-            { "Vector2", "zero" },
-            { "Vector3", "zero" },
-        };
-
         public override string ToString()
         {
             if (Default != null && !Type.Name.EndsWith("?"))
@@ -33,12 +26,9 @@ namespace RobloxApiDumpTool
                     if (!Default.StartsWith(quote) && !Default.EndsWith(quote))
                         Default = quote + Default + quote;
 
-                if (Type.Category == TypeCategory.DataType && Type.AbsoluteName != "Function")
-                    Default = $"{Type.Name}.new()";
-
-                if (Default.Length == 0)
+                if (Type.Category == TypeCategory.DataType)
                     return result;
-
+                
                 result += " = " + Default;
             }
             
@@ -52,7 +42,12 @@ namespace RobloxApiDumpTool
             string paramDef = Default;
 
             if (paramDef != null && !luaType.Name.EndsWith("?"))
+            {
+                if (luaType.Category == TypeCategory.DataType)
+                    paramDef = "";
+
                 luaType.Name += "?";
+            }
 
             html.OpenSpan("Parameter", () =>
             {
@@ -73,26 +68,11 @@ namespace RobloxApiDumpTool
                 {
                     string typeLbl = luaType.GetSignature();
                     string typeName = luaType.AbsoluteName;
-                    html.Symbol(" = ");
 
-                    if (luaType.Category == TypeCategory.DataType && typeName != "Function")
-                    {
-                        html.Span("Type", typeName);
-                        html.Symbol(".");
+                    if (luaType.Category != TypeCategory.DataType)
+                    { 
+                        html.Symbol(" = ");
 
-                        if (Defaults.ContainsKey(typeName))
-                        {
-                            string def = Defaults[typeName];
-                            html.Span("Name", def);
-                        }
-                        else
-                        {
-                            html.Span("Name", "new");
-                            html.Symbol("()");
-                        }
-                    }
-                    else
-                    {
                         if (luaType.Category == TypeCategory.Enum)
                         {
                             html.String(paramDef);

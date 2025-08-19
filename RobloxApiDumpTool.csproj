@@ -112,6 +112,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Types\Capabilities.cs" />
     <Compile Include="Types\LuaType.cs" />
     <Compile Include="Types\Parameters.cs" />
     <Compile Include="Types\Security.cs" />
@@ -134,7 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Roblox-Deploy-History\RobloxDeployHistory.csproj">
-      <Project>{4bfa155a-2059-47b8-a667-b3d09d3b493a}</Project>
+      <Project>{1ce1a9df-c2ff-49c4-9b7c-792c962c339f}</Project>
       <Name>RobloxDeployHistory</Name>
     </ProjectReference>
   </ItemGroup>

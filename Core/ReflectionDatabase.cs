@@ -77,6 +77,9 @@ namespace RobloxApiDumpTool
                                 if (prop.ValueType.Category == TypeCategory.Class)
                                     prop.ValueType.Optional = true;
 
+                            if (memberDesc.Capabilities == null)
+                                memberDesc.Capabilities = new Capabilities();
+
                             if (memberDesc is FunctionDescriptor func)
                                 if (func.ReturnType.Name == "Instance" || func.ReturnType.Name == "RaycastResult")
                                     func.ReturnType.Optional = true;
@@ -98,12 +101,12 @@ namespace RobloxApiDumpTool
 
                             if (memberLookup.ContainsKey(pascalCase))
                             {
-                                MemberDescriptor oldMember = memberLookup[memberName];
+                                //MemberDescriptor oldMember = memberLookup[memberName];
 
-                                if (oldMember.HasTag("Deprecated"))
-                                    membersDeprecated--;
+                                //if (oldMember.HasTag("Deprecated"))
+                                //    membersDeprecated--;
 
-                                classDesc.Members.Remove(oldMember);
+                                //classDesc.Members.Remove(oldMember);
                             }
                         }
                     }

@@ -1,4 +1,6 @@
-﻿namespace RobloxApiDumpTool
+﻿using System.Collections.Generic;
+
+namespace RobloxApiDumpTool
 {
     public sealed class EventDescriptor : MemberDescriptor
     {
@@ -10,7 +12,7 @@
             string schema = base.GetSchema();
 
             if (detailed)
-                schema += "{Parameters} {Security} {Tags} {ThreadSafety}";
+                schema += "{Parameters} {Capabilities} {Security} {Tags} {ThreadSafety}";
 
             return schema;
         }

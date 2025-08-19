@@ -180,56 +180,6 @@ namespace RobloxApiDumpTool
                     result = ApiDumpTool.PostProcessHtml(result, dir);
                 }
 
-                if (isDiffLog)
-                {
-                    string commitUrl = "";
-
-                    var userAgent = new WebHeaderCollection
-                    {
-                        { "User-Agent", "Roblox API Dump Tool" }
-                    };
-
-                    using (WebClient http = new WebClient() { Headers = userAgent })
-                    {
-                        string commitsUrl = $"https://api.github.com/repos/{ClientTracker}/commits?sha=roblox";
-                        string commitsJson = await http.DownloadStringTaskAsync(commitsUrl);
-
-                        using (StringReader reader = new StringReader(commitsJson))
-                        using (JsonTextReader jsonReader = new JsonTextReader(reader))
-                        {
-                            JArray data = JArray.Load(jsonReader);
-                            string prefix = "0." + version;
-
-                            foreach (JObject info in data)
-                            {
-                                var commit = info.Value<JObject>("commit");
-                                string message = commit.Value<string>("message");
-
-                                if (message.StartsWith(prefix))
-                                {
-                                    string sha = info.Value<string>("sha");
-                                    commitUrl = $"https://github.com/{ClientTracker}/commit/{sha}";
-
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    result = "## Client Difference Log\n\n"
-                           + $"{commitUrl}\n\n"
-
-                           + "## API Changes\n\n"
-
-                           + "```plain\n"
-                           + $"{result}\n"
-                           + "```\n\n"
-
-                           + $"(Click [here]({ApiHistoryUrl}#{version}) for a syntax highlighted version!)";
-                }
-
-                File.WriteAllText(exportPath, result);
-
                 if (isPng)
                 {
                     using (var bitmap = await ApiDumpTool.RenderApiDump(exportPath))
@@ -251,20 +201,59 @@ namespace RobloxApiDumpTool
                 if (!Directory.Exists(dir))
                     return false;
 
+                string currentPath = null;
+                string prevPath = null;
+
                 StudioDeployLogs logs = await StudioDeployLogs.Get(LIVE);
-                DeployLog currentLog;
+                DeployLog currentLog = null;
+                DeployLog prevLog = null;
+
+                string currentVersionId = null;
+                string prevVersionId = null;
+
+                int currentVersion = 0;
+                int prevVersion = 0;
 
                 if (argMap.ContainsKey("-version"))
                 {
                     string versionStr = argMap["-version"];
                     int version = int.Parse(versionStr);
 
-                    var logQuery = logs.CurrentLogs_x86
-                        .Union(logs.CurrentLogs_x64)
-                        .Where(log => log.Version == version)
-                        .OrderBy(log => log.Changelist);
+                    if (version < 350)
+                    {
+                        var buildMeta = await ApiDumpTool.GetBuildMetadata();
+                        currentPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, version, false);
+                        prevPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, version - 1, false);
 
-                    currentLog = logQuery.Last();
+                        var currentInfo = new FileInfo(currentPath);
+                        var currentGuid = currentInfo.Name.Replace(".json", "");
+
+                        var prevInfo = new FileInfo(prevPath);
+                        var prevGuid = prevInfo.Name.Replace(".json", "");
+
+                        var currentBuild = buildMeta.Builds
+                            .Where(build => build.Guid == currentGuid)
+                            .First();
+
+                        var prevBuild = buildMeta.Builds
+                            .Where(build => build.Guid == prevGuid)
+                            .First();
+
+                        currentVersionId = currentBuild.Version;
+                        prevVersionId = prevBuild.Version;
+                    }
+                    else
+                    {
+                        var logQuery = logs.CurrentLogs_x86
+                            .Union(logs.CurrentLogs_x64)
+                            .Where(log => log.Version == version)
+                            .OrderBy(log => log.Changelist);
+
+                        currentLog = logQuery.Last();
+                    }
+
+                    currentVersion = version;
+                    prevVersion = version - 1;
                 }
                 else
                 {
@@ -273,17 +262,26 @@ namespace RobloxApiDumpTool
                     currentLog = logQuery.FirstOrDefault();
                 }
 
-                DeployLog prevLog = logs.CurrentLogs_x86
-                    .Union(logs.CurrentLogs_x64)
-                    .Where(log => log.Version < currentLog.Version)
-                    .OrderBy(log => log.Changelist)
-                    .LastOrDefault();
+                if (currentPath == null && currentLog != null)
+                {
+                    prevLog = logs.CurrentLogs_x86
+                        .Union(logs.CurrentLogs_x64)
+                        .Where(log => log.Version < currentLog.Version)
+                        .OrderBy(log => log.Changelist)
+                        .LastOrDefault();
 
-                string currentPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, currentLog.VersionGuid, full);
-                string prevPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, prevLog.VersionGuid, full);
+                    currentPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, currentLog.VersionGuid, full);
+                    currentVersionId = currentLog.VersionId;
 
-                var currentData = new ReflectionDatabase(currentPath, LIVE, currentLog.VersionId);
-                var prevData = new ReflectionDatabase(prevPath, LIVE, prevLog.VersionId);
+                    prevPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, prevLog.VersionGuid, full);
+                    prevVersionId = currentLog.VersionId;
+
+                    currentVersion = currentLog.Version;
+                    prevVersion = prevLog.Version;
+                }
+                
+                var currentData = new ReflectionDatabase(currentPath, LIVE, currentVersionId);
+                var prevData = new ReflectionDatabase(prevPath, LIVE, prevVersionId);
 
                 var postProcess = new ReflectionDumper.DumpPostProcesser((dump, workDir) =>
                 {
@@ -308,16 +306,19 @@ namespace RobloxApiDumpTool
                 if (!File.Exists(historyPath))
                     return false;
 
-                string history = File.ReadAllText(historyPath);
-                string appendMarker = $"\n\n<hr id=\"{currentLog.Version}\"/>\n";
+                string history = File.ReadAllText(historyPath).Replace("\r\n", "\n");
+                string appendMarker = $"\n\n<hr id=\"{currentVersion}\"/>\n";
 
                 if (!history.Contains(appendMarker))
                 {
-                    string prevMarker = $"\n\n<hr id=\"{prevLog.Version}\"/>\n";
+                    string prevMarker = $"\n\n<hr id=\"{prevVersion}\"/>\n";
                     int index = history.IndexOf(prevMarker);
 
                     if (index < 0)
                         return false;
+
+                    if (comparison.Length == 0)
+                        comparison = "<h2>Version " + currentVersionId + "</h2>\n\nNo changes!";
 
                     string insert = $"{appendMarker}\n{comparison}";
                     history = history.Insert(index, insert);

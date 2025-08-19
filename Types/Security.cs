@@ -8,6 +8,7 @@ namespace RobloxApiDumpTool
         None,
         PluginSecurity,
         LocalUserSecurity,
+        WritePlayerSecurity,
         RobloxScriptSecurity,
         RobloxSecurity,
         NotAccessibleSecurity

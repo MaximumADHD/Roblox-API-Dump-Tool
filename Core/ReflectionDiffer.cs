@@ -143,7 +143,7 @@ namespace RobloxApiDumpTool
 
         private static void Compare(Descriptor target, string context, object oldVal, object newVal)
         {
-            if (oldVal.ToString() == newVal.ToString())
+            if (oldVal?.ToString() == newVal?.ToString())
                 return;
             
             Changed(context, target, oldVal, newVal);
@@ -301,6 +301,9 @@ namespace RobloxApiDumpTool
                             // Check if any tags added to this member were also added to its parent class.
                             var memberTagDiffs = CompareTags(newMember, oldMember.Tags, newMember.Tags);
                             MergeTagDiffs(classTagDiffs, memberTagDiffs);
+
+                            // Compare capabilities
+                            Compare(newMember, "capabilities", oldMember.Capabilities, newMember.Capabilities);
 
                             // Compare the fields specific to these member types
                             // TODO: I'd like to move these routines into their respective 
@@ -508,7 +511,17 @@ namespace RobloxApiDumpTool
             if (currentFormat == "html")
             {
                 var html = new ReflectionHtml();
-                var diffLookup = diffs.ToDictionary(diff => diff.ToString());
+                var diffLookup = new Dictionary<string, Diff>();
+
+                foreach (var diff in diffs)
+                {
+                    var str = diff.ToString();
+
+                    if (diffLookup.ContainsKey(str))
+                        continue;
+
+                    diffLookup.Add(str, diff);
+                }
                 
                 addLineToResults = new DiffResultLineAdder((line, addBreak) =>
                 {

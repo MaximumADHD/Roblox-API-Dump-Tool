@@ -28,6 +28,8 @@ namespace RobloxApiDumpTool
         private static readonly WebClient http = new WebClient();
         private static TaskCompletionSource<Bitmap> renderFinished;
 
+        private static BuildMetadata buildMetadata;
+
         public ApiDumpTool()
         {
             InitializeComponent();
@@ -294,21 +296,59 @@ namespace RobloxApiDumpTool
             return file;
         }
 
+        public static async Task<BuildMetadata> GetBuildMetadata()
+        {
+            if (buildMetadata == null)
+                buildMetadata = await BuildArchive.GetBuildMetadata();
+
+            return buildMetadata;
+        }
+
         public static async Task<string> GetApiDumpFilePath(Channel channel, int versionId, bool full, Action<string> setStatus = null)
         {
-            setStatus?.Invoke("Fetching deploy logs for " + channel);
-            var logs = await StudioDeployLogs.Get(channel);
+            if (versionId < 350)
+            {
+                setStatus?.Invoke("Fetching build metadata...");
+                await GetBuildMetadata();
 
-            var deployLog = logs.CurrentLogs_x64
-                .Where(log => log.Version == versionId)
-                .OrderBy(log => log.Changelist)
-                .LastOrDefault();
+                var buildId = versionId.ToString();
+                setStatus?.Invoke("Finding version guid for " + versionId);
 
-            if (deployLog == null)
-                throw new Exception("Unknown version id: " + versionId);
+                var buildInfo = buildMetadata.Builds
+                    .Where(build => build.Version
+                        .Substring(2)
+                        .StartsWith(buildId)
+                    ).OrderBy(build => build.Date.Ticks)
+                     .Last();
 
-            string versionGuid = deployLog.VersionGuid;
-            return await GetApiDumpFilePath(channel, versionGuid, full, setStatus);
+                var workDir = GetWorkDirectory();
+                string path = Path.Combine(workDir, $"{buildInfo.Guid}.json");
+
+                if (!File.Exists(path))
+                {
+                    setStatus?.Invoke("Fetching API Dump...");
+                    string json = await BuildArchive.GetFile(buildInfo.Guid, "API-Dump.json");
+                    File.WriteAllText(path, json);
+                }
+
+                return path;
+            }
+            else
+            {
+                setStatus?.Invoke("Fetching deploy logs for " + channel);
+                var logs = await StudioDeployLogs.Get(channel);
+
+                var deployLog = logs.CurrentLogs_x64
+                    .Where(log => log.Version == versionId)
+                    .OrderBy(log => log.Changelist)
+                    .LastOrDefault();
+
+                if (deployLog == null)
+                    throw new Exception("Unknown version id: " + versionId);
+
+                string versionGuid = deployLog.VersionGuid;
+                return await GetApiDumpFilePath(channel, versionGuid, full, setStatus);
+            }
         }
 
         public static async Task<string> GetApiDumpFilePath(Channel channel, bool full, Action<string> setStatus = null, bool fetchPrevious = false)

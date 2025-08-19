@@ -27,11 +27,12 @@ namespace RobloxApiDumpTool
             { "Array", "{ any }" },
 
             { "Objects", "{ Instance }" },
+            { "Instances", "{ Instance }" },
             { "Function", "((...any) -> ...any)" },
             { "OptionalCoordinateFrame", "CFrame?" },
             { "CoordinateFrame", "CFrame" },
 
-            { "Content", "string" },
+            { "ContentId", "string" },
             { "ProtectedString", "string" },
 
             { "null", "()" },
@@ -141,6 +142,7 @@ namespace RobloxApiDumpTool
                     break;
                 }
                 case "Objects":
+                case "Instances":
                 {
                     html.Symbol("{ ");
                     html.Span("Type", "Instance");

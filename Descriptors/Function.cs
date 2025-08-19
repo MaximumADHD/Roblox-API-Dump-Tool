@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace RobloxApiDumpTool
@@ -31,7 +32,6 @@ namespace RobloxApiDumpTool
 
         [JsonIgnore]
         public LuaType ReturnType;
-
         public Parameters Parameters;
         public Security Security;
 
@@ -41,7 +41,7 @@ namespace RobloxApiDumpTool
                 .Replace(".", ":");
 
             if (detailed)
-                schema += "{Parameters} -> {ReturnType} {Security} {Tags} {ThreadSafety}";
+                schema += "{Parameters} -> {ReturnType} {Capabilities} {Security} {Tags} {ThreadSafety}";
 
             return schema;
         }

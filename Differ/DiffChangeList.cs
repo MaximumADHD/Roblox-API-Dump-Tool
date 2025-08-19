@@ -60,6 +60,11 @@ namespace RobloxApiDumpTool
                         var security = change as Security;
                         value = security.Describe(true);
                     }
+                    else if (change is Capabilities)
+                    {
+                        var capabilities = change as Capabilities;
+                        value = capabilities.Describe(true);
+                    }
                     else
                     {
                         value = change.ToString();
@@ -69,6 +74,8 @@ namespace RobloxApiDumpTool
 
                     if (value.Contains("🧬"))
                         tagClass = "ThreadSafety";
+                    else if (value.Contains("🔐") || value.Contains("🔓"))
+                        tagClass = "Capabilities";
                     else if (value.StartsWith("["))
                         tagClass = "Serialization";
                     else if (value.StartsWith("{"))
@@ -79,6 +86,9 @@ namespace RobloxApiDumpTool
                         tagClass = change.GetType().Name;
 
                     if (tagClass == "Security" && value.Contains("None"))
+                        tagClass += " darken";
+
+                    if (tagClass == "Capabilities" && value.Contains("🔓"))
                         tagClass += " darken";
 
                     if (tagClass == "String")

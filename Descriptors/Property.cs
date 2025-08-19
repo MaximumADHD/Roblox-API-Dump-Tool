@@ -14,7 +14,7 @@ namespace RobloxApiDumpTool
             string schema = base.GetSchema();
 
             if (detailed)
-                schema = "{DescriptorType} {ClassName}.{Name}: {ValueType} {Security} {Serialization} {Tags} {ThreadSafety}";
+                schema = "{DescriptorType} {ClassName}.{Name}: {ValueType} {Capabilities} {Security} {Serialization} {Tags} {ThreadSafety}";
 
             return schema;
         }

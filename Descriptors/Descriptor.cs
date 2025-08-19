@@ -152,9 +152,12 @@ namespace RobloxApiDumpTool
                 string value = "";
 
                 if (tokens.ContainsKey(token))
-                    value = tokens[token].ToString();
-
-                desc = desc.Replace('{' + token + '}', value);
+                {
+                    var obj = tokens[token];
+                    value = obj.ToString();
+                }
+                
+                desc = desc.Replace($"{{{token}}}", value);
                 search = openToken + value.Length;
             }
 
@@ -213,7 +216,7 @@ namespace RobloxApiDumpTool
                         {
                             html.Span($"DescriptorType {DescriptorType}", DescriptorType);
                         }
-                        else if (token == "Parameters" || token.EndsWith("Type"))
+                        else if (token == "Parameters" || token.EndsWith("Type") || token == "Capabilities")
                         {
                             Type type = GetType();
 
@@ -229,6 +232,15 @@ namespace RobloxApiDumpTool
                                 {
                                     var luaType = info.GetValue(this) as LuaType;
                                     luaType.WriteHtml(html);
+                                    break;
+                                }
+                                else if (info.FieldType == typeof(Capabilities) && token == "Capabilities")
+                                {
+                                    var capabilities = info.GetValue(this) as Capabilities;
+
+                                    if (!capabilities.IsEmpty())
+                                        html.Span("Capabilities", capabilities.Value);
+
                                     break;
                                 }
                             }
