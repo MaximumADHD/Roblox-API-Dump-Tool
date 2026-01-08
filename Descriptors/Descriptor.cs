@@ -28,6 +28,7 @@ namespace RobloxApiDumpTool
         UseSpan = 0x1,
         Detailed = 0x2,
         DiffMode = 0x4,
+        KeepDim = 0x8,
     }
 
     public class Descriptor : IComparable
@@ -38,7 +39,7 @@ namespace RobloxApiDumpTool
 
 
         [JsonProperty("Tags")]
-        private JArray JsonTags
+        private JArray _
         {
             get => null;
 
@@ -169,19 +170,25 @@ namespace RobloxApiDumpTool
 
         public void WriteHtml(ReflectionHtml html, WriteHtmlFlags flags = WriteHtmlFlags.Detailed)
         {
+            bool keepDim = flags.HasFlag(WriteHtmlFlags.KeepDim);
             bool diffMode = flags.HasFlag(WriteHtmlFlags.DiffMode);
             bool detailed = flags.HasFlag(WriteHtmlFlags.Detailed);
             string elemType = flags.HasFlag(WriteHtmlFlags.UseSpan) ? "span" : "div";
 
             var tokens = GetTokens(detailed);
             string schema = GetSchema(detailed);
+
             string elemClass = DescriptorType;
+            var securityField = GetType().GetField("Security");
 
             if (!diffMode && Tags.Contains("Deprecated"))
                 elemClass += " deprecated"; // The CSS will strike-through this.
 
             if (!diffMode && DescriptorType != "Class" && DescriptorType != "Enum")
                 elemClass += " child";
+
+            if (keepDim || !diffMode)
+                elemClass += Hidden ? " dim" : "";
 
             html.OpenStack(elemType, elemClass, () =>
             {
@@ -263,6 +270,36 @@ namespace RobloxApiDumpTool
             });
         }
 
+        [JsonIgnore]
+        public virtual bool Hidden
+        {
+            get
+            {
+                const int minHidelevel = (int)SecurityType.RobloxScriptSecurity;
+                bool hidden = Tags.Contains("Hidden") || Tags.Contains("Deprecated");
+                var securityField = GetType().GetField("Security");
+
+                if (securityField != null && !hidden)
+                {
+                    object value = securityField.GetValue(this);
+
+                    if (value is ReadWriteSecurity rw)
+                    {
+                        var read = rw.Read.Level;
+                        var write = rw.Write.Level;
+                        hidden = read >= minHidelevel && write >= minHidelevel;
+                    }
+                    else if (value is Security sec)
+                    {
+                        var level = sec.Level;
+                        hidden = level >= minHidelevel;
+                    }
+                }
+
+                return hidden;
+            }
+            
+        }
 
         public virtual int CompareTo(object other)
         {
@@ -272,6 +309,9 @@ namespace RobloxApiDumpTool
 
                 if (typeDiff != 0)
                     return typeDiff;
+
+                if (Hidden != otherDesc.Hidden)
+                    return Hidden ? 1 : -1;
 
                 return string.CompareOrdinal(Name, otherDesc.Name);
             }

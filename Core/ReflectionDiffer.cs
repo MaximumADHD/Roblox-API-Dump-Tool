@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,7 +10,6 @@ namespace RobloxApiDumpTool
     public static class ReflectionDiffer
     {
         private const string NL = "\r\n";
-        private const string HTML_BREAK = NL + "<br/>" + NL;
 
         private static List<Diff> results = new List<Diff>();
         private static string currentFormat;
@@ -17,8 +18,8 @@ namespace RobloxApiDumpTool
         private static readonly List<IDiffModifier> postModifiers = new List<IDiffModifier>(); 
 
         private delegate Diff DiffRecorder(Descriptor target, bool detailed = true, Diff parent = null);
-        private delegate void DiffResultLineAdder(string line, bool addBreak);
-        private delegate string DiffResultFinalizer();
+        private delegate void DiffEnscriber(Diff diff, bool addBreak);
+        private delegate string DiffFinalizer();
 
         static ReflectionDiffer()
         {
@@ -501,38 +502,21 @@ namespace RobloxApiDumpTool
                 .ToList();
 
             // Setup actions for generating the final result, based on the requested format.
-            DiffResultLineAdder addLineToResults;
-            DiffResultFinalizer finalizeResults;
-
-            List<string> lines = diffs
-                .Select(diff => diff.ToString())
-                .ToList();
+            DiffEnscriber enscriber = null;
+            DiffFinalizer finalizer = null;
+            var diffLookup = diffs.ToDictionary(diff => diff.ToString());
 
             if (currentFormat == "html")
             {
                 var html = new ReflectionHtml();
-                var diffLookup = new Dictionary<string, Diff>();
 
-                foreach (var diff in diffs)
-                {
-                    var str = diff.ToString();
-
-                    if (diffLookup.ContainsKey(str))
-                        continue;
-
-                    diffLookup.Add(str, diff);
-                }
-                
-                addLineToResults = new DiffResultLineAdder((line, addBreak) =>
+                enscriber = new DiffEnscriber((diff, addBreak) =>
                 {
                     if (addBreak)
                         html.Break();
-                    
-                    if (diffLookup.ContainsKey(line))
-                    {
-                        Diff diff = diffLookup[line];
-                        diff.WriteHtml(html);
-                    }
+
+                    var line = diff.ToString();
+                    diff.WriteHtml(html);
 
                     if (!line.EndsWith(NL))
                         return;
@@ -540,7 +524,7 @@ namespace RobloxApiDumpTool
                     html.Break();
                 });
 
-                finalizeResults = new DiffResultFinalizer(() =>
+                finalizer = new DiffFinalizer(() =>
                 {
                     string result = html.ToString();
 
@@ -556,19 +540,25 @@ namespace RobloxApiDumpTool
                     header.InnerText = $"Version {newApi.Version}";
                 }
             }
+            else if (currentFormat == "json")
+            {
+                finalizer = new DiffFinalizer(() => JsonConvert.SerializeObject(diffs));
+            }
             else
             {
                 var final = new List<string>();
 
-                addLineToResults = new DiffResultLineAdder((line, addBreak) =>
+                enscriber = new DiffEnscriber((diff, addBreak) =>
                 {
+                    var line = diff.ToString();
+
                     if (addBreak)
                         final.Add("");
 
                     final.Add(line);
                 });
 
-                finalizeResults = new DiffResultFinalizer(() =>
+                finalizer = new DiffFinalizer(() =>
                 {
                     string[] finalLines = final.ToArray();
                     return string.Join(NL, finalLines).Trim();
@@ -576,50 +566,55 @@ namespace RobloxApiDumpTool
             }
 
             // Generate the final diff results
-            string prevLead = "";
-            string lastLine = NL;
 
-            foreach (string line in lines)
+            if (enscriber != null)
             {
-                string[] words = line.Split(' ');
+                string prevLead = "";
+                string lastLine = NL;
 
-                if (words.Length >= 2)
+                foreach (Diff diff in diffs)
                 {
-                    // Capture the first two words in this line.
-                    string first = words[0];
-                    string second = words[1];
+                    string line = diff.ToString();
+                    string[] words = line.Split(' ');
 
-                    if (second.ToLower() == "the" && words.Length > 2)
-                        second = words[2];
-
-                    string lead = (first + ' ' + second).Trim();
-
-                    bool addBreak = false;
-                    bool lastLineNoBreak = !lastLine.EndsWith(NL);
-
-                    // If the first two words of this line aren't the same as the last...
-                    if (lead != prevLead)
+                    if (words.Length >= 2)
                     {
-                        // Add a break if the last line doesn't have a break.
-                        // (and if there actually were two previous words)
-                        if (prevLead != "" && lastLineNoBreak)
+                        // Capture the first two words in this line.
+                        string first = words[0];
+                        string second = words[1];
+
+                        if (second.ToLower() == "the" && words.Length > 2)
+                            second = words[2];
+
+                        string lead = (first + ' ' + second).Trim();
+
+                        bool addBreak = false;
+                        bool lastLineNoBreak = !lastLine.EndsWith(NL);
+
+                        // If the first two words of this line aren't the same as the last...
+                        if (lead != prevLead)
+                        {
+                            // Add a break if the last line doesn't have a break.
+                            // (and if there actually were two previous words)
+                            if (prevLead != "" && lastLineNoBreak)
+                                addBreak = true;
+
+                            prevLead = lead;
+                        }
+
+                        // If we didn't add a break, but this line has a break and the
+                        // previous line doesn't, then we will add a break.
+                        if (!addBreak && lastLineNoBreak && line.EndsWith(NL))
                             addBreak = true;
 
-                        prevLead = lead;
+                        // Handle writing this line depending on the format we're using.
+                        enscriber(diff, addBreak);
+                        lastLine = line;
                     }
-
-                    // If we didn't add a break, but this line has a break and the
-                    // previous line doesn't, then we will add a break.
-                    if (!addBreak && lastLineNoBreak && line.EndsWith(NL))
-                        addBreak = true;
-
-                    // Handle writing this line depending on the format we're using.
-                    addLineToResults(line, addBreak);
-                    lastLine = line;
                 }
             }
-
-            return finalizeResults();
+            
+            return finalizer();
         }
     }
 }

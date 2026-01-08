@@ -21,6 +21,9 @@ namespace RobloxApiDumpTool
         public string Prefix;
         public string Value => Describe(true);
 
+        public int Level => (int)Type;
+        public bool Internal => Level >= (int)SecurityType.RobloxScriptSecurity;
+
         public Security(SecurityType security, string prefix = "")
         {
             Type = security;

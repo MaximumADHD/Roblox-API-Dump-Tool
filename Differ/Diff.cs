@@ -5,9 +5,9 @@ namespace RobloxApiDumpTool
 {
     public enum DiffType
     {
-        Add    = 1,
-        Move   = 3,
-        Merge  = 4,
+        Add  = 1,
+        Move = 3,
+        Merge = 4,
         Change = 2,
         Remove = 5,
         Rename = 0,
@@ -19,7 +19,6 @@ namespace RobloxApiDumpTool
         
         private readonly List<Diff> children = new List<Diff>();
         private int stack;
-
         public DiffType Type;
 
         public string Field = "";
@@ -230,7 +229,7 @@ namespace RobloxApiDumpTool
                         var flags = WriteHtmlFlags.UseSpan | WriteHtmlFlags.DiffMode;
 
                         if (Type == DiffType.Add)
-                            flags |= WriteHtmlFlags.Detailed;
+                            flags |= WriteHtmlFlags.Detailed | WriteHtmlFlags.KeepDim;
 
                         if (Field != descType)
                         {

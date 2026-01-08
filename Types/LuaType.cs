@@ -23,7 +23,7 @@ namespace RobloxApiDumpTool
         private static IReadOnlyDictionary<string, string> LuauTypes = new Dictionary<string, string>()
         {
             { "Dictionary", "{ [string]: any }" },
-            { "Map", "{ [string]: any }" },
+            { "Map", "{ [any]: any }" },
             { "Array", "{ any }" },
 
             { "Objects", "{ Instance }" },
@@ -135,7 +135,7 @@ namespace RobloxApiDumpTool
                 case "Map":
                 {
                     html.Symbol("{ [");
-                    html.Span("Type", "string");
+                    html.Span("Type", "any");
                     html.Symbol("]: ");
                     html.Span("Type", "any");
                     html.Symbol(" }");

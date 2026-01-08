@@ -113,6 +113,11 @@ namespace RobloxApiDumpTool
             return OpenStack("span", className, action);
         }
 
+        public XmlNode OpenLink(string link, Action action)
+        {
+            return OpenStack("a", $"href=\"{link}\"", action);
+        }
+
         public XmlNode Break()
         {
             return CreateElement("br");

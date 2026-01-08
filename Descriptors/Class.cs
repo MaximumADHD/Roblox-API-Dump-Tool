@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace RobloxApiDumpTool
@@ -11,12 +11,16 @@ namespace RobloxApiDumpTool
         
         public string Superclass;
         public string MemoryCategory;
-        
+
+        public Security Security = new Security(SecurityType.None);
+
+        [JsonIgnore]
         public ReflectionDatabase Database;
         
         [JsonIgnore]
         public List<MemberDescriptor> Members = new List<MemberDescriptor>();
 
+        [JsonIgnore]
         public int InheritanceLevel
         {
             get
@@ -44,6 +48,8 @@ namespace RobloxApiDumpTool
             }
         }
 
+        public override bool Hidden => Members.Any() && Members.All(member => member.Hidden) || base.Hidden;
+        
         public bool IsAncestorOf(ClassDescriptor desc)
         {
             if (Database != desc.Database)
@@ -82,7 +88,10 @@ namespace RobloxApiDumpTool
             var tokens = base.GetTokens(detailed);
 
             if (detailed)
+            {
+                tokens.Add("Security", Security);
                 tokens.Add("Superclass", Superclass);
+            }
 
             return tokens;
         }

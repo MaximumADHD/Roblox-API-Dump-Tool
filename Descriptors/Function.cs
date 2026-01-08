@@ -8,7 +8,7 @@ namespace RobloxApiDumpTool
     public sealed class FunctionDescriptor : MemberDescriptor
     {
         [JsonProperty("ReturnType")]
-        internal JToken WriteReturnTypeJson
+        internal JToken JsonReturnType
         {
             get => null;
 

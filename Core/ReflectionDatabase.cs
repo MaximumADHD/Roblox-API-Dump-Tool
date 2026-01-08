@@ -5,6 +5,7 @@ using System.IO;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 namespace RobloxApiDumpTool
 {
@@ -47,6 +48,7 @@ namespace RobloxApiDumpTool
                     classDesc.Database = this;
 
                     bool classDeprecated = classDesc.HasTag("Deprecated");
+                    var membersInternal = new Dictionary<int, int>();
                     int membersDeprecated = 0;
 
                     // Initialize members.
@@ -61,12 +63,39 @@ namespace RobloxApiDumpTool
 
                             string typeName = $"{memberType}Descriptor";
                             Type descType = Type.GetType($"{MemberDescriptor.Namespace}.{typeName}");
+                            var securityField = descType.GetField("Security");
 
                             if (!MemberDescriptor.IsAssignableFrom(descType))
                                 throw new TypeLoadException(typeName + " does not derive from MemberDescriptor!");
 
                             var memberDesc = memberObj.ToObject(descType) as MemberDescriptor;
                             memberDesc.Class = classDesc;
+
+                            if (securityField != null)
+                            {
+                                var rawSec = securityField.GetValue(memberDesc);
+                                var isInternal = false;
+                                var level = 0;
+
+                                if (rawSec is ReadWriteSecurity rw)
+                                {
+                                    isInternal = rw.Read.Internal && rw.Write.Internal;
+                                    level = Math.Max(rw.Read.Level, rw.Write.Level);
+                                }
+                                else if (rawSec is Security sec)
+                                {
+                                    isInternal = sec.Internal;
+                                    level = sec.Level;
+                                }
+
+                                if (isInternal)
+                                {
+                                    if (!membersInternal.ContainsKey(level))
+                                        membersInternal.Add(level, 0);
+
+                                    membersInternal[level]++;
+                                }
+                            }
 
                             if (classDeprecated)
                                 memberDesc.AddTag("Deprecated");
@@ -88,26 +117,19 @@ namespace RobloxApiDumpTool
                         }
                     }
 
-                    // Drop deprecated members that have a direct PascalCase variant.
-                    var memberLookup = classDesc.Members.ToDictionary(member => member.Name);
-
-                    foreach (string memberName in memberLookup.Keys)
+                    // Check if the class needs a security type
+                    if (classDesc.Members.Any())
                     {
-                        char firstChar = memberName[0];
+                        int numMembersInternal = membersInternal.Values.Sum();
 
-                        if (char.IsLower(firstChar))
+                        if (classDesc.Members.Count == numMembersInternal)
                         {
-                            string pascalCase = char.ToUpper(firstChar) + memberName.Substring(1);
+                            var bestPair = membersInternal
+                                .OrderBy(pair => pair.Value * 1000 + pair.Key)
+                                .FirstOrDefault();
 
-                            if (memberLookup.ContainsKey(pascalCase))
-                            {
-                                //MemberDescriptor oldMember = memberLookup[memberName];
-
-                                //if (oldMember.HasTag("Deprecated"))
-                                //    membersDeprecated--;
-
-                                //classDesc.Members.Remove(oldMember);
-                            }
+                            var secLevel = (SecurityType)bestPair.Key;
+                            classDesc.Security = new Security(secLevel);
                         }
                     }
 

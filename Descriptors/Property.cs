@@ -39,6 +39,9 @@ namespace RobloxApiDumpTool
             {
                 var otherDesc = other as PropertyDescriptor;
 
+                if (Hidden != otherDesc.Hidden)
+                    return Hidden ? 1 : -1;
+
                 if (Class != otherDesc.Class)
                     return Class.CompareTo(otherDesc.Class);
 

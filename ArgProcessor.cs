@@ -16,8 +16,6 @@ namespace RobloxApiDumpTool
     public static class ArgProcessor
     {
         private const string LIVE = Program.LIVE;
-        private const string ClientTracker = "MaximumADHD/Roblox-Client-Tracker";
-        private const string ApiHistoryUrl = "https://maximumadhd.github.io/Roblox-API-History.html";
 
         public static async Task<bool> Run(Dictionary<string, string> argMap)
         {

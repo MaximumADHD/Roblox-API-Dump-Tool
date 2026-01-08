@@ -75,7 +75,7 @@ namespace RobloxApiDumpTool
             {
                 string format = getApiDumpFormat();
                 viewApiDump.Enabled = (format != "PNG");
-                compareVersions.Enabled = (format != "JSON");
+                compareVersions.Enabled = true;
             }
             catch
             {

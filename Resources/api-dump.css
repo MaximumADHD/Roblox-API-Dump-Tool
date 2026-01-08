@@ -192,11 +192,15 @@ span.ChangeListItem {
 .deprecated ::after,
 .deprecated ::before {
 	font-style: italic;
-	font-weight: normal !important;
+	font-weight: lighter !important;
 	text-decoration: line-through;
-	color: #AFAFAF !important;
+	color: #8f8f6f !important;
 }
 
 .child {
 	margin-left: 40px;
+}
+
+.dim {
+	opacity: 0.5
 }
