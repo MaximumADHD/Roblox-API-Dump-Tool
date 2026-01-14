@@ -25,7 +25,7 @@
             int saves = (CanSave ? 1 : 0);
             int loads = (CanLoad ? 1 : 0);
 
-            return $"{{{flagLabels[loads << 1 | saves]}}}";
+            return $"[{flagLabels[loads << 1 | saves]}]";
         }
 
         public override string ToString() => Describe();
