@@ -13,24 +13,22 @@ namespace RobloxApiDumpTool
     {
         public const string UNKNOWN = "unknown";
 
-        public string Channel { get; set; }
-        public string Version { get; set; }
+        public string Channel { get; set; } = UNKNOWN;
+        public string Version { get; set; } = "0.0.0.0";
 
         public Dictionary<string, ClassDescriptor> Classes;
         public Dictionary<string, EnumDescriptor> Enums;
 
-        public readonly JObject Source;
+        public JObject Source { get; private set; }
 
         public override string ToString()
         {
             return $"{Channel} - {Version}";
         }
 
-        public ReflectionDatabase(string filePath, string channel = UNKNOWN, string version = "0.0.0.0")
+        private void setupV1(string filePath)
         {
             string jsonApiDump = File.ReadAllText(filePath);
-            Channel = channel;
-            Version = version;
 
             using (StringReader jsonText = new StringReader(jsonApiDump))
             using (JsonTextReader reader = new JsonTextReader(jsonText))
@@ -148,7 +146,7 @@ namespace RobloxApiDumpTool
 
                     bool enumDeprecated = enumDesc.HasTag("Deprecated");
                     int itemsDeprecated = 0;
-                    
+
                     // Initialize items.
                     foreach (JObject itemObj in enumObj.GetValue("Items"))
                     {
@@ -168,6 +166,120 @@ namespace RobloxApiDumpTool
 
                     Enums.Add(enumDesc.Name, enumDesc);
                 }
+            }
+        }
+
+        private void setupV2(string filePath)
+        {
+            // The only information currently worth extracting from V2 is class security.
+            // When it has correct information parity with V1, or maybe it gets support for Luau type annotations, update accordingly?
+            string jsonApiDump = File.ReadAllText(filePath);
+
+            using (StringReader jsonText = new StringReader(jsonApiDump))
+            using (JsonTextReader reader = new JsonTextReader(jsonText))
+            {
+                JObject database = JObject.Load(reader);
+                Classes = new Dictionary<string, ClassDescriptor>();
+                Source = database;
+
+                foreach (JObject classObj in database.GetValue("classes", StringComparison.InvariantCulture))
+                {
+                    var name = classObj.Value<string>("name");
+                    var security = classObj.Value<string>("security");
+                    var superclass = classObj.Value<string>("baseClass");
+
+                    var classDesc = new ClassDescriptor()
+                    {
+                        Name = name,
+                        Database = this,
+                        Superclass = superclass,
+                    };
+
+                    if (Enum.TryParse(security, out SecurityTypeV2 securityV2))
+                    {
+                        switch (securityV2)
+                        {
+                            case SecurityTypeV2.None:
+                            {
+                                classDesc.Security = SecurityType.None;
+                                break;
+                            }
+                            case SecurityTypeV2.Plugin:
+                            {
+                                classDesc.Security = SecurityType.PluginSecurity;
+                                break;
+                            }
+                            case SecurityTypeV2.WritePlayer:
+                            {
+                                classDesc.Security = SecurityType.WritePlayerSecurity;
+                                break;
+                            }
+                            case SecurityTypeV2.LocalUser:
+                            {
+                                classDesc.Security = SecurityType.LocalUserSecurity;
+                                break;
+                            }
+                            case SecurityTypeV2.RobloxScript:
+                            {
+                                classDesc.Security = SecurityType.RobloxScriptSecurity;
+                                break;
+                            }
+                            case SecurityTypeV2.RobloxEngine:
+                            {
+                                classDesc.Security = SecurityType.RobloxSecurity;
+                                break;
+                            }
+                            case SecurityTypeV2.NotAccessible:
+                            {
+                                classDesc.Security = SecurityType.NotAccessibleSecurity;
+                                break;
+                            }
+                            default:
+                            {
+                                throw new InvalidDataException("Unknown security type!");
+                            }
+                        }
+
+                        Classes.Add(name, classDesc);
+                    }
+                }
+            }
+        }
+
+        public ReflectionDatabase(string filePath, ApiDumpSchema format)
+        {
+            switch (format)
+            {
+                case ApiDumpSchema.V1_Full:
+                case ApiDumpSchema.V1_Partial:
+                {
+                    setupV1(filePath);
+                    break;
+                }
+                case ApiDumpSchema.V2:
+                {
+                    setupV2(filePath);
+                    break;
+                }
+                default:
+                {
+                    throw new IndexOutOfRangeException($"Unknown format: {format}");
+                }
+            } 
+        }
+
+        public void MungeV2(string filePathV2)
+        {
+            var api2 = new ReflectionDatabase(filePathV2, ApiDumpSchema.V2);
+
+            foreach (var className in api2.Classes.Keys)
+            {
+                var class2 = api2.Classes[className];
+
+                if (!Classes.TryGetValue(className, out var class1))
+                    continue;
+
+                class1.Security = class2.Security;
             }
         }
     }

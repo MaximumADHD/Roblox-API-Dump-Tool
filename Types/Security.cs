@@ -14,6 +14,17 @@ namespace RobloxApiDumpTool
         NotAccessibleSecurity
     }
 
+    public enum SecurityTypeV2
+    {
+        None,
+        Plugin,
+        LocalUser,
+        WritePlayer,
+        RobloxScript,
+        RobloxEngine,
+        NotAccessible,
+    }
+
     public class Security
     {
         public SecurityType Type;
@@ -24,13 +35,13 @@ namespace RobloxApiDumpTool
         public int Level => (int)Type;
         public bool Internal => Level >= (int)SecurityType.RobloxScriptSecurity;
 
-        public Security(SecurityType security, string prefix = "")
+        public Security(SecurityType security, string prefix = "🔒")
         {
             Type = security;
             Prefix = prefix;
         }
 
-        public Security(string security, string prefix = "")
+        public Security(string security, string prefix = "🔒")
         {
             if (!Enum.TryParse(security, out Type))
                 Type = SecurityType.None;
@@ -53,7 +64,14 @@ namespace RobloxApiDumpTool
             string result = "";
 
             if (displayNone || Type != SecurityType.None)
-                result += $"{{{Prefix}{Type}}}";
+            {
+                string typeName = $"{Type}".Replace("Security", "");
+
+                if (typeName == "Roblox")
+                    typeName += "Engine";
+
+                result += $"{{{Prefix}{typeName}}}";
+            }
 
             return result;
         }
@@ -75,7 +93,7 @@ namespace RobloxApiDumpTool
         [JsonConstructor]
         public ReadWriteSecurity(string read, string write)
         {
-            Read = new Security(read);
+            Read = new Security(read, "");
             Write = new Security(write, "✏️");
         }
 
@@ -85,7 +103,7 @@ namespace RobloxApiDumpTool
 
         public ReadWriteSecurity(SecurityType read, SecurityType? write = null)
         {
-            Read = new Security(read);
+            Read = new Security(read, "");
             Write = new Security(write ?? read, "✏️");
         }
 

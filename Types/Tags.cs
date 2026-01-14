@@ -70,7 +70,7 @@ namespace RobloxApiDumpTool
                 if (i > 0)
                     html.Symbol(" ");
 
-                html.Span("Tag", $"[{this[i]}]");
+                html.Span("Tag", $"[🏷️{this[i]}]");
             }
         }
     }

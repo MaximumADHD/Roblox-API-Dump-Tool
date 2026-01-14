@@ -11,11 +11,19 @@ using System.Windows.Forms;
 
 using RobloxDeployHistory;
 using Microsoft.Win32;
+using System.Collections.Generic;
 
 #pragma warning disable IDE1006 // Naming Styles
 
 namespace RobloxApiDumpTool
 {
+    public enum ApiDumpSchema
+    {
+        V1_Partial,
+        V1_Full,
+        V2,
+    }
+
     public partial class ApiDumpTool : Form
     {
         public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
@@ -29,6 +37,13 @@ namespace RobloxApiDumpTool
         private static TaskCompletionSource<Bitmap> renderFinished;
 
         private static BuildMetadata buildMetadata;
+
+        private static readonly IReadOnlyDictionary<ApiDumpSchema, string> SchemaMap = new Dictionary<ApiDumpSchema, string>()
+        {
+            { ApiDumpSchema.V1_Partial, "API-Dump" },
+            { ApiDumpSchema.V1_Full, "Full-API-Dump" },
+            { ApiDumpSchema.V2, "API-Dump-2" }
+        };
 
         public ApiDumpTool()
         {
@@ -274,10 +289,10 @@ namespace RobloxApiDumpTool
             return apiRender;
         }
 
-        public static async Task<string> GetApiDumpFilePath(Channel channel, string versionGuid, bool full, Action<string> setStatus = null)
+        public static async Task<string> GetApiDumpFilePath(Channel channel, string versionGuid, ApiDumpSchema schema, Action<string> setStatus = null)
         {
             string coreBin = GetWorkDirectory();
-            string fileName = full ? "Full-API-Dump" : "API-Dump";
+            string fileName = SchemaMap[schema];
 
             string apiUrl = $"{channel.BaseUrl}/{versionGuid}-{fileName}.json";
             string file = Path.Combine(coreBin, $"{versionGuid}-{fileName}.json");
@@ -304,7 +319,7 @@ namespace RobloxApiDumpTool
             return buildMetadata;
         }
 
-        public static async Task<string> GetApiDumpFilePath(Channel channel, int versionId, bool full, Action<string> setStatus = null)
+        public static async Task<string> GetApiDumpFilePath(Channel channel, int versionId, ApiDumpSchema format, Action<string> setStatus = null)
         {
             if (versionId < 350)
             {
@@ -347,11 +362,11 @@ namespace RobloxApiDumpTool
                     throw new Exception("Unknown version id: " + versionId);
 
                 string versionGuid = deployLog.VersionGuid;
-                return await GetApiDumpFilePath(channel, versionGuid, full, setStatus);
+                return await GetApiDumpFilePath(channel, versionGuid, format, setStatus);
             }
         }
 
-        public static async Task<string> GetApiDumpFilePath(Channel channel, bool full, Action<string> setStatus = null, bool fetchPrevious = false)
+        public static async Task<string> GetApiDumpFilePath(Channel channel, ApiDumpSchema format, Action<string> setStatus = null, bool fetchPrevious = false)
         {
             setStatus?.Invoke("Checking for update...");
             string versionGuid = await GetVersion(channel);
@@ -359,7 +374,7 @@ namespace RobloxApiDumpTool
             if (fetchPrevious)
                 versionGuid = await ReflectionHistory.GetPreviousVersionGuid(channel, versionGuid);
 
-            string file = await GetApiDumpFilePath(channel, versionGuid, full, setStatus);
+            string file = await GetApiDumpFilePath(channel, versionGuid, format, setStatus);
 
             if (fetchPrevious)
                 channel += "-prev";
@@ -370,9 +385,9 @@ namespace RobloxApiDumpTool
             return file;
         }
 
-        private async Task<string> getApiDumpFilePath(Channel channel, bool full, bool fetchPrevious = false)
+        private async Task<string> getApiDumpFilePath(Channel channel, ApiDumpSchema schema, bool fetchPrevious = false)
         {
-            return await GetApiDumpFilePath(channel, full, setStatus, fetchPrevious);
+            return await GetApiDumpFilePath(channel, schema, setStatus, fetchPrevious);
         }
 
         private void channel_SelectedIndexChanged(object sender, EventArgs e)
@@ -394,7 +409,9 @@ namespace RobloxApiDumpTool
             {
                 var channel = getChannel();
                 string format = getApiDumpFormat();
-                string apiFilePath = await getApiDumpFilePath(channel, fullDump.Checked);
+
+                var schema = fullDump.Checked ? ApiDumpSchema.V1_Full : ApiDumpSchema.V1_Partial;
+                string apiFilePath = await getApiDumpFilePath(channel, schema);
 
                 if (format == "JSON")
                 {
@@ -402,8 +419,11 @@ namespace RobloxApiDumpTool
                     return;
                 }
 
-                var api = new ReflectionDatabase(apiFilePath);
+                var api = new ReflectionDatabase(apiFilePath, schema);
                 var dumper = new ReflectionDumper(api);
+
+                var apiFilePath2 = await getApiDumpFilePath(channel, ApiDumpSchema.V2);
+                api.MungeV2(apiFilePath2);
 
                 string result;
 
@@ -426,20 +446,37 @@ namespace RobloxApiDumpTool
             {
                 Channel newChannel = getChannel();
                 bool fetchPrevious = newChannel.Equals(LIVE);
-                bool full = fullDump.Checked;
 
-                string newApiFilePath = await getApiDumpFilePath(newChannel, full);
-                string oldApiFilePath = await getApiDumpFilePath(LIVE, full, fetchPrevious);
+                bool full = fullDump.Checked;
+                var schema = full ? ApiDumpSchema.V1_Full : ApiDumpSchema.V1_Partial;
+
+                string newApiFilePath = await getApiDumpFilePath(newChannel, schema);
+                string oldApiFilePath = await getApiDumpFilePath(LIVE, schema, fetchPrevious);
+
+                string newApiFilePath2 = await getApiDumpFilePath(newChannel, ApiDumpSchema.V2);
+                string oldApiFilePath2 = await getApiDumpFilePath(LIVE, ApiDumpSchema.V2, fetchPrevious);
 
                 var latestLog = await GetLastDeployLog(newChannel);
                 string version = latestLog.VersionId;
 
                 setStatus($"Reading the {(fetchPrevious ? "Previous" : "Production")} API...");
-                var oldApi = new ReflectionDatabase(oldApiFilePath, LIVE, version);
 
+                var oldApi = new ReflectionDatabase(oldApiFilePath, schema)
+                {
+                    Channel = LIVE,
+                    Version = version,
+                };
+
+                oldApi.MungeV2(oldApiFilePath2);
                 setStatus($"Reading the {(fetchPrevious ? "Production" : "New")} API...");
-                var newApi = new ReflectionDatabase(newApiFilePath, newChannel, version);
-                
+
+                var newApi = new ReflectionDatabase(newApiFilePath, schema)
+                {
+                    Channel = LIVE,
+                    Version = version,
+                };
+
+                newApi.MungeV2(newApiFilePath2);
                 setStatus("Comparing APIs...");
 
                 string format = getApiDumpFormat();
