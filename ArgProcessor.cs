@@ -39,13 +39,13 @@ namespace RobloxApiDumpTool
 
                 if (int.TryParse(channel, out int exportVersion))
                 {
-                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(LIVE, exportVersion, schema);
-                    apiFilePath2 = await ApiDumpTool.GetApiDumpFilePath(LIVE, exportVersion, ApiDumpSchema.V2);
+                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(LIVE, exportVersion, schema, useLegacyChannelUrl: true);
+                    apiFilePath2 = await ApiDumpTool.GetApiDumpFilePath(LIVE, exportVersion, ApiDumpSchema.V2, useLegacyChannelUrl: true);
                 }
                 else if (!File.Exists(channel))
                 {
-                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(channel, schema);
-                    apiFilePath2 = await ApiDumpTool.GetApiDumpFilePath(channel, ApiDumpSchema.V2);
+                    apiFilePath = await ApiDumpTool.GetApiDumpFilePath(channel, schema, useLegacyChannelUrl: true);
+                    apiFilePath2 = await ApiDumpTool.GetApiDumpFilePath(channel, ApiDumpSchema.V2, useLegacyChannelUrl: true);
                 }
                 else
                 {
@@ -148,13 +148,13 @@ namespace RobloxApiDumpTool
 
                 if (int.TryParse(oldArg, out int oldVersion))
                 {
-                    oldFile = await ApiDumpTool.GetApiDumpFilePath(LIVE, oldVersion, schema);
-                    oldFile2 = await ApiDumpTool.GetApiDumpFilePath(LIVE, oldVersion, ApiDumpSchema.V2);
+                    oldFile = await ApiDumpTool.GetApiDumpFilePath(LIVE, oldVersion, schema, useLegacyChannelUrl: true);
+                    oldFile2 = await ApiDumpTool.GetApiDumpFilePath(LIVE, oldVersion, ApiDumpSchema.V2, useLegacyChannelUrl: true);
                 }
                 else if (!File.Exists(oldArg))
                 {
-                    oldFile = await ApiDumpTool.GetApiDumpFilePath(oldArg, schema);
-                    oldFile2 = await ApiDumpTool.GetApiDumpFilePath(oldArg, ApiDumpSchema.V2);
+                    oldFile = await ApiDumpTool.GetApiDumpFilePath(oldArg, schema, useLegacyChannelUrl: true);
+                    oldFile2 = await ApiDumpTool.GetApiDumpFilePath(oldArg, ApiDumpSchema.V2, useLegacyChannelUrl: true);
                 }
                 else
                 {
@@ -167,13 +167,13 @@ namespace RobloxApiDumpTool
 
                 if (int.TryParse(newArg, out int newVersion))
                 {
-                    newFile = await ApiDumpTool.GetApiDumpFilePath(LIVE, newVersion, schema);
-                    newFile2 = await ApiDumpTool.GetApiDumpFilePath(LIVE, newVersion, ApiDumpSchema.V2);
+                    newFile = await ApiDumpTool.GetApiDumpFilePath(LIVE, newVersion, schema, useLegacyChannelUrl: true);
+                    newFile2 = await ApiDumpTool.GetApiDumpFilePath(LIVE, newVersion, ApiDumpSchema.V2, useLegacyChannelUrl: true);
                 }
                 else if (!File.Exists(newArg))
                 {
-                    newFile = await ApiDumpTool.GetApiDumpFilePath(newArg, schema);
-                    newFile2 = await ApiDumpTool.GetApiDumpFilePath(newArg, ApiDumpSchema.V2);
+                    newFile = await ApiDumpTool.GetApiDumpFilePath(newArg, schema, useLegacyChannelUrl: true);
+                    newFile2 = await ApiDumpTool.GetApiDumpFilePath(newArg, ApiDumpSchema.V2, useLegacyChannelUrl: true);
                 }
                 else
                 {
@@ -257,8 +257,8 @@ namespace RobloxApiDumpTool
                     if (version < 350)
                     {
                         var buildMeta = await ApiDumpTool.GetBuildMetadata();
-                        currentPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, version, ApiDumpSchema.V1_Partial);
-                        prevPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, version - 1, ApiDumpSchema.V1_Partial);
+                        currentPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, version, ApiDumpSchema.V1_Partial, useLegacyChannelUrl: true);
+                        prevPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, version - 1, ApiDumpSchema.V1_Partial, useLegacyChannelUrl: true);
 
                         var currentInfo = new FileInfo(currentPath);
                         var currentGuid = currentInfo.Name.Replace(".json", "");
@@ -305,10 +305,10 @@ namespace RobloxApiDumpTool
                         .OrderBy(log => log.Changelist)
                         .LastOrDefault();
 
-                    currentPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, currentLog.VersionGuid, schema);
+                    currentPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, currentLog.VersionGuid, schema, useLegacyChannelUrl: true);
                     currentVersionId = currentLog.VersionId;
 
-                    prevPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, prevLog.VersionGuid, schema);
+                    prevPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, prevLog.VersionGuid, schema, useLegacyChannelUrl: true);
                     prevVersionId = currentLog.VersionId;
 
                     currentVersion = currentLog.Version;

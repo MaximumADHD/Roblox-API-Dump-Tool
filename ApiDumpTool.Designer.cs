@@ -1,4 +1,4 @@
-﻿namespace RobloxApiDumpTool
+namespace RobloxApiDumpTool
 {
     partial class ApiDumpTool
     {
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.channel = new System.Windows.Forms.ComboBox();
+            this.channel = new System.Windows.Forms.TextBox();
             this.compareVersions = new System.Windows.Forms.Button();
             this.status = new System.Windows.Forms.Label();
             this.viewApiDump = new System.Windows.Forms.Button();
@@ -37,48 +37,43 @@
             this.apiDumpFormat = new System.Windows.Forms.ComboBox();
             this.formatLbl = new System.Windows.Forms.Label();
             this.fullDump = new System.Windows.Forms.CheckBox();
+            this.tokenLbl = new System.Windows.Forms.Label();
+            this.channelToken = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.appLogo)).BeginInit();
             this.SuspendLayout();
-            // 
+            //
             // channel
-            // 
-            this.channel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.channel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.channel.Enabled = false;
             this.channel.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.channel.FormattingEnabled = true;
-            this.channel.Items.AddRange(new object[] {
-            "LIVE"});
             this.channel.Location = new System.Drawing.Point(10, 87);
             this.channel.Margin = new System.Windows.Forms.Padding(20, 3, 20, 5);
             this.channel.Name = "channel";
             this.channel.Size = new System.Drawing.Size(218, 21);
             this.channel.TabIndex = 0;
             this.channel.Text = "LIVE";
-            this.channel.SelectedIndexChanged += new System.EventHandler(this.channel_SelectedIndexChanged);
-            this.channel.KeyDown += new System.Windows.Forms.KeyEventHandler(this.channel_KeyDown);
-            // 
+            this.channel.TextChanged += new System.EventHandler(this.channel_TextChanged);
+            //
             // compareVersions
-            // 
-            this.compareVersions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.compareVersions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.compareVersions.Enabled = false;
             this.compareVersions.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.compareVersions.Location = new System.Drawing.Point(10, 149);
+            this.compareVersions.Location = new System.Drawing.Point(10, 190);
             this.compareVersions.Margin = new System.Windows.Forms.Padding(30, 3, 30, 5);
             this.compareVersions.Name = "compareVersions";
             this.compareVersions.Size = new System.Drawing.Size(278, 23);
             this.compareVersions.TabIndex = 3;
-            this.compareVersions.Text = "Compare to Production";
+            this.compareVersions.Text = "Compare Previous Version";
             this.compareVersions.UseVisualStyleBackColor = true;
             this.compareVersions.Click += new System.EventHandler(this.compareVersions_Click);
-            // 
+            //
             // status
-            // 
+            //
             this.status.AutoSize = true;
-            this.status.Enabled = false;
             this.status.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.status.Location = new System.Drawing.Point(0, 181);
+            this.status.Location = new System.Drawing.Point(0, 222);
             this.status.Margin = new System.Windows.Forms.Padding(0);
             this.status.Name = "status";
             this.status.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
@@ -87,25 +82,24 @@
             this.status.Tag = "Testing lol";
             this.status.Text = "Status: Ready!";
             this.status.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
+            //
             // viewApiDump
-            // 
-            this.viewApiDump.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.viewApiDump.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.viewApiDump.Enabled = false;
             this.viewApiDump.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.viewApiDump.Location = new System.Drawing.Point(10, 118);
+            this.viewApiDump.Location = new System.Drawing.Point(10, 159);
             this.viewApiDump.Margin = new System.Windows.Forms.Padding(15, 5, 15, 5);
             this.viewApiDump.Name = "viewApiDump";
             this.viewApiDump.Size = new System.Drawing.Size(278, 23);
-            this.viewApiDump.TabIndex = 5;
+            this.viewApiDump.TabIndex = 2;
             this.viewApiDump.Text = "View API Dump";
             this.viewApiDump.UseVisualStyleBackColor = true;
             this.viewApiDump.Click += new System.EventHandler(this.viewApiDumpClassic_Click);
-            // 
+            //
             // appLogo
-            // 
-            this.appLogo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.appLogo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.appLogo.BackgroundImage = global::RobloxApiDumpTool.Properties.Resources.AppLogo;
             this.appLogo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
@@ -116,11 +110,10 @@
             this.appLogo.Size = new System.Drawing.Size(278, 55);
             this.appLogo.TabIndex = 6;
             this.appLogo.TabStop = false;
-            // 
+            //
             // channelLbl
-            // 
+            //
             this.channelLbl.AutoSize = true;
-            this.channelLbl.Enabled = false;
             this.channelLbl.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.channelLbl.ForeColor = System.Drawing.SystemColors.WindowText;
             this.channelLbl.Location = new System.Drawing.Point(7, 71);
@@ -128,9 +121,9 @@
             this.channelLbl.Size = new System.Drawing.Size(55, 13);
             this.channelLbl.TabIndex = 7;
             this.channelLbl.Text = "Channel:";
-            // 
+            //
             // apiDumpFormat
-            // 
+            //
             this.apiDumpFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.apiDumpFormat.FormattingEnabled = true;
             this.apiDumpFormat.Items.AddRange(new object[] {
@@ -143,9 +136,9 @@
             this.apiDumpFormat.Size = new System.Drawing.Size(56, 21);
             this.apiDumpFormat.TabIndex = 8;
             this.apiDumpFormat.SelectedIndexChanged += new System.EventHandler(this.apiDumpFormat_SelectedIndexChanged);
-            // 
+            //
             // formatLbl
-            // 
+            //
             this.formatLbl.AutoSize = true;
             this.formatLbl.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.formatLbl.Location = new System.Drawing.Point(229, 70);
@@ -153,23 +146,47 @@
             this.formatLbl.Size = new System.Drawing.Size(49, 13);
             this.formatLbl.TabIndex = 10;
             this.formatLbl.Text = "Format:";
-            // 
+            //
             // fullDump
-            // 
+            //
             this.fullDump.AutoSize = true;
-            this.fullDump.Location = new System.Drawing.Point(222, 181);
+            this.fullDump.Location = new System.Drawing.Point(222, 222);
             this.fullDump.Name = "fullDump";
             this.fullDump.Size = new System.Drawing.Size(73, 17);
             this.fullDump.TabIndex = 11;
             this.fullDump.Text = "Full Dump";
             this.fullDump.UseVisualStyleBackColor = true;
-            // 
+            //
+            // tokenLbl
+            //
+            this.tokenLbl.AutoSize = true;
+            this.tokenLbl.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tokenLbl.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.tokenLbl.Location = new System.Drawing.Point(7, 112);
+            this.tokenLbl.Name = "tokenLbl";
+            this.tokenLbl.Size = new System.Drawing.Size(45, 13);
+            this.tokenLbl.TabIndex = 9;
+            this.tokenLbl.Text = "Token:";
+            //
+            // channelToken
+            //
+            this.channelToken.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.channelToken.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.channelToken.Location = new System.Drawing.Point(10, 128);
+            this.channelToken.Name = "channelToken";
+            this.channelToken.Size = new System.Drawing.Size(278, 21);
+            this.channelToken.TabIndex = 1;
+            this.channelToken.UseSystemPasswordChar = true;
+            //
             // ApiDumpTool
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(298, 205);
+            this.ClientSize = new System.Drawing.Size(298, 250);
+            this.Controls.Add(this.channelToken);
+            this.Controls.Add(this.tokenLbl);
             this.Controls.Add(this.fullDump);
             this.Controls.Add(this.formatLbl);
             this.Controls.Add(this.apiDumpFormat);
@@ -196,7 +213,7 @@
 
         #endregion
 
-        private System.Windows.Forms.ComboBox channel;
+        private System.Windows.Forms.TextBox channel;
         private System.Windows.Forms.Button compareVersions;
         private System.Windows.Forms.Label status;
         private System.Windows.Forms.Button viewApiDump;
@@ -205,6 +222,7 @@
         private System.Windows.Forms.ComboBox apiDumpFormat;
         private System.Windows.Forms.Label formatLbl;
         private System.Windows.Forms.CheckBox fullDump;
+        private System.Windows.Forms.Label tokenLbl;
+        private System.Windows.Forms.TextBox channelToken;
     }
 }
-

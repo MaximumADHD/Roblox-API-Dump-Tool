@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using RobloxDeployHistory;
 using Microsoft.Win32;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -29,6 +30,7 @@ namespace RobloxApiDumpTool
         public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
         private const string API_DUMP_CSS_FILE = "api-dump.css";
         private const string LIVE = Program.LIVE;
+        private const string CDN_COMMON_BASE_URL = "https://setup.rbxcdn.com/channel/common";
 
         private delegate void StatusDelegate(string msg);
         private delegate string ItemDelegate(ComboBox comboBox);
@@ -44,6 +46,14 @@ namespace RobloxApiDumpTool
             { ApiDumpSchema.V1_Full, "Full-API-Dump" },
             { ApiDumpSchema.V2, "API-Dump-2" }
         };
+
+        private class ChannelResolution
+        {
+            public Channel Channel;
+            public string VersionGuid;
+            public string VersionId;
+            public bool IsEarlyAccess;
+        }
 
         public ApiDumpTool()
         {
@@ -67,10 +77,15 @@ namespace RobloxApiDumpTool
             return result?.ToString() ?? LIVE;
         }
 
-        private Channel getChannel()
+        private string getChannelName()
         {
-            return "LIVE";
-            // return getSelectedItem(channel);
+            string text = channel.Text.Trim();
+            return string.IsNullOrEmpty(text) ? LIVE : text;
+        }
+
+        private string getChannelToken()
+        {
+            return channelToken.Text.Trim();
         }
 
         private string getApiDumpFormat()
@@ -192,7 +207,7 @@ namespace RobloxApiDumpTool
                     graphics.FillRectangle(brush, fillArea);
                 }
             }
-            
+
             // Apply some random noise and transparency to the edges.
             // Doing this so websites like Twitter can't force the image
             // to use lossy compression. Its a nice little hack :)
@@ -289,12 +304,13 @@ namespace RobloxApiDumpTool
             return apiRender;
         }
 
-        public static async Task<string> GetApiDumpFilePath(Channel channel, string versionGuid, ApiDumpSchema schema, Action<string> setStatus = null)
+        public static async Task<string> GetApiDumpFilePath(Channel channel, string versionGuid, ApiDumpSchema schema, Action<string> setStatus = null, bool useLegacyChannelUrl = false)
         {
             string coreBin = GetWorkDirectory();
             string fileName = SchemaMap[schema];
 
-            string apiUrl = $"{channel.BaseUrl}/{versionGuid}-{fileName}.json";
+            string baseUrl = useLegacyChannelUrl ? channel.BaseUrl : CDN_COMMON_BASE_URL;
+            string apiUrl = $"{baseUrl}/{versionGuid}-{fileName}.json";
             string file = Path.Combine(coreBin, $"{versionGuid}-{fileName}.json");
 
             if (!File.Exists(file))
@@ -319,7 +335,7 @@ namespace RobloxApiDumpTool
             return buildMetadata;
         }
 
-        public static async Task<string> GetApiDumpFilePath(string channel, int versionId, ApiDumpSchema format, Action<string> setStatus = null)
+        public static async Task<string> GetApiDumpFilePath(Channel channel, int versionId, ApiDumpSchema format, Action<string> setStatus = null, bool useLegacyChannelUrl = false)
         {
             if (versionId < 350)
             {
@@ -362,11 +378,11 @@ namespace RobloxApiDumpTool
                     throw new Exception("Unknown version id: " + versionId);
 
                 string versionGuid = deployLog.VersionGuid;
-                return await GetApiDumpFilePath(channel, versionGuid, format, setStatus);
+                return await GetApiDumpFilePath(channel, versionGuid, format, setStatus, useLegacyChannelUrl);
             }
         }
 
-        public static async Task<string> GetApiDumpFilePath(Channel channel, ApiDumpSchema format, Action<string> setStatus = null, bool fetchPrevious = false)
+        public static async Task<string> GetApiDumpFilePath(Channel channel, ApiDumpSchema format, Action<string> setStatus = null, bool fetchPrevious = false, bool useLegacyChannelUrl = false)
         {
             setStatus?.Invoke("Checking for update...");
             string versionGuid = await GetVersion(channel);
@@ -374,7 +390,7 @@ namespace RobloxApiDumpTool
             if (fetchPrevious)
                 versionGuid = await ReflectionHistory.GetPreviousVersionGuid(channel, versionGuid);
 
-            string file = await GetApiDumpFilePath(channel, versionGuid, format, setStatus);
+            string file = await GetApiDumpFilePath(channel, versionGuid, format, setStatus, useLegacyChannelUrl);
 
             if (fetchPrevious)
                 channel += "-prev";
@@ -390,130 +406,293 @@ namespace RobloxApiDumpTool
             return await GetApiDumpFilePath(channel, schema, setStatus, fetchPrevious);
         }
 
-        private void channel_SelectedIndexChanged(object sender, EventArgs e)
+        private void channel_TextChanged(object sender, EventArgs e)
         {
-            Channel channel = getChannel();
+            Channel resolvedChannel = getChannelName();
+            compareVersions.Text = resolvedChannel.Equals(LIVE) ? "Compare Previous Version" : "Compare to Production";
+        }
 
-            if (channel.Equals(LIVE))
-                compareVersions.Text = "Compare Previous Version";
+
+        // Resolves a channel either through the public API or early access API,
+        // depending on whether or not a token was provided.
+        private async Task<ChannelResolution> resolveChannel(string channelName, string token)
+        {
+            if (string.IsNullOrEmpty(channelName))
+                channelName = LIVE;
+
+            var channelObj = new Channel(channelName);
+            bool isEarlyAccess = !string.IsNullOrEmpty(token);
+
+            setStatus($"Resolving channel '{channelName}'...");
+
+            if (isEarlyAccess)
+            {
+                var versionInfo = await ClientVersionInfo.Get(channelName, "WindowsStudio64", token);
+
+                if (!versionInfo.Success)
+                {
+                    string reason = versionInfo.Errors.FirstOrDefault()?.Message ?? "the channel name or token was rejected";
+                    throw new Exception(reason);
+                }
+
+                return new ChannelResolution
+                {
+                    Channel = channelObj,
+                    VersionGuid = versionInfo.VersionGuid,
+                    VersionId = versionInfo.Version,
+                    IsEarlyAccess = true,
+                };
+            }
             else
-                compareVersions.Text = "Compare to Production";
+            {
+                string url = "https://clientsettingscdn.roblox.com/v2/client-version/WindowsStudio64";
 
-            Program.MainRegistry.SetValue("LastSelectedChannel", channel);
-            updateEnabledStates();
+                if (!channelObj.Equals(LIVE))
+                    url += $"/channel/{channelName}";
+
+                string json = await http.DownloadStringTaskAsync(url);
+                var data = JObject.Parse(json);
+
+                return new ChannelResolution
+                {
+                    Channel = channelObj,
+                    VersionGuid = data.Value<string>("clientVersionUpload"),
+                    VersionId = data.Value<string>("version"),
+                    IsEarlyAccess = false,
+                };
+            }
+        }
+
+        private async Task<string> downloadDump(ChannelResolution resolved, ApiDumpSchema schema, string earlyAccessTempDir)
+        {
+            if (resolved.IsEarlyAccess)
+                return await downloadEarlyAccessDump(resolved.VersionGuid, schema, earlyAccessTempDir);
+
+            return await GetApiDumpFilePath(resolved.Channel, resolved.VersionGuid, schema, setStatus);
         }
 
         private async void viewApiDumpClassic_Click(object sender, EventArgs e)
         {
-            await lockWindowAndRunTask(async () =>
+            string channelName = getChannelName();
+            string token = getChannelToken();
+            bool isEarlyAccess = !string.IsNullOrEmpty(token);
+
+            // Early access channels can be deleted or access can be revoked at any time,
+            // so everything downloaded lives in its own folder, and nothing about it is ever written to the registry.
+            string tempDir = isEarlyAccess
+                ? Path.Combine(Path.GetTempPath(), "RobloxApiDumpTool-EarlyAccess-" + Guid.NewGuid().ToString("N"))
+                : null;
+
+            try
             {
-                var channel = getChannel();
-                string format = getApiDumpFormat();
-
-                var schema = fullDump.Checked ? ApiDumpSchema.V1_Full : ApiDumpSchema.V1_Partial;
-                string apiFilePath = await getApiDumpFilePath(channel, schema);
-
-                if (format == "JSON")
+                await lockWindowAndRunTask(async () =>
                 {
-                    Process.Start(apiFilePath);
-                    return;
-                }
+                    if (isEarlyAccess)
+                        Directory.CreateDirectory(tempDir);
 
-                var api = new ReflectionDatabase(apiFilePath, schema);
-                var dumper = new ReflectionDumper(api);
+                    string format = getApiDumpFormat();
+                    var schema = fullDump.Checked ? ApiDumpSchema.V1_Full : ApiDumpSchema.V1_Partial;
 
-                var apiFilePath2 = await getApiDumpFilePath(channel, ApiDumpSchema.V2);
-                api.MungeV2(apiFilePath2);
+                    var resolved = await resolveChannel(channelName, token);
+                    string apiFilePath = await downloadDump(resolved, schema, tempDir);
 
-                string result;
+                    if (format == "JSON")
+                    {
+                        Process.Start(apiFilePath);
+                        return;
+                    }
 
-                if (format == "HTML" || format == "PNG")
-                    result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml, PostProcessHtml);
-                else
-                    result = dumper.DumpApi(ReflectionDumper.DumpUsingTxt);
+                    var api = new ReflectionDatabase(apiFilePath, schema)
+                    {
+                        Channel = resolved.Channel,
+                        Version = resolved.VersionId,
+                    };
 
-                FileInfo info = new FileInfo(apiFilePath);
-                string directory = info.DirectoryName;
+                    var dumper = new ReflectionDumper(api);
 
-                string resultPath = Path.Combine(directory, channel + "-api-dump." + format.ToLower());
-                writeAndViewFile(resultPath, result);
-            });
+                    string apiFilePath2 = await downloadDump(resolved, ApiDumpSchema.V2, tempDir);
+                    api.MungeV2(apiFilePath2);
+
+                    if (isEarlyAccess)
+                    {
+                        deleteFileQuietly(apiFilePath);
+                        deleteFileQuietly(apiFilePath2);
+                    }
+
+                    string result;
+
+                    if (format == "HTML" || format == "PNG")
+                        result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml, PostProcessHtml);
+                    else
+                        result = dumper.DumpApi(ReflectionDumper.DumpUsingTxt);
+
+                    string directory;
+
+                    if (isEarlyAccess)
+                    {
+                        directory = tempDir;
+
+                        if (format == "HTML" || format == "PNG")
+                            File.WriteAllText(Path.Combine(tempDir, API_DUMP_CSS_FILE), Properties.Resources.ApiDumpStyler);
+                    }
+                    else
+                    {
+                        directory = new FileInfo(apiFilePath).DirectoryName;
+                    }
+
+                    string resultPath = Path.Combine(directory, resolved.Channel + "-api-dump." + format.ToLower());
+                    writeAndViewFile(resultPath, result);
+                });
+            }
+            catch (Exception ex)
+            {
+                Enabled = true;
+                UseWaitCursor = false;
+                setStatus("Ready!");
+
+                if (isEarlyAccess)
+                    deleteDirectoryQuietly(tempDir);
+
+                MessageBox.Show
+                (
+                    $"Could not view the API dump for that channel:\n{ex.Message}",
+                    "Lookup failed",
+
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
+            finally
+            {
+                if (isEarlyAccess)
+                    channelToken.Clear();
+            }
         }
 
         private async void compareVersions_Click(object sender, EventArgs e)
         {
-            await lockWindowAndRunTask(async () =>
+            string channelName = getChannelName();
+            string token = getChannelToken();
+            bool isEarlyAccess = !string.IsNullOrEmpty(token);
+
+            string tempDir = isEarlyAccess
+                ? Path.Combine(Path.GetTempPath(), "RobloxApiDumpTool-EarlyAccess-" + Guid.NewGuid().ToString("N"))
+                : null;
+
+            try
             {
-                Channel newChannel = getChannel();
-                bool fetchPrevious = newChannel.Equals(LIVE);
-
-                bool full = fullDump.Checked;
-                var schema = full ? ApiDumpSchema.V1_Full : ApiDumpSchema.V1_Partial;
-
-                string newApiFilePath = await getApiDumpFilePath(newChannel, schema);
-                string oldApiFilePath = await getApiDumpFilePath(LIVE, schema, fetchPrevious);
-
-                string newApiFilePath2 = await getApiDumpFilePath(newChannel, ApiDumpSchema.V2);
-                string oldApiFilePath2 = await getApiDumpFilePath(LIVE, ApiDumpSchema.V2, fetchPrevious);
-
-                var latestLog = await GetLastDeployLog(newChannel);
-                string version = latestLog.VersionId;
-
-                setStatus($"Reading the {(fetchPrevious ? "Previous" : "Production")} API...");
-
-                var oldApi = new ReflectionDatabase(oldApiFilePath, schema)
+                await lockWindowAndRunTask(async () =>
                 {
-                    Channel = LIVE,
-                    Version = version,
-                };
+                    if (isEarlyAccess)
+                        Directory.CreateDirectory(tempDir);
 
-                oldApi.MungeV2(oldApiFilePath2);
-                setStatus($"Reading the {(fetchPrevious ? "Production" : "New")} API...");
+                    bool full = fullDump.Checked;
+                    var schema = full ? ApiDumpSchema.V1_Full : ApiDumpSchema.V1_Partial;
 
-                var newApi = new ReflectionDatabase(newApiFilePath, schema)
-                {
-                    Channel = LIVE,
-                    Version = version,
-                };
+                    var resolved = await resolveChannel(channelName, token);
+                    bool fetchPrevious = !isEarlyAccess && resolved.Channel.Equals(LIVE);
 
-                newApi.MungeV2(newApiFilePath2);
-                setStatus("Comparing APIs...");
+                    string oldApiFilePath = await getApiDumpFilePath(LIVE, schema, fetchPrevious);
+                    string oldApiFilePath2 = await getApiDumpFilePath(LIVE, ApiDumpSchema.V2, fetchPrevious);
 
-                string format = getApiDumpFormat();
-                string result = ReflectionDiffer.CompareDatabases(oldApi, newApi, format);
+                    string newApiFilePath = await downloadDump(resolved, schema, tempDir);
+                    string newApiFilePath2 = await downloadDump(resolved, ApiDumpSchema.V2, tempDir);
 
-                if (result.Length > 0)
-                {
-                    FileInfo info = new FileInfo(newApiFilePath);
-                    string dirName = info.DirectoryName;
+                    setStatus($"Reading the {(fetchPrevious ? "Previous" : "Production")} API...");
 
-                    string fileBase = Path.Combine(dirName, $"{newChannel}-diff.");
-                    string filePath = fileBase + format.ToLower();
-
-                    if (format == "PNG")
+                    var oldApi = new ReflectionDatabase(oldApiFilePath, schema)
                     {
-                        string htmlPath = $"{fileBase}.html";
+                        Channel = LIVE,
+                        Version = resolved.VersionId,
+                    };
 
-                        writeFile(htmlPath, result);
-                        setStatus("Rendering Image...");
-                        
-                        Bitmap apiRender = await RenderApiDump(htmlPath);
-                        apiRender.Save(filePath);
+                    oldApi.MungeV2(oldApiFilePath2);
+                    setStatus($"Reading the {(fetchPrevious ? "Production" : "New")} API...");
 
-                        Process.Start(filePath);
+                    var newApi = new ReflectionDatabase(newApiFilePath, schema)
+                    {
+                        Channel = resolved.Channel,
+                        Version = resolved.VersionId,
+                    };
+
+                    newApi.MungeV2(newApiFilePath2);
+
+                    if (isEarlyAccess)
+                    {
+                        deleteFileQuietly(newApiFilePath);
+                        deleteFileQuietly(newApiFilePath2);
+                    }
+
+                    setStatus("Comparing APIs...");
+
+                    string format = getApiDumpFormat();
+                    string result = ReflectionDiffer.CompareDatabases(oldApi, newApi, format);
+
+                    string dirName = isEarlyAccess ? tempDir : new FileInfo(newApiFilePath).DirectoryName;
+
+                    if (result.Length > 0)
+                    {
+                        if (isEarlyAccess && (format == "HTML" || format == "PNG"))
+                        {
+                            // Writing the CSS to the early-access channel's own folder so the styling is applied properly
+                            File.WriteAllText(Path.Combine(tempDir, API_DUMP_CSS_FILE), Properties.Resources.ApiDumpStyler);
+                        }
+
+                        string fileBase = Path.Combine(dirName, $"{resolved.Channel}-diff.");
+                        string filePath = fileBase + format.ToLower();
+
+                        if (format == "PNG")
+                        {
+                            string htmlPath = $"{fileBase}.html";
+
+                            writeFile(htmlPath, result);
+                            setStatus("Rendering Image...");
+
+                            Bitmap apiRender = await RenderApiDump(htmlPath);
+                            apiRender.Save(filePath);
+
+                            Process.Start(filePath);
+                        }
+                        else
+                        {
+                            writeAndViewFile(filePath, result);
+                        }
                     }
                     else
                     {
-                        writeAndViewFile(filePath, result);
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("No differences were found!", "Well, this is awkward...", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                        MessageBox.Show("No differences were found!", "Well, this is awkward...", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                clearOldVersionFiles();
-            });
+                        if (isEarlyAccess)
+                            deleteDirectoryQuietly(tempDir);
+                    }
+
+                    if (!isEarlyAccess)
+                        clearOldVersionFiles();
+                });
+            }
+            catch (Exception ex)
+            {
+                Enabled = true;
+                UseWaitCursor = false;
+                setStatus("Ready!");
+
+                if (isEarlyAccess)
+                    deleteDirectoryQuietly(tempDir);
+
+                MessageBox.Show
+                (
+                    $"Could not compare that channel:\n{ex.Message}",
+                    "Comparison failed",
+
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
+            finally
+            {
+                if (isEarlyAccess)
+                    channelToken.Clear();
+            }
         }
 
         private static void clearOldVersionFiles()
@@ -543,34 +722,11 @@ namespace RobloxApiDumpTool
             }
         }
 
-        private async Task initVersionCache()
-        {
-            await lockWindowAndRunTask(async () =>
-            {
-                string[] channels = channel.Items.Cast<string>().ToArray();
-                setStatus("Initializing version cache...");
-
-                foreach (string channelName in channels)
-                {
-                    string versionGuid = await GetVersion(channelName);
-                    VersionRegistry.SetValue(channelName, versionGuid);
-                }
-
-                Program.MainRegistry.SetValue("InitializedChannels", true);
-            });
-        }
-
-        private async void ApiDumpTool_Load(object sender, EventArgs e)
+        private void ApiDumpTool_Load(object sender, EventArgs e)
         {
             WebRequest.DefaultWebProxy = null;
 
-            if (!Program.GetRegistryBool("InitializedChannels"))
-            {
-                await initVersionCache();
-                clearOldVersionFiles();
-            }
-
-            loadSelectedIndex(channel, "LastSelectedChannel");
+            channel_TextChanged(this, EventArgs.Empty);
             loadSelectedIndex(apiDumpFormat, "PreferredFormat");
         }
 
@@ -582,57 +738,41 @@ namespace RobloxApiDumpTool
             updateEnabledStates();
         }
 
-        private async void channel_KeyDown(object sender, KeyEventArgs e)
+        private static async Task<string> downloadEarlyAccessDump(string versionGuid, ApiDumpSchema schema, string tempDir)
         {
-            if (e.KeyCode != Keys.Enter)
-                return;
+            string fileName = SchemaMap[schema];
+            string apiUrl = $"{CDN_COMMON_BASE_URL}/{versionGuid}-{fileName}.json";
+            string file = Path.Combine(tempDir, $"{versionGuid}-{fileName}.json");
 
-            Channel input = channel.Text;
-            e.SuppressKeyPress = true;
+            string apiDump = await http.DownloadStringTaskAsync(apiUrl);
+            File.WriteAllText(file, apiDump);
 
-            foreach (var item in channel.Items)
-            {
-                Channel old = item.ToString();
+            return file;
+        }
 
-                if (old.Name == input.Name)
-                {
-                    channel.SelectedItem = item;
-                    return;
-                }
-            }
-
+        private static void deleteFileQuietly(string path)
+        {
             try
             {
-                var logs = await StudioDeployLogs.Get(input);
-
-                if (logs.CurrentLogs_x64.Any())
-                {
-                    var addItem = new Action(() =>
-                    {
-                        var index = channel.Items.Add(channel.Text);
-                        channel.SelectedIndex = index;
-                    });
-
-                    Invoke(addItem);
-                    return;
-                }
-
-                throw new Exception("No channels to work with!");
+                if (File.Exists(path))
+                    File.Delete(path);
             }
             catch
             {
-                var reset = new Action(() => channel.SelectedIndex = 0);
+                // Best-effort cleanup only.
+            }
+        }
 
-                MessageBox.Show
-                (
-                    $"Channel '{input}' had no valid data on Roblox's CDN!",
-                    "Invalid channel!",
-
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
-
-                Invoke(reset);
+        private static void deleteDirectoryQuietly(string path)
+        {
+            try
+            {
+                if (Directory.Exists(path))
+                    Directory.Delete(path, true);
+            }
+            catch
+            {
+                // Best-effort cleanup only.
             }
         }
     }
