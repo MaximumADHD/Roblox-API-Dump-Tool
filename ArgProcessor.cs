@@ -215,6 +215,8 @@ namespace RobloxApiDumpTool
                     result = ApiDumpTool.PostProcessHtml(result, dir);
                 }
 
+                File.WriteAllText(exportPath, result);
+
                 if (isPng)
                 {
                     using (var bitmap = await ApiDumpTool.RenderApiDump(exportPath))
