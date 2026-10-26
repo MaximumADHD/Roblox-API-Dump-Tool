@@ -117,7 +117,11 @@ namespace RobloxApiDumpTool
                 }
 
                 if (argMap.ContainsKey("-start"))
-                    Process.Start(exportPath);
+                    Process.Start(new ProcessStartInfo()
+                    {
+                        FileName = exportPath,
+                        UseShellExecute = true,
+                    });
 
                 return true;
             }
@@ -227,7 +231,11 @@ namespace RobloxApiDumpTool
                 }
 
                 if (argMap.ContainsKey("-start") || isDiffLog)
-                    Process.Start(exportPath);
+                    Process.Start(new ProcessStartInfo()
+                    {
+                        FileName = exportPath,
+                        UseShellExecute = true,
+                    });
 
                 return true;
             }

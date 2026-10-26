@@ -171,7 +171,11 @@ namespace RobloxApiDumpTool
         private static void writeAndViewFile(string path, string contents)
         {
             writeFile(path, contents);
-            Process.Start(path);
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = path,
+                UseShellExecute = true,
+            });
         }
 
         private static Bitmap renderApiDumpImpl(WebBrowser browser)
@@ -498,7 +502,12 @@ namespace RobloxApiDumpTool
 
                     if (format == "JSON")
                     {
-                        Process.Start(apiFilePath);
+                        Process.Start(new ProcessStartInfo()
+                        {
+                            FileName = apiFilePath,
+                            UseShellExecute = true,
+                        });
+
                         return;
                     }
 
@@ -651,7 +660,11 @@ namespace RobloxApiDumpTool
                             Bitmap apiRender = await RenderApiDump(htmlPath);
                             apiRender.Save(filePath);
 
-                            Process.Start(filePath);
+                            Process.Start(new ProcessStartInfo()
+                            {
+                                FileName = filePath,
+                                UseShellExecute = true,
+                            });
                         }
                         else
                         {

@@ -24,16 +24,16 @@ namespace RobloxApiDumpTool
             var deployLogs = await StudioDeployLogs.Get(channel);
             string versionGuid = log.VersionGuid;
 
-            var currentLog = deployLogs.CurrentLogs_x64
+            var currentLog = deployLogs.CurrentLogs
                 .Where(deployLog => deployLog.VersionGuid == versionGuid)
                 .FirstOrDefault();
 
             if (currentLog == null)
                 throw new Exception("Unknown version guid: " + versionGuid);
 
-            var prevLog = deployLogs.CurrentLogs_x64
+            var prevLog = deployLogs.CurrentLogs
                 .Where(deployLog => deployLog.Version < currentLog.Version)
-                .OrderBy(deployLog => deployLog.Changelist)
+                .OrderBy(deployLog => deployLog.CommitId)
                 .LastOrDefault();
 
             if (prevLog == null)
