@@ -85,15 +85,16 @@ namespace RobloxApiDumpTool
                     api.MungeV2(apiFilePath2);
 
                 string result = "";
+#if !CLI
                 bool isPng = false;
-
+#endif
                 if (format.ToUpperInvariant() == "PNG")
                 {
-                    #if !CLI
+#if !CLI
                     isPng = true;
                     format = "html";
                     result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml);
-                    #endif
+#endif
                 }
                 else if (format.ToUpperInvariant() != "HTML")
                 {
@@ -117,7 +118,7 @@ namespace RobloxApiDumpTool
 
                 File.WriteAllText(exportPath, result);
 
-                #if !CLI
+#if !CLI
                 if (isPng && OperatingSystem.IsWindowsVersionAtLeast(6, 1))
                 {
                     using var bitmap = await ApiDumpTool.RenderApiDump(exportPath);
@@ -135,7 +136,7 @@ namespace RobloxApiDumpTool
 
                     Process.Start(procInfo);
                 }
-                #endif
+#endif
 
                 return true;
             }
@@ -235,7 +236,7 @@ namespace RobloxApiDumpTool
 
                 File.WriteAllText(exportPath, result);
 
-                #if !CLI
+#if !CLI
                     if (isPng && OperatingSystem.IsWindowsVersionAtLeast(6, 1))
                     {
                         using (var bitmap = await ApiDumpTool.RenderApiDump(exportPath))
@@ -255,7 +256,7 @@ namespace RobloxApiDumpTool
 
                         Process.Start(procInfo);
                     }
-                #endif
+#endif
 
                 return true;
             }
@@ -267,7 +268,7 @@ namespace RobloxApiDumpTool
                 string currentPath = null;
                 string prevPath = null;
 
-                StudioDeployLogs logs = await StudioDeployLogs.Get(LIVE, true);
+                StudioDeployLogs logs = await StudioDeployLogs.Get();
                 DeployLog currentLog = null;
                 DeployLog prevLog = null;
 
@@ -395,25 +396,33 @@ namespace RobloxApiDumpTool
 
                     File.WriteAllText(historyPath, history);
                 }
+                
+                // Write version.txt
+                string versionPath = Path.Combine(dir, "version.txt");
+                File.WriteAllText(versionPath, currentData.Version);
 
-                Directory.SetCurrentDirectory(dir);
-
-                var git = new Action<string>((input) =>
+                if (argMap.ContainsKey("-commit"))
                 {
-                    var gitExecute = Process.Start(new ProcessStartInfo
+                    // Commit changes to git
+                    Directory.SetCurrentDirectory(dir);
+
+                    var git = new Action<string>((input) =>
                     {
-                        FileName = "git",
-                        Arguments = input,
-                        CreateNoWindow = true,
-                        UseShellExecute = false
+                        var gitExecute = Process.Start(new ProcessStartInfo
+                        {
+                            FileName = "git",
+                            Arguments = input,
+                            CreateNoWindow = true,
+                            UseShellExecute = false
+                        });
+
+                        gitExecute.WaitForExit();
                     });
 
-                    gitExecute.WaitForExit();
-                });
-
-                git("add .");
-                git($"commit -m \"{currentLog}\"");
-                git("push");
+                    git("add .");
+                    git($"commit -m \"{currentLog}\"");
+                    git("push");
+                }
 
                 return true;
             }
