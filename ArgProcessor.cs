@@ -237,25 +237,25 @@ namespace RobloxApiDumpTool
                 File.WriteAllText(exportPath, result);
 
 #if !CLI
-                    if (isPng && OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+                if (isPng && OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+                {
+                    using (var bitmap = await ApiDumpTool.RenderApiDump(exportPath))
                     {
-                        using (var bitmap = await ApiDumpTool.RenderApiDump(exportPath))
-                        {
-                            exportPath = exportPath.Replace(".html", ".png");
-                            bitmap.Save(exportPath);
-                        }
+                        exportPath = exportPath.Replace(".html", ".png");
+                        bitmap.Save(exportPath);
                     }
+                }
 
-                    if (argMap.ContainsKey("-start") || isDiffLog)
+                if (argMap.ContainsKey("-start") || isDiffLog)
+                {
+                    var procInfo = new ProcessStartInfo()
                     {
-                        var procInfo = new ProcessStartInfo()
-                        {
-                            FileName = exportPath,
-                            UseShellExecute = true,
-                        };
+                        FileName = exportPath,
+                        UseShellExecute = true,
+                    };
 
-                        Process.Start(procInfo);
-                    }
+                    Process.Start(procInfo);
+                }
 #endif
 
                 return true;
