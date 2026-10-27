@@ -24,36 +24,36 @@ Here's an example of what it generates for the AnimationTrack class:
 
 ```
 Class AnimationTrack : Instance [NotCreatable]
-	Property AnimationTrack.Animation: Animation? [ReadOnly] {🚧Animation}
-	Property AnimationTrack.IsPlaying: boolean [ReadOnly] {🚧Animation} {🚀SimAccess}
-	Property AnimationTrack.Length: number [ReadOnly] {🚧Animation}
-	Property AnimationTrack.Looped: boolean {🚧Animation} {🚀SimAccess}
-	Property AnimationTrack.Priority: Enum.AnimationPriority {🚧Animation} {🚀SimAccess}
-	Property AnimationTrack.Speed: number [ReadOnly] {🚧Animation} {🚀SimAccess}
-	Property AnimationTrack.TimePosition: number [NotReplicated] {🚧Animation} [📁LoadOnly] {🚀SimAccess}
-	Property AnimationTrack.WeightCurrent: number [ReadOnly] {🚧Animation} {🚀SimAccess}
-	Property AnimationTrack.WeightTarget: number [ReadOnly] {🚧Animation} {🚀SimAccess}
-	Function AnimationTrack:AdjustSpeed(speed: number? = 1) -> () [CustomLuaState] {🚧Animation} {🚀SimAccess}
-	Function AnimationTrack:AdjustWeight(weight: number? = 1, fadeTime: number? = 0.100000001) -> () [CustomLuaState] {🚧Animation} {🚀SimAccess}
-	Function AnimationTrack:GetMarkerReachedSignal(name: string) -> RBXScriptSignal {🚧Animation}
-	Function AnimationTrack:GetParameter(key: string) -> any {🚧Animation} {🚀SimAccess}
-	Function AnimationTrack:GetParameterDefaults() -> { [string]: any } {🚧Animation}
-	Function AnimationTrack:GetTargetInstance(name: string) -> Instance? {🚧Animation}
-	Function AnimationTrack:GetTargetNames() -> { any } {🚧Animation}
-	Function AnimationTrack:GetTimeOfKeyframe(keyframeName: string) -> number {🚧Animation}
-	Function AnimationTrack:Play(fadeTime: number? = 0.100000001, weight: number? = 1, speed: number? = 1) -> () [CustomLuaState] {🚧Animation} {🚀SimAccess}
-	Function AnimationTrack:SetParameter(key: string, value: any) -> () {🚧Animation} {🚀SimAccess}
-	Function AnimationTrack:SetTargetInstance(name: string, target: Instance) -> () {🚧Animation}
-	Function AnimationTrack:Stop(fadeTime: number? = 0.100000001) -> () [CustomLuaState] {🚧Animation} {🚀SimAccess}
-	Function AnimationTrack:GetDebugData() -> { [string]: any } {🚧Animation} {🔒RobloxScript}
-	Function AnimationTrack:ResetGraph() -> () {🚧Animation} {🔒RobloxScript}
-	Function AnimationTrack:UpdateGraphNodeDefinition(nodeId: string, nodeDefinition: Instance) -> boolean {🚧Animation} {🔒RobloxScript}
-	Function AnimationTrack:UpdateGraphNodeProperty(nodeId: string, propertyName: string, value: any, inputPinName: string? = "") -> boolean {🚧Animation} {🔒RobloxScript}
-	Event AnimationTrack.DidLoop() {🚧Animation}
-	Event AnimationTrack.Ended() {🚧Animation}
-	Event AnimationTrack.KeyframeReached(keyframeName: string) {🚧Animation}
-	Event AnimationTrack.Stopped() {🚧Animation}
-	Event AnimationTrack.ParameterChanged(key: string, value: any) {🚧Animation} {🔒RobloxScript}
+    Property AnimationTrack.Animation: Animation? [ReadOnly] {🚧Animation}
+    Property AnimationTrack.IsPlaying: boolean [ReadOnly] {🚧Animation} {🚀SimAccess}
+    Property AnimationTrack.Length: number [ReadOnly] {🚧Animation}
+    Property AnimationTrack.Looped: boolean {🚧Animation} {🚀SimAccess}
+    Property AnimationTrack.Priority: Enum.AnimationPriority {🚧Animation} {🚀SimAccess}
+    Property AnimationTrack.Speed: number [ReadOnly] {🚧Animation} {🚀SimAccess}
+    Property AnimationTrack.TimePosition: number [NotReplicated] {🚧Animation} [📁LoadOnly] {🚀SimAccess}
+    Property AnimationTrack.WeightCurrent: number [ReadOnly] {🚧Animation} {🚀SimAccess}
+    Property AnimationTrack.WeightTarget: number [ReadOnly] {🚧Animation} {🚀SimAccess}
+    Function AnimationTrack:AdjustSpeed(speed: number? = 1) -> () [CustomLuaState] {🚧Animation} {🚀SimAccess}
+    Function AnimationTrack:AdjustWeight(weight: number? = 1, fadeTime: number? = 0.100000001) -> () [CustomLuaState] {🚧Animation} {🚀SimAccess}
+    Function AnimationTrack:GetMarkerReachedSignal(name: string) -> RBXScriptSignal {🚧Animation}
+    Function AnimationTrack:GetParameter(key: string) -> any {🚧Animation} {🚀SimAccess}
+    Function AnimationTrack:GetParameterDefaults() -> { [string]: any } {🚧Animation}
+    Function AnimationTrack:GetTargetInstance(name: string) -> Instance? {🚧Animation}
+    Function AnimationTrack:GetTargetNames() -> { any } {🚧Animation}
+    Function AnimationTrack:GetTimeOfKeyframe(keyframeName: string) -> number {🚧Animation}
+    Function AnimationTrack:Play(fadeTime: number? = 0.100000001, weight: number? = 1, speed: number? = 1) -> () [CustomLuaState] {🚧Animation} {🚀SimAccess}
+    Function AnimationTrack:SetParameter(key: string, value: any) -> () {🚧Animation} {🚀SimAccess}
+    Function AnimationTrack:SetTargetInstance(name: string, target: Instance) -> () {🚧Animation}
+    Function AnimationTrack:Stop(fadeTime: number? = 0.100000001) -> () [CustomLuaState] {🚧Animation} {🚀SimAccess}
+    Function AnimationTrack:GetDebugData() -> { [string]: any } {🚧Animation} {🔒RobloxScript}
+    Function AnimationTrack:ResetGraph() -> () {🚧Animation} {🔒RobloxScript}
+    Function AnimationTrack:UpdateGraphNodeDefinition(nodeId: string, nodeDefinition: Instance) -> boolean {🚧Animation} {🔒RobloxScript}
+    Function AnimationTrack:UpdateGraphNodeProperty(nodeId: string, propertyName: string, value: any, inputPinName: string? = "") -> boolean {🚧Animation} {🔒RobloxScript}
+    Event AnimationTrack.DidLoop() {🚧Animation}
+    Event AnimationTrack.Ended() {🚧Animation}
+    Event AnimationTrack.KeyframeReached(keyframeName: string) {🚧Animation}
+    Event AnimationTrack.Stopped() {🚧Animation}
+    Event AnimationTrack.ParameterChanged(key: string, value: any) {🚧Animation} {🔒RobloxScript}
 ```
 
 ## API Changes
@@ -63,18 +63,18 @@ Here are the API changes that were generated from this tool for Roblox v721:
 
 ```
 Added Class ScriptDebuggerService : Instance [🏷️NotCreatable] [🏷️NotReplicated] [🏷️Service]
-	Added Function ScriptDebuggerService:AddBreakpoint(scriptInstance: LuaSourceContainer, breakpoint: { [any]: any }) -> { [any]: any } {🔒Plugin}
-	Added Function ScriptDebuggerService:ClearBreakpoints() -> () {🔒Plugin}
-	Added Function ScriptDebuggerService:Evaluate(expression: string, frameId: number?) -> { [any]: any } {🔒Plugin}
-	Added Function ScriptDebuggerService:GetRootVariables(frameId: number) -> { any } {🔒Plugin}
-	Added Function ScriptDebuggerService:GetStackTrace(threadId: number, startFrame: number?) -> { [any]: any } {🔒Plugin}
-	Added Function ScriptDebuggerService:GetThreads() -> { any } {🔒Plugin}
-	Added Function ScriptDebuggerService:GetVariables(variablesReference: number) -> { any } {🔒Plugin}
-	Added Function ScriptDebuggerService:Pause() -> () {🔒Plugin}
-	Added Function ScriptDebuggerService:RemoveBreakpoint(scriptInstance: LuaSourceContainer, line: number) -> boolean {🔒Plugin}
-	Added Function ScriptDebuggerService:SetExceptionBreakMode(breakMode: Enum.DebugBreakModeType) -> () {🔒Plugin}
-	Added Event ScriptDebuggerService.Resumed(threadIds: { any }) {🔒Plugin}
-	Added Callback ScriptDebuggerService.OnStopped(stopped: { [any]: any }) -> { [any]: any } {🔒Plugin}
+    Added Function ScriptDebuggerService:AddBreakpoint(scriptInstance: LuaSourceContainer, breakpoint: { [any]: any }) -> { [any]: any } {🔒Plugin}
+    Added Function ScriptDebuggerService:ClearBreakpoints() -> () {🔒Plugin}
+    Added Function ScriptDebuggerService:Evaluate(expression: string, frameId: number?) -> { [any]: any } {🔒Plugin}
+    Added Function ScriptDebuggerService:GetRootVariables(frameId: number) -> { any } {🔒Plugin}
+    Added Function ScriptDebuggerService:GetStackTrace(threadId: number, startFrame: number?) -> { [any]: any } {🔒Plugin}
+    Added Function ScriptDebuggerService:GetThreads() -> { any } {🔒Plugin}
+    Added Function ScriptDebuggerService:GetVariables(variablesReference: number) -> { any } {🔒Plugin}
+    Added Function ScriptDebuggerService:Pause() -> () {🔒Plugin}
+    Added Function ScriptDebuggerService:RemoveBreakpoint(scriptInstance: LuaSourceContainer, line: number) -> boolean {🔒Plugin}
+    Added Function ScriptDebuggerService:SetExceptionBreakMode(breakMode: Enum.DebugBreakModeType) -> () {🔒Plugin}
+    Added Event ScriptDebuggerService.Resumed(threadIds: { any }) {🔒Plugin}
+    Added Callback ScriptDebuggerService.OnStopped(stopped: { [any]: any }) -> { [any]: any } {🔒Plugin}
 
 Added Property Studio.PreferredTextSize: Enum.PreferredTextSize
 Added Property VideoFrame.MaximumResolution: Enum.VideoSampleSize {🚧Audio + UI}
@@ -99,31 +99,31 @@ Added Function TestService:CaptureScreenshotAsync(artifactName: string? = "", op
 Added Function AssetQualityService:FetchAssetQualitySummaryFromJobIdAsync(jobId: string, desiredQualityChecks: { any }) -> { [any]: any } {🔒RobloxScript} [🏷️Yields]
 
 Added Enum AssetRepresentation
-	Added EnumItem AssetRepresentation.FullLength : 0
-	Added EnumItem AssetRepresentation.ShortPreview : 1
+    Added EnumItem AssetRepresentation.FullLength : 0
+    Added EnumItem AssetRepresentation.ShortPreview : 1
 
 Added Enum DebugBreakModeType
-	Added EnumItem DebugBreakModeType.Never : 0
-	Added EnumItem DebugBreakModeType.Always : 1
-	Added EnumItem DebugBreakModeType.Unhandled : 2
+    Added EnumItem DebugBreakModeType.Never : 0
+    Added EnumItem DebugBreakModeType.Always : 1
+    Added EnumItem DebugBreakModeType.Unhandled : 2
 
 Added Enum DebuggerResumeType
-	Added EnumItem DebuggerResumeType.StepInto : 0
-	Added EnumItem DebuggerResumeType.StepOut : 1
-	Added EnumItem DebuggerResumeType.StepOver : 2
-	Added EnumItem DebuggerResumeType.Resume : 3
+    Added EnumItem DebuggerResumeType.StepInto : 0
+    Added EnumItem DebuggerResumeType.StepOut : 1
+    Added EnumItem DebuggerResumeType.StepOver : 2
+    Added EnumItem DebuggerResumeType.Resume : 3
 
 Added Enum ScriptStoppedReason
-	Added EnumItem ScriptStoppedReason.Breakpoint : 0
-	Added EnumItem ScriptStoppedReason.Exception : 1
-	Added EnumItem ScriptStoppedReason.Pause : 2
-	Added EnumItem ScriptStoppedReason.Step : 3
-	Added EnumItem ScriptStoppedReason.Entry : 4
+    Added EnumItem ScriptStoppedReason.Breakpoint : 0
+    Added EnumItem ScriptStoppedReason.Exception : 1
+    Added EnumItem ScriptStoppedReason.Pause : 2
+    Added EnumItem ScriptStoppedReason.Step : 3
+    Added EnumItem ScriptStoppedReason.Entry : 4
 
 Added Enum ScriptVariableScope
-	Added EnumItem ScriptVariableScope.Local : 0
-	Added EnumItem ScriptVariableScope.Upvalue : 1
-	Added EnumItem ScriptVariableScope.Global : 2
+    Added EnumItem ScriptVariableScope.Local : 0
+    Added EnumItem ScriptVariableScope.Upvalue : 1
+    Added EnumItem ScriptVariableScope.Global : 2
 
 Added EnumItem CollisionFidelity.Scalable : 4
 Added EnumItem ConnectionError.PlacelaunchVipOwnerNotPresent : 541
@@ -132,11 +132,11 @@ Added EnumItem ImageCombineType.NormalMapBlend : 6
 Added Tag [🏷️NotReplicated] to Property UICorner.CornerRadius
 
 Changed the read permissions, serialization and category of Property UICorner.BottomLeftRadius
-	from: {🔍RobloxScript} [🚫None] "Data"
-	  to: {🔒None} [💾|📁Serialized] "Individual Corners"
+    from: {🔍RobloxScript} [🚫None] "Data"
+      to: {🔒None} [💾|📁Serialized] "Individual Corners"
 
 Changed the read permissions, serialization and category of Property UICorner.BottomRightRadius
-	from: {🔍RobloxScript} [🚫None] "Data"
+    from: {🔍RobloxScript} [🚫None] "Data"
       to: {🔒None} [💾|📁Serialized] "Individual Corners"
 
 Changed the read permissions, serialization and category of Property UICorner.TopLeftRadius
