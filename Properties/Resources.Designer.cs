@@ -19,7 +19,7 @@ namespace RobloxApiDumpTool.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -63,51 +63,38 @@ namespace RobloxApiDumpTool.Properties {
         /// <summary>
         ///   Looks up a localized string similar to /* API Dump CSS (Version 1.10) */
         ///
-        ///body
-        ///{
+        ///body {
         ///	background-color: #151515;
         ///	color: white;
-        ///	font-family: Courier New;
+        ///	font-family: Consolas;
         ///	white-space: nowrap;
         ///	padding: 10px;
         ///}
         ///
-        ///::before
-        ///{
+        ///.boolean,
+        ///span.TagChange,
+        ///span[class^=&quot;DescriptorType&quot;],
+        ///span[class^=&quot;DiffType&quot;] {
         ///	font-weight: bold;
         ///}
         ///
-        ///.Class::before,
-        ///.Enum::before,
-        ///.EnumItem::before
-        ///{
-        ///	color: #FF6400;	
+        ///.boolean,
+        ///.DescriptorType.Enum,
+        ///.DescriptorType.Class,
+        ///.DescriptorType.EnumItem {
+        ///	color: #FF6400;
         ///}
         ///
-        ///.Class::before
-        ///{
-        ///	content: &quot;Class&quot;;
-        ///}
-        ///
-        ///.Enum::before
-        ///{
-        ///	content: &quot;Enum&quot;;
-        ///}
-        ///
-        ///.EnumItem::before
-        ///{
-        ///	content: &quot;EnumItem&quot;;
-        ///}
-        ///
-        ///.Property::before
-        ///{
-        ///	content: &quot;Property&quot;;
+        ///.DescriptorType.Property {
         ///	color: #00FFFF;
         ///}
         ///
-        ///.Function::before
-        ///{
-        ///	con [rest of string was truncated]&quot;;.
+        ///.DescriptorType.Function {
+        ///	color: #00FF00;
+        ///}
+        ///
+        ///.DescriptorType.Event {
+        ///	co [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ApiDumpStyler {
             get {

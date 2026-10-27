@@ -25,6 +25,16 @@ namespace RobloxApiDumpTool
             if (argMap.ContainsKey("-format"))
                 format = argMap["-format"];
 
+            #if CLI
+
+                if (format.Equals("PNG", StringComparison.OrdinalIgnoreCase))
+                    throw new NotSupportedException("PNG rendering is only available in the Windows GUI build. Use TXT, JSON, or HTML.");
+
+                if (argMap.ContainsKey("-start"))
+                    throw new NotSupportedException("The CLI build does not open desktop applications. Omit -start.");
+
+            #endif
+
             if (argMap.ContainsKey("-full"))
                 full = true;
 
@@ -57,18 +67,16 @@ namespace RobloxApiDumpTool
 
                 if (argMap.ContainsKey("-outdir"))
                     exportBin = argMap["-outdir"];
-                else
-                    Directory.CreateDirectory(exportBin);
+
+                Directory.CreateDirectory(exportBin);
+                string exportName = File.Exists(channel) ? Path.GetFileNameWithoutExtension(channel) : channel;
 
                 if (format.ToUpperInvariant() == "JSON")
                 {
-                    string jsonPath = Path.Combine(exportBin, channel + ".json");
+                    string jsonPath = Path.Combine(exportBin, exportName + ".json");
                     File.Copy(apiFilePath, jsonPath);
                     return true;
                 }
-
-                var lastLog = await ApiDumpTool.GetLastDeployLog(channel);
-                var version = lastLog.VersionId;
 
                 var api = new ReflectionDatabase(apiFilePath, schema);
                 var dumper = new ReflectionDumper(api);
@@ -81,9 +89,11 @@ namespace RobloxApiDumpTool
 
                 if (format.ToUpperInvariant() == "PNG")
                 {
+                    #if !CLI
                     isPng = true;
                     format = "html";
                     result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml);
+                    #endif
                 }
                 else if (format.ToUpperInvariant() != "HTML")
                 {
@@ -96,7 +106,7 @@ namespace RobloxApiDumpTool
                     result = dumper.DumpApi(ReflectionDumper.DumpUsingHtml);
                 }
 
-                string exportPath = Path.Combine(exportBin, channel + '.' + format);
+                string exportPath = Path.Combine(exportBin, exportName + '.' + format);
 
                 if (format == "html" || format == "png")
                 {
@@ -107,21 +117,25 @@ namespace RobloxApiDumpTool
 
                 File.WriteAllText(exportPath, result);
 
-                if (isPng)
+                #if !CLI
+                if (isPng && OperatingSystem.IsWindowsVersionAtLeast(6, 1))
                 {
-                    using (var bitmap = await ApiDumpTool.RenderApiDump(exportPath))
-                    {
-                        exportPath = Path.Combine(exportBin, channel + ".png");
-                        bitmap.Save(exportPath);
-                    }
+                    using var bitmap = await ApiDumpTool.RenderApiDump(exportPath);
+                    exportPath = Path.Combine(exportBin, channel + ".png");
+                    bitmap.Save(exportPath);
                 }
 
                 if (argMap.ContainsKey("-start"))
-                    Process.Start(new ProcessStartInfo()
+                {
+                    var procInfo = new ProcessStartInfo()
                     {
                         FileName = exportPath,
                         UseShellExecute = true,
-                    });
+                    };
+
+                    Process.Start(procInfo);
+                }
+                #endif
 
                 return true;
             }
@@ -221,28 +235,32 @@ namespace RobloxApiDumpTool
 
                 File.WriteAllText(exportPath, result);
 
-                if (isPng)
-                {
-                    using (var bitmap = await ApiDumpTool.RenderApiDump(exportPath))
+                #if !CLI
+                    if (isPng && OperatingSystem.IsWindowsVersionAtLeast(6, 1))
                     {
-                        exportPath = exportPath.Replace(".html", ".png");
-                        bitmap.Save(exportPath);
+                        using (var bitmap = await ApiDumpTool.RenderApiDump(exportPath))
+                        {
+                            exportPath = exportPath.Replace(".html", ".png");
+                            bitmap.Save(exportPath);
+                        }
                     }
-                }
 
-                if (argMap.ContainsKey("-start") || isDiffLog)
-                    Process.Start(new ProcessStartInfo()
+                    if (argMap.ContainsKey("-start") || isDiffLog)
                     {
-                        FileName = exportPath,
-                        UseShellExecute = true,
-                    });
+                        var procInfo = new ProcessStartInfo()
+                        {
+                            FileName = exportPath,
+                            UseShellExecute = true,
+                        };
+
+                        Process.Start(procInfo);
+                    }
+                #endif
 
                 return true;
             }
-            else if (argMap.ContainsKey("-updatePages"))
+            else if (argMap.TryGetValue("-updatePages", out string dir))
             {
-                string dir = argMap["-updatePages"];
-
                 if (!Directory.Exists(dir))
                     return false;
 
@@ -289,10 +307,9 @@ namespace RobloxApiDumpTool
                     }
                     else
                     {
-                        var logQuery = logs.CurrentLogs_x86
-                            .Union(logs.CurrentLogs_x64)
+                        var logQuery = logs.CurrentLogs
                             .Where(log => log.Version == version)
-                            .OrderBy(log => log.Changelist);
+                            .OrderBy(log => log.CommitId);
 
                         currentLog = logQuery.Last();
                     }
@@ -303,16 +320,15 @@ namespace RobloxApiDumpTool
                 else
                 {
                     var versionGuid = await ApiDumpTool.GetVersion(LIVE);
-                    var logQuery = logs.CurrentLogs_x64.Where(log => log.VersionGuid == versionGuid);
+                    var logQuery = logs.CurrentLogs.Where(log => log.VersionGuid == versionGuid);
                     currentLog = logQuery.FirstOrDefault();
                 }
 
                 if (currentPath == null && currentLog != null)
                 {
-                    prevLog = logs.CurrentLogs_x86
-                        .Union(logs.CurrentLogs_x64)
+                    prevLog = logs.CurrentLogs
                         .Where(log => log.Version < currentLog.Version)
-                        .OrderBy(log => log.Changelist)
+                        .OrderBy(log => log.CommitId)
                         .LastOrDefault();
 
                     currentPath = await ApiDumpTool.GetApiDumpFilePath(LIVE, currentLog.VersionGuid, schema, useLegacyChannelUrl: true);

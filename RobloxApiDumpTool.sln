@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.3.32929.385
+# Visual Studio Version 18
+VisualStudioVersion = 18.11.12315.225 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobloxApiDumpTool", "RobloxApiDumpTool.csproj", "{585EAB66-7C64-482D-8619-2D2EB972CFC9}"
 EndProject
@@ -11,14 +11,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobloxDeployHistory", "..\R
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Cli|x64 = Cli|x64
 		Debug|x64 = Debug|x64
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{585EAB66-7C64-482D-8619-2D2EB972CFC9}.Cli|x64.ActiveCfg = Cli|Any CPU
+		{585EAB66-7C64-482D-8619-2D2EB972CFC9}.Cli|x64.Build.0 = Cli|Any CPU
 		{585EAB66-7C64-482D-8619-2D2EB972CFC9}.Debug|x64.ActiveCfg = Debug|AnyCPU
 		{585EAB66-7C64-482D-8619-2D2EB972CFC9}.Debug|x64.Build.0 = Debug|AnyCPU
 		{585EAB66-7C64-482D-8619-2D2EB972CFC9}.Release|x64.ActiveCfg = Release|AnyCPU
 		{585EAB66-7C64-482D-8619-2D2EB972CFC9}.Release|x64.Build.0 = Release|AnyCPU
+		{1CE1A9DF-C2FF-49C4-9B7C-792C962C339F}.Cli|x64.ActiveCfg = Cli|Any CPU
+		{1CE1A9DF-C2FF-49C4-9B7C-792C962C339F}.Cli|x64.Build.0 = Cli|Any CPU
 		{1CE1A9DF-C2FF-49C4-9B7C-792C962C339F}.Debug|x64.ActiveCfg = Debug|AnyCPU
 		{1CE1A9DF-C2FF-49C4-9B7C-792C962C339F}.Debug|x64.Build.0 = Debug|AnyCPU
 		{1CE1A9DF-C2FF-49C4-9B7C-792C962C339F}.Release|x64.ActiveCfg = Release|AnyCPU

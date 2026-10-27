@@ -1,18 +1,24 @@
 using System;
-using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
+using System.Net.Http;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
-using RobloxDeployHistory;
-using Microsoft.Win32;
 using System.Collections.Generic;
+using RobloxDeployHistory;
+
+
+#if !CLI
+using System.Text;
+using System.Drawing;
+using System.Threading;
+using System.Diagnostics;
+using System.Windows.Forms;
+using System.Runtime.Versioning;
+
+using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
+#endif
 
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -25,19 +31,24 @@ namespace RobloxApiDumpTool
         V2,
     }
 
+#if CLI
+    public class ApiDumpTool
+#else
+    [SupportedOSPlatform("windows")]
     public partial class ApiDumpTool : Form
+#endif
     {
-        public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
         private const string API_DUMP_CSS_FILE = "api-dump.css";
-        private const string LIVE = Program.LIVE;
         private const string CDN_COMMON_BASE_URL = "https://setup.rbxcdn.com/channel/common";
 
+#if !CLI
+        private const string LIVE = Program.LIVE;
         private delegate void StatusDelegate(string msg);
         private delegate string ItemDelegate(ComboBox comboBox);
-
-        private static readonly WebClient http = new WebClient();
+        public static RegistryKey VersionRegistry => Program.GetMainRegistryKey("Current Versions");
         private static TaskCompletionSource<Bitmap> renderFinished;
-
+#endif
+        private static readonly HttpClient http = new HttpClient();
         private static BuildMetadata buildMetadata;
 
         private static readonly IReadOnlyDictionary<ApiDumpSchema, string> SchemaMap = new Dictionary<ApiDumpSchema, string>()
@@ -47,6 +58,7 @@ namespace RobloxApiDumpTool
             { ApiDumpSchema.V2, "API-Dump-2" }
         };
 
+#if !CLI
         private class ChannelResolution
         {
             public Channel Channel;
@@ -113,6 +125,7 @@ namespace RobloxApiDumpTool
             }
         }
 
+#endif
         public static async Task<DeployLog> GetLastDeployLog(string channel)
         {
             var history = await StudioDeployLogs.Get(true, channel);
@@ -130,6 +143,7 @@ namespace RobloxApiDumpTool
             return log.VersionGuid;
         }
 
+#if !CLI
         private void setStatus(string msg = "")
         {
             if (InvokeRequired)
@@ -171,6 +185,7 @@ namespace RobloxApiDumpTool
         private static void writeAndViewFile(string path, string contents)
         {
             writeFile(path, contents);
+
             Process.Start(new ProcessStartInfo()
             {
                 FileName = path,
@@ -196,27 +211,23 @@ namespace RobloxApiDumpTool
             browser.DrawToBitmap(apiRender, size);
 
             // Fill in some extra space on the right that we missed.
-            using (Graphics graphics = Graphics.FromImage(apiRender))
-            {
-                Color backColor = apiRender.GetPixel(0, 0);
+            using var graphics = Graphics.FromImage(apiRender);
+            Color backColor = apiRender.GetPixel(0, 0);
+            using var brush = new SolidBrush(backColor);
 
-                using (Brush brush = new SolidBrush(backColor))
-                {
-                    Rectangle fillArea = new Rectangle
-                    (
-                        width - extraWidth, 0,
-                        extraWidth, height
-                    );
+            var fillArea = new Rectangle
+            (
+                width - extraWidth, 0,
+                extraWidth, height
+            );
 
-                    graphics.FillRectangle(brush, fillArea);
-                }
-            }
+            graphics.FillRectangle(brush, fillArea);
 
             // Apply some random noise and transparency to the edges.
             // Doing this so websites like Twitter can't force the image
             // to use lossy compression. Its a nice little hack :)
 
-            Random rng = new Random();
+            var rng = new Random();
 
             var addNoise = new Action<int, int>((x, y) =>
             {
@@ -254,10 +265,11 @@ namespace RobloxApiDumpTool
             browser.Dispose();
             Application.ExitThread();
         }
+#endif
 
         public static string GetWorkDirectory()
         {
-            string localAppData = Environment.GetEnvironmentVariable("LocalAppData");
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
             string workDir = Path.Combine(localAppData, "RobloxApiDumpFiles");
             Directory.CreateDirectory(workDir);
@@ -272,7 +284,19 @@ namespace RobloxApiDumpTool
                 workDir = GetWorkDirectory();
 
             string apiDumpCss = Path.Combine(workDir, API_DUMP_CSS_FILE);
-            File.WriteAllText(apiDumpCss, Properties.Resources.ApiDumpStyler);
+#if CLI
+            var assembly = typeof(ApiDumpTool).Assembly;
+            const string resourceName = "RobloxApiDumpTool.Resources.api-dump.css";
+
+            using var stream = assembly.GetManifestResourceStream(resourceName);
+            using var reader = new StreamReader(stream);
+
+            string cssContent = reader.ReadToEnd();
+#else
+            string cssContent = Properties.Resources.ApiDumpStyler;
+#endif
+
+            File.WriteAllText(apiDumpCss, cssContent);
 
             return "<head>\n"
                  + "\t<link rel=\"stylesheet\" href=\"" + API_DUMP_CSS_FILE + "\">\n"
@@ -280,6 +304,7 @@ namespace RobloxApiDumpTool
                  + result.Trim();
         }
 
+#if !CLI
         public static async Task<Bitmap> RenderApiDump(string htmlFilePath)
         {
             var docReady = new WebBrowserDocumentCompletedEventHandler(onDocumentComplete);
@@ -298,7 +323,6 @@ namespace RobloxApiDumpTool
             });
 
             renderFinished = new TaskCompletionSource<Bitmap>();
-
             renderThread.SetApartmentState(ApartmentState.STA);
             renderThread.Start();
 
@@ -307,6 +331,7 @@ namespace RobloxApiDumpTool
 
             return apiRender;
         }
+#endif
 
         public static async Task<string> GetApiDumpFilePath(Channel channel, string versionGuid, ApiDumpSchema schema, Action<string> setStatus = null, bool useLegacyChannelUrl = false)
         {
@@ -314,13 +339,14 @@ namespace RobloxApiDumpTool
             string fileName = SchemaMap[schema];
 
             string baseUrl = useLegacyChannelUrl ? channel.BaseUrl : CDN_COMMON_BASE_URL;
-            string apiUrl = $"{baseUrl}/{versionGuid}-{fileName}.json";
             string file = Path.Combine(coreBin, $"{versionGuid}-{fileName}.json");
 
             if (!File.Exists(file))
             {
+                string apiUrl = $"{baseUrl}/{versionGuid}-{fileName}.json";
                 setStatus?.Invoke("Grabbing API Dump for " + channel);
-                string apiDump = await http.DownloadStringTaskAsync(apiUrl);
+
+                string apiDump = await http.GetStringAsync(apiUrl);
                 File.WriteAllText(file, apiDump);
             }
             else
@@ -399,12 +425,18 @@ namespace RobloxApiDumpTool
             if (fetchPrevious)
                 channel += "-prev";
 
-            VersionRegistry.SetValue(channel, versionGuid);
-            clearOldVersionFiles();
+#if !CLI
+            if (OperatingSystem.IsWindows())
+            {
+                VersionRegistry.SetValue(channel, versionGuid);
+                clearOldVersionFiles();
+            }
+#endif
 
             return file;
         }
 
+#if !CLI
         private async Task<string> getApiDumpFilePath(Channel channel, ApiDumpSchema schema, bool fetchPrevious = false)
         {
             return await GetApiDumpFilePath(channel, schema, setStatus, fetchPrevious);
@@ -454,7 +486,7 @@ namespace RobloxApiDumpTool
                 if (!channelObj.Equals(LIVE))
                     url += $"/channel/{channelName}";
 
-                string json = await http.DownloadStringTaskAsync(url);
+                string json = await http.GetStringAsync(url);
                 var data = JObject.Parse(json);
 
                 return new ChannelResolution
@@ -707,7 +739,7 @@ namespace RobloxApiDumpTool
                     channelToken.Clear();
             }
         }
-
+        
         private static void clearOldVersionFiles()
         {
             string workDir = GetWorkDirectory();
@@ -737,8 +769,6 @@ namespace RobloxApiDumpTool
 
         private void ApiDumpTool_Load(object sender, EventArgs e)
         {
-            WebRequest.DefaultWebProxy = null;
-
             channel_TextChanged(this, EventArgs.Empty);
             loadSelectedIndex(apiDumpFormat, "PreferredFormat");
         }
@@ -757,7 +787,7 @@ namespace RobloxApiDumpTool
             string apiUrl = $"{CDN_COMMON_BASE_URL}/{versionGuid}-{fileName}.json";
             string file = Path.Combine(tempDir, $"{versionGuid}-{fileName}.json");
 
-            string apiDump = await http.DownloadStringTaskAsync(apiUrl);
+            string apiDump = await http.GetStringAsync(apiUrl);
             File.WriteAllText(file, apiDump);
 
             return file;
@@ -788,5 +818,6 @@ namespace RobloxApiDumpTool
                 // Best-effort cleanup only.
             }
         }
+#endif
     }
 }

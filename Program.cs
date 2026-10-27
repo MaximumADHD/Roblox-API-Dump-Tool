@@ -1,22 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
-using System.IO;
-using System.Net;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
+#if !CLI
+using System.IO;
+using System.Diagnostics;
+using System.Windows.Forms;
+using System.Runtime.Versioning;
 using Microsoft.Win32;
+#endif
 
 namespace RobloxApiDumpTool
 {
+    #if !CLI
+        // Windows only when building as GUI.
+        [SupportedOSPlatform("windows")]
+    #endif
+
     static class Program
     {
         public const string LIVE = "LIVE";
-        public static RegistryKey MainRegistry => GetRegistryKey(Registry.CurrentUser, "SOFTWARE", "Roblox API Dump Tool");
         public static readonly NumberFormatInfo NumberFormat = NumberFormatInfo.InvariantInfo;
         public const StringComparison StringFormat = StringComparison.InvariantCulture;
+
+    #if !CLI
+        public static RegistryKey MainRegistry => GetRegistryKey(Registry.CurrentUser, "SOFTWARE", "Roblox API Dump Tool");
 
         public static RegistryKey GetRegistryKey(RegistryKey root, params string[] subKeys)
         {
@@ -58,6 +66,7 @@ namespace RobloxApiDumpTool
         {
             return GetRegistryBool(MainRegistry, name);
         }
+    #endif
 
         static Dictionary<string, string> ReadArgs(params string[] args)
         {
@@ -89,12 +98,40 @@ namespace RobloxApiDumpTool
             return argMap;
         }
 
+    #if CLI
+        static int Main(string[] args)
+        {
+            if (args.Length == 0 || Array.Exists(args, arg => arg == "--help" || arg == "-help" || arg == "-h"))
+            {
+                Console.WriteLine("Roblox API Dump Tool (CLI)");
+                Console.WriteLine("    -export <channel|version|file> [-format TXT|JSON|HTML] [-full] [-outdir <directory>]");
+                Console.WriteLine("    -compare -old <channel|version|file> -new <channel|version|file> [-format TXT|HTML] [-full] [-out <file>]");
+                Console.WriteLine("    -difflog <version> [-out <file>]");
+                Console.WriteLine("    -updatePages <directory> [-version <version>] [-full] (commits and pushes with git)");
+                return 0;
+            }
+
+            try
+            {
+                var argDict = ReadArgs(args);
+                var task = ArgProcessor.Run(argDict);
+
+                if (task.GetAwaiter().GetResult())
+                    return 0;
+
+                Console.Error.WriteLine("Invalid arguments. Use --help for usage.");
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e.Message);
+            }
+
+            return 1;
+        }
+    #else
         [STAThread]
         static void Main(string[] args)
         {
-            // Set the security protocol to be used for HTTPS.
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
             // Set the browser emulation mode for
             // rendering generated html as an image.
             var browserEmulation = GetRegistryKey
@@ -134,5 +171,6 @@ namespace RobloxApiDumpTool
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new ApiDumpTool());
         }
+    #endif
     }
 }
