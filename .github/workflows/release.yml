@@ -1,0 +1,133 @@
+name: Release Roblox API Dump Tool
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/*.cs"
+      - "**/*.csproj"
+      - "**/*.sln"
+      - "Resources/**"
+      - "Properties/**"
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-api-dump-tool
+  cancel-in-progress: false
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Gui-win-x64
+            executable: RobloxApiDumpTool.exe
+            runner: windows-latest
+            runtime: win-x64
+            cli: "false"
+          - name: Cli-win-x64
+            executable: RobloxApiDumpTool.CLI.exe
+            runner: windows-latest
+            runtime: win-x64
+            cli: "true"
+          - name: Cli-linux-x64
+            executable: RobloxApiDumpToolCLI
+            runner: ubuntu-latest
+            runtime: linux-x64
+            cli: "true"
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: source/Roblox-API-Dump-Tool
+          persist-credentials: false
+
+      - name: Check out Deploy History dependency
+        uses: actions/checkout@v4
+        with:
+          repository: MaximumADHD/Roblox-Deploy-History
+          path: source/Roblox-Deploy-History
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Publish release build
+        shell: pwsh
+        env:
+          BUILD_RUNTIME: ${{ matrix.runtime }}
+          CLI_BUILD: ${{ matrix.cli }}
+        run: |
+          dotnet publish source/Roblox-API-Dump-Tool/RobloxApiDumpTool.csproj `
+              --configuration Release --runtime $env:BUILD_RUNTIME --self-contained true `
+              "-p:CliBuild=$env:CLI_BUILD" -p:PublishSingleFile=true --output publish
+          if ($LASTEXITCODE -ne 0) {
+              throw 'Publish failed.'
+          }
+
+      - name: Check CLI help
+        if: matrix.cli == 'true'
+        shell: pwsh
+        run: |
+          $extension = if ($env:RUNNER_OS -eq 'Windows') { '.exe' } else { '' }
+          & (Join-Path $PWD "publish/RobloxApiDumpTool$extension") --help
+          if ($LASTEXITCODE -ne 0) {
+              throw 'CLI help failed.'
+          }
+
+      - name: Stage release executable
+        shell: pwsh
+        env:
+          RELEASE_EXECUTABLE: ${{ matrix.executable }}
+        run: |
+          New-Item -ItemType Directory -Path artifacts | Out-Null
+          $extension = if ($env:RUNNER_OS -eq 'Windows') { '.exe' } else { '' }
+          Copy-Item "publish/RobloxApiDumpTool$extension" "artifacts/$env:RELEASE_EXECUTABLE"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.name }}
+          path: artifacts/*
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Publish GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          tag="$(date -u +v%Y.%m.%d).${RELEASE_COMMIT:0:7}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+              gh release upload "$tag" artifacts/* --clobber
+              gh release edit "$tag" --draft=false --prerelease=false --latest
+          else
+              gh release create "$tag" artifacts/* \
+                --target "$RELEASE_COMMIT" --title "$tag" \
+                --generate-notes --latest
+          fi
